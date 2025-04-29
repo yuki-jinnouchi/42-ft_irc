@@ -2,19 +2,23 @@
 #ifndef __IRC_SERVER_HPP__
 #define __IRC_SERVER_HPP__
 
+#include <set>
 #include <string>
-#include <vector>
 // #include "ClientSession.hpp"
+
+#define EPOLL_MAX_EVENTS 10
 
 class IRCServer {
  private:
+  int epfd_;  // epollのファイルディスクリプタ
   std::string port_;
   std::string password_;
-  std::vector<int> listenSocketFds_;
+  std::set<int> listenSocketFds_;
   // std::map<int, ClientSession*> clients_; // ソケットFD→クライアント
   // UserManager userManager_;
   // ChannelManager channelManager_;
   // Logger logger_;
+  void acceptConnection(int listenSocketFd);
 
  public:
   IRCServer(const char* port, const char* password);

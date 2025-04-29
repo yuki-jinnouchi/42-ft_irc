@@ -3,7 +3,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <errno.h>
 #include <netdb.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -15,6 +17,12 @@
 #define MAX_BACKLOG 5
 
 IRCServer::IRCServer(const char* port, const char* password) {
+  epfd_ = epoll_create1(EPOLL_CLOEXEC);
+  if (epfd_ == -1) {
+    std::cerr << "epoll_create failed\n";
+    exit(EXIT_FAILURE);
+  }
+
   // TODO: ポート番号のバリデーション
   std::istringstream ss(port);
   ss >> port_;
@@ -25,10 +33,14 @@ IRCServer::IRCServer(const char* port, const char* password) {
 
 IRCServer::~IRCServer() {
   // ソケットを閉じる
-  for (size_t i = 0; i < listenSocketFds_.size(); ++i) {
-    std::cout << "Shutdown IRC Server: socket fd: " << listenSocketFds_[i]
-              << std::endl;
-    close(listenSocketFds_[i]);
+  for (std::set<int>::iterator it = listenSocketFds_.begin();
+       it != listenSocketFds_.end(); ++it) {
+    std::cout << "Shutdown IRC Server: socket fd: " << *it << std::endl;
+    // listenSocketFds_の全てのソケットを閉じる
+    if (close(*it) == -1) {
+      std::cerr << "close failed" << std::endl;
+      exit(EXIT_FAILURE);
+    }
   }
   listenSocketFds_.clear();
   std::cout << "Server stopped." << std::endl;
@@ -85,7 +97,15 @@ void IRCServer::startListen() {
     }
     std::cerr << "Listening on port: " << port_ << ", fd: " << sockfd << " ("
               << ai->ai_family << ")..." << std::endl;
-    listenSocketFds_.push_back(sockfd);
+
+    // epollで監視
+    listenSocketFds_.insert(sockfd);
+    struct epoll_event ev;
+    ev.events = EPOLLIN; /* Only interested in input events */
+    ev.data.fd = sockfd;
+    if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
+      std::cerr << "epoll_ctl failed" << std::endl;
+    }
   }
   freeaddrinfo(res);  // アドレス情報の解放
   if (listenSocketFds_.empty()) {
@@ -94,13 +114,21 @@ void IRCServer::startListen() {
   }
 }
 
-void IRCServer::run() {
+void IRCServer::acceptConnection(int listenSocketFd) {
   sockaddr_storage addr;
   socklen_t addrlen = sizeof(addr);
-  std::cout << "------1" << std::endl;
-  int sockfd = accept(listenSocketFds_[0], (struct sockaddr*)&addr, &addrlen);
-  std::cout << "------2" << std::endl;
+  int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
   ClientSession client(sockfd);
+
+  // クライアントのソケットをepollで監視
+  struct epoll_event ev;
+  ev.events = EPOLLIN; /* Only interested in input events */
+  ev.data.fd = sockfd;
+  if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
+    std::cerr << "epoll_ctl failed" << std::endl;
+  }
+
+  // TODO 後で消す
   // 日付を返す
   time_t t;
   time(&t);
@@ -109,4 +137,35 @@ void IRCServer::run() {
   send(client.getSocketFd(), timestr, strlen(timestr), 0);
 }
 
-// void IRCServer::acceptConnection() {}
+void IRCServer::run() {
+  while (true) {
+    struct epoll_event evlist[EPOLL_MAX_EVENTS];
+    int ready = epoll_wait(epfd_, evlist, EPOLL_MAX_EVENTS, -1);
+    if (ready == -1) {
+      if (errno == EINTR) {
+        continue; /* Restart if interrupted by signal */
+      } else {
+        std::cerr << "epoll_wait failed" << std::endl;
+      }
+    }
+    std::cout << "Ready: " << ready << std::endl;
+
+    for (int j = 0; j < ready; j++) {
+      if (evlist[j].events & EPOLLIN) {
+        // イベントが発生したソケットに対して処理を行う
+        if (listenSocketFds_.count(evlist[0].data.fd)) {
+          // 新しい接続を受け入れる
+          acceptConnection(evlist[0].data.fd);
+        }
+      } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
+        std::cout << "    closing fd " << evlist[j].data.fd << std::endl;
+
+        if (close(evlist[j].data.fd) == -1) {
+          std::cerr << "close failed" << std::endl;
+          exit(EXIT_FAILURE);
+        }
+        listenSocketFds_.erase(evlist[j].data.fd);
+      }
+    }
+  }
+}
