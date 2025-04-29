@@ -38,7 +38,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Usage: " << argv[0] << " file...\n";
   }
 
-  int epfd = epoll_create(argc - 1);
+  //   int epfd = epoll_create(argc - 1);
+  // epoll_create1の方が良いらしい
+  // https://ja.manpages.org/epoll_create/2
+  int epfd = epoll_create1(EPOLL_CLOEXEC);
   if (epfd == -1) {
     std::cerr << "epoll_create failed\n";
     exit(EXIT_FAILURE);
