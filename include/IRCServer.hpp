@@ -2,9 +2,10 @@
 #ifndef __IRC_SERVER_HPP__
 #define __IRC_SERVER_HPP__
 
+#include <map>
 #include <set>
 #include <string>
-// #include "ClientSession.hpp"
+#include "ClientSession.hpp"
 
 #define EPOLL_MAX_EVENTS 10
 
@@ -14,7 +15,7 @@ class IRCServer {
   std::string port_;
   std::string password_;
   std::set<int> listenSocketFds_;
-  // std::map<int, ClientSession*> clients_; // ソケットFD→クライアント
+  std::map<int, ClientSession*> clients_;  // ソケットFD→クライアント
   // UserManager userManager_;
   // ChannelManager channelManager_;
   // Logger logger_;
@@ -32,6 +33,9 @@ class IRCServer {
   // void receiveMessage(ClientSession* client);
   // void sendMessage(ClientSession* client, const std::string& message);
   // void disconnectClient(ClientSession* client);
+
+  // clients_を取得
+  std::map<int, ClientSession*>& getClients();
 };
 
 #endif  // __IRC_SERVER_HPP__

@@ -1,6 +1,7 @@
 NAME := ircserv
 
-SRCS := src/main.cpp src/IRCServer.cpp src/ClientSession.cpp
+SRCS := src/main.cpp src/IRCServer.cpp src/ClientSession.cpp \
+		src/CommandHandler.cpp src/IRCMessage.cpp
 OBJS := $(SRCS:.cpp=.o)
 CXXFLAGS += -I./include -Wall -Wextra -Werror -O0 -g -std=c++98 -pedantic-errors
 CXX := c++

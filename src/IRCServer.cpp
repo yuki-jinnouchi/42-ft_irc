@@ -13,6 +13,8 @@
 #include <cstring>
 #include <iostream>
 #include "ClientSession.hpp"
+#include "CommandHandler.hpp"
+#include "IRCMessage.hpp"
 
 #define MAX_BACKLOG 5
 
@@ -118,7 +120,9 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   sockaddr_storage addr;
   socklen_t addrlen = sizeof(addr);
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
-  ClientSession client(sockfd);
+  clients_[sockfd] = new ClientSession(sockfd);
+  std::cout << "New client connected: " << sockfd
+            << ", client num: " << clients_.size() << std::endl;
 
   // クライアントのソケットをepollで監視
   struct epoll_event ev;
@@ -127,17 +131,11 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
     std::cerr << "epoll_ctl failed" << std::endl;
   }
-
-  // TODO 後で消す
-  // 日付を返す
-  time_t t;
-  time(&t);
-  char* timestr = ctime(&t);
-  // write(sockfd, timestr, strlen(timestr));
-  send(client.getSocketFd(), timestr, strlen(timestr), 0);
 }
 
 void IRCServer::run() {
+  CommandHandler commandHandler(this);
+
   while (true) {
     struct epoll_event evlist[EPOLL_MAX_EVENTS];
     int ready = epoll_wait(epfd_, evlist, EPOLL_MAX_EVENTS, -1);
@@ -153,10 +151,33 @@ void IRCServer::run() {
     for (int j = 0; j < ready; j++) {
       if (evlist[j].events & EPOLLIN) {
         // イベントが発生したソケットに対して処理を行う
-        if (listenSocketFds_.count(evlist[0].data.fd)) {
+        if (listenSocketFds_.count(evlist[0].data.fd) > 0) {
           // 新しい接続を受け入れる
           acceptConnection(evlist[0].data.fd);
         }
+        // クライアントを検索
+        std::map<int, ClientSession*>::iterator it_from =
+            clients_.find(evlist[j].data.fd);
+        // クライアントからのデータを受信した場合
+        if (it_from != clients_.end()) {
+          // 受信したデータを取得
+          char buffer[1024];
+          ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
+          if (bytesRead > 0) {
+            IRCMessage msg(it_from->second, std::string(buffer, bytesRead));
+            commandHandler.handleCommand(msg);
+          } else if (bytesRead == 0) {
+            // クライアントが切断された場合
+            // クライアントセッションを削除 & ソケットクローズ
+            delete it_from->second;
+            clients_.erase(it_from);
+            std::cout << "Client disconnected: " << it_from->first
+                      << ", client num: " << clients_.size() << std::endl;
+          } else {
+            std::cerr << "recv failed" << std::endl;
+          }
+        }
+
       } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
         std::cout << "    closing fd " << evlist[j].data.fd << std::endl;
 
@@ -168,4 +189,8 @@ void IRCServer::run() {
       }
     }
   }
+}
+
+std::map<int, ClientSession*>& IRCServer::getClients() {
+  return clients_;
 }
