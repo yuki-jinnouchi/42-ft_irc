@@ -16,10 +16,9 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
 }
 
 void CommandHandler::broadCastRawMsg(const IRCMessage& msg) {
-  std::map<int, ClientSession*> clients = server_->getClients();
-
-  for (std::map<int, ClientSession*>::iterator it = clients.begin();
-       it != clients.end(); ++it) {
+  for (std::map<int, ClientSession*>::iterator it =
+           server_->getClients().begin();
+       it != server_->getClients().end(); ++it) {
     if (msg.isFromMe(it->second)) {
       // 自分自身はスキップ
       continue;
@@ -31,8 +30,6 @@ void CommandHandler::broadCastRawMsg(const IRCMessage& msg) {
 }
 
 void CommandHandler::handleCommand(const IRCMessage& msg) {
-  std::map<int, ClientSession*> clients = server_->getClients();
-
   DEBUG_MSG("CommandHandler::handleCommand from: "
             << msg.getFrom()->getFd() << std::endl
             << "----------------------" << std::endl
