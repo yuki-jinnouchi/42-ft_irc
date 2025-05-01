@@ -1,6 +1,7 @@
 
 
 #include "ClientSession.hpp"
+#include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
 
@@ -19,9 +20,9 @@ ClientSession::~ClientSession() {
   close(socketFd_);
 }
 
-int ClientSession::getSocketFd() const {
-  return socketFd_;
-}
+// int ClientSession::getSocketFd() const {
+//   return socketFd_;
+// }
 
 // ClientSession::ClientSession(const ClientSession& other) {
 //   *this = other;
@@ -35,3 +36,11 @@ int ClientSession::getSocketFd() const {
 //   nickName_ = other.nickName_;
 //   return *this;
 // }
+
+void ClientSession::sendMessage(const std::string& msg) {
+  if (send(socketFd_, msg.c_str(), msg.size(), 0) == -1) {
+    std::cerr << "send failed. fd: " << socketFd_ << ", nick: " << nickName_
+              << std::endl;
+    throw std::runtime_error("send failed");
+  }
+}

@@ -21,7 +21,7 @@ class ClientSession {
   ClientSession(int socketFd);
   ~ClientSession();
 
-  int getSocketFd() const;
+  // int getSocketFd() const;
   const std::string& getNickName() const;
   // void setNickName(const std::string& nick);
   // void setUserInfo(const std::string& user, const std::string& real);
@@ -30,6 +30,7 @@ class ClientSession {
   // void joinChannel(Channel* channel);
   // void partChannel(Channel* channel);
   // const std::set& getChannels() const;
+  void sendMessage(const std::string& message);
 };
 
 #endif  // __CLIENT_SESSION_HPP__

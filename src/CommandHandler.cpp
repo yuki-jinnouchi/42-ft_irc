@@ -1,5 +1,4 @@
 #include "CommandHandler.hpp"
-#include <sys/socket.h>
 
 CommandHandler::CommandHandler(IRCServer* server) : server_(server) {}
 CommandHandler::~CommandHandler() {}
@@ -26,8 +25,8 @@ void CommandHandler::handleCommand(const IRCMessage& msg) {
       // 自分自身はスキップ
       continue;
     } else {
-      // 受信したデータを他のクライアントに送信
-      send(it->first, msg.getRaw().c_str(), msg.getRaw().size(), 0);
+      // 受信したデータを他のクライアントにそのまま送信
+      it->second->sendMessage(msg.getRaw());
     }
   }
 }
