@@ -27,3 +27,7 @@ const ClientSession* IRCMessage::getFrom() const {
 const std::string& IRCMessage::getRaw() const {
   return raw_;
 }
+
+bool IRCMessage::isFromMe(const ClientSession* client) const {
+  return from_ == client;
+}

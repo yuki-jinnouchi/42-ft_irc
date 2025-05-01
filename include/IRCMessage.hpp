@@ -28,6 +28,7 @@ class IRCMessage {
   // const std::string& getCommand() const;
   // const std::vector& getParams() const;
   // const std::string& getPrefix() const;
+  bool isFromMe(const ClientSession* client) const;
 };
 
 #endif  // __IRC_MESSAGE_HPP__

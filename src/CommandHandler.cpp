@@ -21,7 +21,7 @@ void CommandHandler::handleCommand(const IRCMessage& msg) {
   // 受信したデータを他のクライアントにそのまま送信
   for (std::map<int, ClientSession*>::iterator it = clients.begin();
        it != clients.end(); ++it) {
-    if (it->second == msg.getFrom()) {
+    if (msg.isFromMe(it->second)) {
       // 自分自身はスキップ
       continue;
     } else {
