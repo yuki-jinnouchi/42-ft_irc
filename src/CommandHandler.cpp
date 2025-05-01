@@ -14,11 +14,9 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
   return *this;
 }
 
-void CommandHandler::handleCommand(const IRCMessage& msg) {
+void CommandHandler::broadCastRawMsg(const IRCMessage& msg) {
   std::map<int, ClientSession*> clients = server_->getClients();
 
-  // TODO コマンドを解析して処理を分岐
-  // 受信したデータを他のクライアントにそのまま送信
   for (std::map<int, ClientSession*>::iterator it = clients.begin();
        it != clients.end(); ++it) {
     if (msg.isFromMe(it->second)) {
@@ -29,4 +27,12 @@ void CommandHandler::handleCommand(const IRCMessage& msg) {
       it->second->sendMessage(msg.getRaw());
     }
   }
+}
+
+void CommandHandler::handleCommand(const IRCMessage& msg) {
+  std::map<int, ClientSession*> clients = server_->getClients();
+
+  // TODO コマンドを解析して処理を分岐
+  // 受信したデータを他のクライアントにそのまま送信
+  broadCastRawMsg(msg);
 }
