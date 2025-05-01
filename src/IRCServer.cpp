@@ -34,17 +34,13 @@ IRCServer::IRCServer(const char* port, const char* password) {
 }
 
 IRCServer::~IRCServer() {
-  // ソケットを閉じる
-  for (std::set<int>::iterator it = listenSocketFds_.begin();
-       it != listenSocketFds_.end(); ++it) {
-    std::cout << "Shutdown IRC Server: socket fd: " << *it << std::endl;
-    // listenSocketFds_の全てのソケットを閉じる
-    if (close(*it) == -1) {
-      std::cerr << "close failed" << std::endl;
-      exit(EXIT_FAILURE);
-    }
+  // listenSockets_の全てのソケットを閉じる
+  for (std::map<int, Socket*>::iterator it = listenSockets_.begin();
+       it != listenSockets_.end(); ++it) {
+    std::cout << "Shutdown IRC Server: socket fd: " << it->first << std::endl;
+    delete it->second;
   }
-  listenSocketFds_.clear();
+  listenSockets_.clear();
   std::cout << "Server stopped." << std::endl;
 }
 
@@ -101,7 +97,7 @@ void IRCServer::startListen() {
               << ai->ai_family << ")..." << std::endl;
 
     // epollで監視
-    listenSocketFds_.insert(sockfd);
+    listenSockets_[sockfd] = new Socket(sockfd);
     struct epoll_event ev;
     ev.events = EPOLLIN; /* Only interested in input events */
     ev.data.fd = sockfd;
@@ -110,7 +106,7 @@ void IRCServer::startListen() {
     }
   }
   freeaddrinfo(res);  // アドレス情報の解放
-  if (listenSocketFds_.empty()) {
+  if (listenSockets_.empty()) {
     std::cerr << "Error: socket/bind/listen failed" << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -151,7 +147,7 @@ void IRCServer::run() {
     for (int j = 0; j < ready; j++) {
       if (evlist[j].events & EPOLLIN) {
         // イベントが発生したソケットに対して処理を行う
-        if (listenSocketFds_.count(evlist[0].data.fd) > 0) {
+        if (listenSockets_.count(evlist[0].data.fd) > 0) {
           // 新しい接続を受け入れる
           acceptConnection(evlist[0].data.fd);
         }
@@ -185,7 +181,7 @@ void IRCServer::run() {
           std::cerr << "close failed" << std::endl;
           exit(EXIT_FAILURE);
         }
-        listenSocketFds_.erase(evlist[j].data.fd);
+        listenSockets_.erase(evlist[j].data.fd);
       }
     }
   }

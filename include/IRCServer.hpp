@@ -3,9 +3,9 @@
 #define __IRC_SERVER_HPP__
 
 #include <map>
-#include <set>
 #include <string>
 #include "ClientSession.hpp"
+#include "Socket.hpp"
 
 #define EPOLL_MAX_EVENTS 10
 
@@ -14,7 +14,7 @@ class IRCServer {
   int epfd_;  // epollのファイルディスクリプタ
   std::string port_;
   std::string password_;
-  std::set<int> listenSocketFds_;
+  std::map<int, Socket*> listenSockets_;   // ソケットFD→listeningソケット
   std::map<int, ClientSession*> clients_;  // ソケットFD→クライアント
   // UserManager userManager_;
   // ChannelManager channelManager_;

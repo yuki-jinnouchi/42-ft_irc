@@ -11,8 +11,10 @@ Socket::Socket(int fd) : fd_(fd) {
 
 Socket::~Socket() {
   if (fd_ != -1) {
+    if (close(fd_) == -1) {
+      std::cerr << "close failed" << std::endl;
+    }
     std::cout << "Socket closed fd: " << fd_ << std::endl;
-    close(fd_);
   }
 }
 
