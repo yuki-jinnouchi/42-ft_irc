@@ -1,12 +1,13 @@
 #include "Socket.hpp"
 #include <unistd.h>
 #include <iostream>
+#include "IRCLogger.hpp"
 
 Socket::Socket(int fd) : fd_(fd) {
   if (fd_ < 0) {
     throw std::runtime_error("socket(2) failed");
   }
-  std::cout << "Socket created fd: " << fd_ << std::endl;
+  DEBUG_MSG("Socket created fd: " << fd_);
 }
 
 Socket::~Socket() {
@@ -14,7 +15,7 @@ Socket::~Socket() {
     if (close(fd_) == -1) {
       std::cerr << "close failed" << std::endl;
     }
-    std::cout << "Socket closed fd: " << fd_ << std::endl;
+    DEBUG_MSG("Socket closed fd: " << fd_);
   }
 }
 

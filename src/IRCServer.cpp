@@ -14,6 +14,7 @@
 #include <iostream>
 #include "ClientSession.hpp"
 #include "CommandHandler.hpp"
+#include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
 
 #define MAX_BACKLOG 5
@@ -30,18 +31,19 @@ IRCServer::IRCServer(const char* port, const char* password) {
   ss >> port_;
 
   password_ = std::string(password);
-  std::cout << "Port: " << port_ << ", Password: " << password_ << std::endl;
+
+  DEBUG_MSG("Port: " << port_ << ", Password: " << password_);
 }
 
 IRCServer::~IRCServer() {
   // listenSockets_の全てのソケットを閉じる
   for (std::map<int, Socket*>::iterator it = listenSockets_.begin();
        it != listenSockets_.end(); ++it) {
-    std::cout << "Shutdown IRC Server: socket fd: " << it->first << std::endl;
+    DEBUG_MSG("Shutdown IRC Server: socket fd: " << it->first);
     delete it->second;
   }
   listenSockets_.clear();
-  std::cout << "Server stopped." << std::endl;
+  DEBUG_MSG("Server stopped.");
 }
 
 IRCServer::IRCServer(const IRCServer& other) {
@@ -93,8 +95,8 @@ void IRCServer::startListen() {
       close(sockfd);
       continue;
     }
-    std::cerr << "Listening on port: " << port_ << ", fd: " << sockfd << " ("
-              << ai->ai_family << ")..." << std::endl;
+    DEBUG_MSG("Listening on port: " << port_ << ", fd: " << sockfd << " ("
+                                    << ai->ai_family << ")...");
 
     // epollで監視
     listenSockets_[sockfd] = new Socket(sockfd);
@@ -117,8 +119,8 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   socklen_t addrlen = sizeof(addr);
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
   clients_[sockfd] = new ClientSession(sockfd);
-  std::cout << "New client connected: " << sockfd
-            << ", client num: " << clients_.size() << std::endl;
+  DEBUG_MSG("New client connected: " << sockfd
+                                     << ", client num: " << clients_.size());
 
   // クライアントのソケットをepollで監視
   struct epoll_event ev;
@@ -142,7 +144,7 @@ void IRCServer::run() {
         std::cerr << "epoll_wait failed" << std::endl;
       }
     }
-    std::cout << "Ready: " << ready << std::endl;
+    DEBUG_MSG("Ready: " << ready);
 
     for (int j = 0; j < ready; j++) {
       if (evlist[j].events & EPOLLIN) {
@@ -167,15 +169,15 @@ void IRCServer::run() {
             // クライアントセッションを削除 & ソケットクローズ
             delete it_from->second;
             clients_.erase(it_from);
-            std::cout << "Client disconnected: " << it_from->first
-                      << ", client num: " << clients_.size() << std::endl;
+            DEBUG_MSG("Client disconnected: "
+                      << it_from->first << ", client num: " << clients_.size());
           } else {
             std::cerr << "recv failed" << std::endl;
           }
         }
 
       } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
-        std::cout << "    closing fd " << evlist[j].data.fd << std::endl;
+        DEBUG_MSG("    closing fd " << evlist[j].data.fd);
 
         if (close(evlist[j].data.fd) == -1) {
           std::cerr << "close failed" << std::endl;

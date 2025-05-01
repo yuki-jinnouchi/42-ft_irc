@@ -1,4 +1,5 @@
 #include "CommandHandler.hpp"
+#include "IRCLogger.hpp"
 
 CommandHandler::CommandHandler(IRCServer* server) : server_(server) {}
 CommandHandler::~CommandHandler() {}
@@ -31,6 +32,11 @@ void CommandHandler::broadCastRawMsg(const IRCMessage& msg) {
 
 void CommandHandler::handleCommand(const IRCMessage& msg) {
   std::map<int, ClientSession*> clients = server_->getClients();
+
+  DEBUG_MSG("CommandHandler::handleCommand from: "
+            << msg.getFrom()->getFd() << std::endl
+            << "----------------------" << std::endl
+            << msg.getRaw() << "----------------------");
 
   // TODO コマンドを解析して処理を分岐
   // 受信したデータを他のクライアントにそのまま送信

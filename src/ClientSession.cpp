@@ -14,3 +14,7 @@ void ClientSession::sendMessage(const std::string& msg) {
     throw std::runtime_error("send failed");
   }
 }
+
+int ClientSession::getFd() const {
+  return socket_.getFd();
+}
