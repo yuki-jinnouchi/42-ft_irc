@@ -3,10 +3,11 @@
 #define __CLIENT_SESSION_HPP__
 
 #include <string>
+#include "Socket.hpp"
 
 class ClientSession {
  private:
-  int socketFd_;
+  Socket socket_;
   std::string nickName_;
   // std::string userName_;
   // std::string realName_;
@@ -21,7 +22,6 @@ class ClientSession {
   ClientSession(int socketFd);
   ~ClientSession();
 
-  // int getSocketFd() const;
   const std::string& getNickName() const;
   // void setNickName(const std::string& nick);
   // void setUserInfo(const std::string& user, const std::string& real);
