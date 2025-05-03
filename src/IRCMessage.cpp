@@ -20,7 +20,7 @@ IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   return *this;
 }
 
-const ClientSession* IRCMessage::getFrom() const {
+ClientSession* const IRCMessage::getFrom() const {
   return from_;
 }
 

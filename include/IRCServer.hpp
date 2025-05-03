@@ -37,7 +37,8 @@ class IRCServer {
   // void disconnectClient(ClientSession* client);
 
   // clients_を取得
-  std::map<int, ClientSession*>& getClients();
+  const std::map<int, ClientSession*>& getClients() const;
+  void addClient(ClientSession* client);
 };
 
 #endif  // __IRC_SERVER_HPP__

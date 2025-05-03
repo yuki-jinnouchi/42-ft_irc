@@ -16,7 +16,7 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
 }
 
 void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
-  for (std::map<int, ClientSession*>::iterator it =
+  for (std::map<int, ClientSession*>::const_iterator it =
            server_->getClients().begin();
        it != server_->getClients().end(); ++it) {
     if (msg.isFromMe(it->second)) {
@@ -29,6 +29,11 @@ void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
   }
 }
 
+void CommandHandler::handleNick(IRCMessage& msg) {
+  // TODO NICKコマンドの処理をちゃんと書く
+  msg.getFrom()->setNickName("nick1");
+}
+
 void CommandHandler::handleCommand(IRCMessage& msg) {
   DEBUG_MSG("CommandHandler::handleCommand from: "
             << msg.getFrom()->getFd() << std::endl
@@ -36,6 +41,10 @@ void CommandHandler::handleCommand(IRCMessage& msg) {
             << msg.getRaw() << "----------------------");
 
   // TODO コマンドを解析して処理を分岐
+  if (msg.getRaw() == "NICK nick1") {
+    handleNick(msg);
+    return;
+  }
   // 受信したデータを他のクライアントにそのまま送信
   broadCastRawMsg(msg);
 }

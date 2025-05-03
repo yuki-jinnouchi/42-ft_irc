@@ -26,9 +26,12 @@ list(REMOVE_ITEM LIB_SRCS ../../src/main.cpp)
 
 add_library(libftirc ${LIB_SRCS})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREADLINE_LIBRARY -O0 -g")
+target_compile_definitions(libftirc PRIVATE UNIT_TEST)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/googletest-src/googletest/include"
 )
 
 # テストファイルのビルド ############################################################################################
@@ -43,6 +46,9 @@ foreach(testSrc ${TEST_SRCS})
 
   # Link to GoogleTest
   target_link_libraries(${testName} GTest::gtest_main libftirc)
+
+  # マクロ定義
+  target_compile_definitions(${testName} PRIVATE UNIT_TEST)
 
   # Move testing binaries into a testBin directory
   set_target_properties(${testName} PROPERTIES

@@ -11,7 +11,6 @@ class CommandHandler {
   IRCServer* server_;
 
  private:
-  // void handleNick(ClientSession* client, const IRCMessage& message);
   // void handleUser(ClientSession* client, const IRCMessage& message);
   // void handleJoin(ClientSession* client, const IRCMessage& message);
   // void handlePrivmsg(ClientSession* client, const IRCMessage& message);
@@ -19,7 +18,6 @@ class CommandHandler {
   // void handleQuit(ClientSession* client, const IRCMessage& message);
   // void handlePing(ClientSession* client, const IRCMessage& message);
   // void handlePong(ClientSession* client, const IRCMessage& message);
-  void broadCastRawMsg(IRCMessage& msg);
 
  public:
   CommandHandler(IRCServer* server);
@@ -28,6 +26,8 @@ class CommandHandler {
   CommandHandler& operator=(const CommandHandler& other);
 
   void handleCommand(IRCMessage& msg);
+  void broadCastRawMsg(IRCMessage& msg);
+  void handleNick(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_HANDLER_HPP__

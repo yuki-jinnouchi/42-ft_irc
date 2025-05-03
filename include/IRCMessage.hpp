@@ -26,7 +26,7 @@ class IRCMessage {
   // bool parse(); // rawMessageを解析してprefix, command, paramsに分解
   // std::string toString() const;  // メッセージの文字列化
 
-  const ClientSession* getFrom() const;
+  ClientSession* const getFrom() const;
   const std::string& getRaw() const;
   const std::map<ClientSession*, std::string>& getResponses() const;
 

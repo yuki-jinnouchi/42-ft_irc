@@ -118,9 +118,7 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   sockaddr_storage addr;
   socklen_t addrlen = sizeof(addr);
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
-  clients_[sockfd] = new ClientSession(sockfd);
-  DEBUG_MSG("New client connected: " << sockfd
-                                     << ", client num: " << clients_.size());
+  addClient(new ClientSession(sockfd));
 
   // クライアントのソケットをepollで監視
   struct epoll_event ev;
@@ -198,6 +196,12 @@ void IRCServer::run() {
   }
 }
 
-std::map<int, ClientSession*>& IRCServer::getClients() {
+const std::map<int, ClientSession*>& IRCServer::getClients() const {
   return clients_;
+}
+
+void IRCServer::addClient(ClientSession* client) {
+  clients_[client->getFd()] = client;
+  DEBUG_MSG("New client connected: " << client->getFd()
+                                     << ", client num: " << clients_.size());
 }

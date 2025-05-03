@@ -34,3 +34,7 @@ unit_test:
 	&& cmake --build build \
 	&& cd build \
 	&& ctest
+
+.PHONY: ngircd
+ngircd:
+	sudo service ngircd restart
