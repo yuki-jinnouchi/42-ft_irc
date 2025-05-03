@@ -16,3 +16,5 @@ ircserv
 
 *.orig
 *.bin
+
+test/unit/build/*
