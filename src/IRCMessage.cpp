@@ -28,6 +28,15 @@ const std::string& IRCMessage::getRaw() const {
   return raw_;
 }
 
+const std::map<ClientSession*, std::string>& IRCMessage::getResponses() const {
+  return responses_;
+}
+
 bool IRCMessage::isFromMe(const ClientSession* client) const {
   return from_ == client;
+}
+
+void IRCMessage::addResponse(ClientSession* client_to,
+                             const std::string& message) {
+  responses_[client_to] = message;
 }

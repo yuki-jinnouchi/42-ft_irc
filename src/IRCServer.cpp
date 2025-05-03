@@ -131,6 +131,14 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   }
 }
 
+void IRCServer::sendResponses(const IRCMessage& msg) {
+  for (std::map<ClientSession*, std::string>::const_iterator it =
+           msg.getResponses().begin();
+       it != msg.getResponses().end(); ++it) {
+    it->first->sendMessage(it->second);
+  }
+}
+
 void IRCServer::run() {
   CommandHandler commandHandler(this);
 
@@ -164,6 +172,7 @@ void IRCServer::run() {
           if (bytesRead > 0) {
             IRCMessage msg(it_from->second, std::string(buffer, bytesRead));
             commandHandler.handleCommand(msg);
+            sendResponses(msg);
           } else if (bytesRead == 0) {
             // クライアントが切断された場合
             // クライアントセッションを削除 & ソケットクローズ

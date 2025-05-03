@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include "ClientSession.hpp"
+#include "IRCMessage.hpp"
 #include "Socket.hpp"
 
 #define EPOLL_MAX_EVENTS 10
@@ -20,6 +21,7 @@ class IRCServer {
   // ChannelManager channelManager_;
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
+  void sendResponses(const IRCMessage& msg);
 
  public:
   IRCServer(const char* port, const char* password);

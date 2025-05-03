@@ -15,7 +15,7 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
   return *this;
 }
 
-void CommandHandler::broadCastRawMsg(const IRCMessage& msg) {
+void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
   for (std::map<int, ClientSession*>::iterator it =
            server_->getClients().begin();
        it != server_->getClients().end(); ++it) {
@@ -24,12 +24,12 @@ void CommandHandler::broadCastRawMsg(const IRCMessage& msg) {
       continue;
     } else {
       // 受信したデータを他のクライアントにそのまま送信
-      it->second->sendMessage(msg.getRaw());
+      msg.addResponse(it->second, msg.getRaw());
     }
   }
 }
 
-void CommandHandler::handleCommand(const IRCMessage& msg) {
+void CommandHandler::handleCommand(IRCMessage& msg) {
   DEBUG_MSG("CommandHandler::handleCommand from: "
             << msg.getFrom()->getFd() << std::endl
             << "----------------------" << std::endl
