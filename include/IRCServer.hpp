@@ -1,0 +1,41 @@
+#pragma once
+#ifndef __IRC_SERVER_HPP__
+#define __IRC_SERVER_HPP__
+
+#include <map>
+#include <string>
+#include "ClientSession.hpp"
+#include "Socket.hpp"
+
+#define EPOLL_MAX_EVENTS 10
+
+class IRCServer {
+ private:
+  int epfd_;  // epollのファイルディスクリプタ
+  std::string port_;
+  std::string password_;
+  std::map<int, Socket*> listenSockets_;   // ソケットFD→listeningソケット
+  std::map<int, ClientSession*> clients_;  // ソケットFD→クライアント
+  // UserManager userManager_;
+  // ChannelManager channelManager_;
+  // Logger logger_;
+  void acceptConnection(int listenSocketFd);
+
+ public:
+  IRCServer(const char* port, const char* password);
+  ~IRCServer();
+  IRCServer(const IRCServer& other);
+  IRCServer& operator=(const IRCServer& other);
+
+  void startListen();  // ソケットをバインドしてリッスン状態にする
+  void run();          // メインループ。接続受付、読み書き処理
+  // void acceptConnection();
+  // void receiveMessage(ClientSession* client);
+  // void sendMessage(ClientSession* client, const std::string& message);
+  // void disconnectClient(ClientSession* client);
+
+  // clients_を取得
+  std::map<int, ClientSession*>& getClients();
+};
+
+#endif  // __IRC_SERVER_HPP__
