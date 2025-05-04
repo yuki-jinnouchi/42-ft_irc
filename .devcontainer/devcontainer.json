@@ -13,7 +13,7 @@
 	"forwardPorts": [6667, 6677, 6777],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y netcat ngircd tcpdump",
+	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y netcat ngircd tcpdump cmake",
 
 	// Configure tool-specific properties.
 	"customizations": {

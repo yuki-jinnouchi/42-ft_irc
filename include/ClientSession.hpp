@@ -24,7 +24,7 @@ class ClientSession {
 
   int getFd() const;
   const std::string& getNickName() const;
-  // void setNickName(const std::string& nick);
+  void setNickName(const std::string& nick);
   // void setUserInfo(const std::string& user, const std::string& real);
   // bool isRegistered() const;
 

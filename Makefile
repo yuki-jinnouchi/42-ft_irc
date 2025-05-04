@@ -22,3 +22,19 @@ fclean: clean
 
 .PHONY: re
 re: fclean all
+
+.PHONY: run
+run: all
+	./$(NAME) 6677 pass123
+
+.PHONY: unit_test
+unit_test:
+	cd test/unit \
+	&& cmake -S . -B build \
+	&& cmake --build build \
+	&& cd build \
+	&& ctest
+
+.PHONY: ngircd
+ngircd:
+	sudo service ngircd restart

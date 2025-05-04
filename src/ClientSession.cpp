@@ -18,3 +18,11 @@ void ClientSession::sendMessage(const std::string& msg) {
 int ClientSession::getFd() const {
   return socket_.getFd();
 }
+
+const std::string& ClientSession::getNickName() const {
+  return nickName_;
+}
+
+void ClientSession::setNickName(const std::string& nick) {
+  nickName_ = nick;
+}

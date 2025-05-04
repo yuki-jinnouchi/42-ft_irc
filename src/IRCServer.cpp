@@ -118,9 +118,7 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   sockaddr_storage addr;
   socklen_t addrlen = sizeof(addr);
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
-  clients_[sockfd] = new ClientSession(sockfd);
-  DEBUG_MSG("New client connected: " << sockfd
-                                     << ", client num: " << clients_.size());
+  addClient(new ClientSession(sockfd));
 
   // クライアントのソケットをepollで監視
   struct epoll_event ev;
@@ -128,6 +126,14 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   ev.data.fd = sockfd;
   if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
     std::cerr << "epoll_ctl failed" << std::endl;
+  }
+}
+
+void IRCServer::sendResponses(const IRCMessage& msg) {
+  for (std::map<ClientSession*, std::string>::const_iterator it =
+           msg.getResponses().begin();
+       it != msg.getResponses().end(); ++it) {
+    it->first->sendMessage(it->second);
   }
 }
 
@@ -164,6 +170,7 @@ void IRCServer::run() {
           if (bytesRead > 0) {
             IRCMessage msg(it_from->second, std::string(buffer, bytesRead));
             commandHandler.handleCommand(msg);
+            sendResponses(msg);
           } else if (bytesRead == 0) {
             // クライアントが切断された場合
             // クライアントセッションを削除 & ソケットクローズ
@@ -189,6 +196,12 @@ void IRCServer::run() {
   }
 }
 
-std::map<int, ClientSession*>& IRCServer::getClients() {
+const std::map<int, ClientSession*>& IRCServer::getClients() const {
   return clients_;
+}
+
+void IRCServer::addClient(ClientSession* client) {
+  clients_[client->getFd()] = client;
+  DEBUG_MSG("New client connected: " << client->getFd()
+                                     << ", client num: " << clients_.size());
 }
