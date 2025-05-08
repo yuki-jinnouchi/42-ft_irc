@@ -14,7 +14,11 @@
 		6777
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y netcat ngircd tcpdump cmake valgrind",
+	"postCreateCommand": [
+		"sudo apt-get update",
+		"sudo apt-get install -y netcat ngircd tcpdump cmake valgrind python3-pip irssi",
+		"pip install -U pytest"
+	],
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

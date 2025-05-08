@@ -16,7 +16,6 @@ class CommandHandler {
   // void handlePrivmsg(ClientSession* client, const IRCMessage& message);
   // void handlePart(ClientSession* client, const IRCMessage& message);
   // void handleQuit(ClientSession* client, const IRCMessage& message);
-  // void handlePing(ClientSession* client, const IRCMessage& message);
   // void handlePong(ClientSession* client, const IRCMessage& message);
 
  public:
@@ -28,6 +27,7 @@ class CommandHandler {
   void handleCommand(IRCMessage& msg);
   void broadCastRawMsg(IRCMessage& msg);
   void handleNick(IRCMessage& msg);
+  void handlePing(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_HANDLER_HPP__

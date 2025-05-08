@@ -24,10 +24,6 @@ fclean: clean
 .PHONY: re
 re: fclean all
 
-.PHONY: run
-run: all
-	./$(NAME) 6677 pass123
-
 .PHONY: unit_test
 unit_test:
 	cd test/unit \
@@ -36,6 +32,26 @@ unit_test:
 	&& cd build \
 	&& ctest
 
+.PHONY: e2e_test
+e2e_test: all
+	cd test/e2e \
+	&& pytest -vs
+
 .PHONY: ngircd
 ngircd:
 	sudo service ngircd restart
+
+.PHONY: server
+server: all
+	./$(NAME) 6677 pass123
+
+.PHONY: client
+client: all
+	@printf "Please enter a nickname: "; \
+	read NICK; \
+	irssi --connect=127.0.0.1 --port=6677 --nick=$$NICK --password=pass123
+
+.PHONY: nc
+nc: all
+	nc -C 127.0.0.1 6677
+

@@ -37,6 +37,11 @@ void CommandHandler::handleNick(IRCMessage& msg) {
   msg.getFrom()->setNickName("nick1");
 }
 
+void CommandHandler::handlePing(IRCMessage& msg) {
+  // TODO PINGコマンドの処理をちゃんと書く
+  msg.addResponse(msg.getFrom(), "PONG\r\n");
+}
+
 void CommandHandler::handleCommand(IRCMessage& msg) {
   DEBUG_MSG("CommandHandler::handleCommand from: "
             << msg.getFrom()->getFd() << std::endl
@@ -49,8 +54,11 @@ void CommandHandler::handleCommand(IRCMessage& msg) {
             << "----------------------");
 
   // TODO コマンドを解析して処理を分岐
-  if (msg.getRaw() == "NICK nick1") {
+  if (msg.getRaw().compare(0, 4, "NICK") == 0) {
     handleNick(msg);
+    return;
+  } else if (msg.getRaw().compare(0, 4, "PING") == 0) {
+    handlePing(msg);
     return;
   }
   // 受信したデータを他のクライアントにそのまま送信
