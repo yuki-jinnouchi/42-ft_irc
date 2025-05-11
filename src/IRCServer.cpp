@@ -169,6 +169,7 @@ void IRCServer::run() {
           ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
           if (bytesRead > 0) {
             IRCMessage msg(it_from->second, std::string(buffer, bytesRead));
+            IRCParser::parseRaw(msg);
             commandHandler.handleCommand(msg);
             sendResponses(msg);
           } else if (bytesRead == 0) {
