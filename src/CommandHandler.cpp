@@ -1,11 +1,13 @@
 #include "CommandHandler.hpp"
+
 #include "IRCLogger.hpp"
 
+// Orthodox Cannonical Form
 CommandHandler::CommandHandler(IRCServer* server) : server_(server) {}
+
 CommandHandler::~CommandHandler() {}
-CommandHandler::CommandHandler(const CommandHandler& other) {
-  *this = other;
-}
+
+CommandHandler::CommandHandler(const CommandHandler& other) { *this = other; }
 
 CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
   if (this == &other) {
@@ -15,6 +17,7 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
   return *this;
 }
 
+// Member functions
 void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
   for (std::map<int, ClientSession*>::const_iterator it =
            server_->getClients().begin();
@@ -24,7 +27,7 @@ void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
       continue;
     } else {
       // 受信したデータを他のクライアントにそのまま送信
-      msg.addResponse(it->second, msg.getRaw());
+      msg.addResponse(it->second, msg.getRaw() + "\r\n");
     }
   }
 }
@@ -38,7 +41,12 @@ void CommandHandler::handleCommand(IRCMessage& msg) {
   DEBUG_MSG("CommandHandler::handleCommand from: "
             << msg.getFrom()->getFd() << std::endl
             << "----------------------" << std::endl
-            << msg.getRaw() << "----------------------");
+            << msg.getRaw() << std::endl
+            << "prefix: " << msg.getPrefix() << std::endl
+            << "command: " << msg.getCommand() << std::endl
+            << "param[0]: " << msg.getParam(0) << std::endl
+            << "param[1]: " << msg.getParam(1) << std::endl
+            << "----------------------");
 
   // TODO コマンドを解析して処理を分岐
   if (msg.getRaw() == "NICK nick1") {
