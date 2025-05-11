@@ -22,7 +22,7 @@ class IRCParser {
   // IRCParser& operator=(const IRCParser& other);
 
   // Parsing functions
-  static bool parseClrf(IRCMessage& msg);
+  static bool parseCrlf(IRCMessage& msg);
   static bool extractPrefix(IRCMessage& msg, std::string::size_type& pos);
   static bool extractCommand(IRCMessage& msg, std::string::size_type& pos);
   static bool extractParams(IRCMessage& msg, std::string::size_type& pos);
