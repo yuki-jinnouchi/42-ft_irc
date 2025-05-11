@@ -3,12 +3,7 @@
 // Orthodox Cannonical Form
 IRCMessage::IRCMessage(ClientSession* from, const std::string& raw)
     : from_(from), raw_(raw), prefix_(""), command_("")
-    , isReply_(false), params_(std::vector<std::string>()) {
-  // rawMessageを解析してprefix, command, paramsに分解
-  if (!IRCParser::parseRaw(*this)) {
-    // TODO: 解析に失敗した場合の処理
-    // 例外を投げるか、エラーメッセージを返すなど
-  }
+    , params_(std::vector<std::string>()) {
 }
 
 IRCMessage::~IRCMessage() {}
@@ -26,7 +21,7 @@ IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   responses_ = other.responses_;
   prefix_ = other.prefix_;
   command_ = other.command_;
-  isReply_ = other.isReply_;
+  // isReply_ = other.isReply_;
   params_ = other.params_;
   return *this;
 }
@@ -52,9 +47,9 @@ const std::string& IRCMessage::getCommand() const {
   return command_;
 }
 
-bool IRCMessage::isReply() const {
-  return isReply_;
-}
+// bool IRCMessage::getIsReply() const {
+//   return isReply_;
+// }
 
 const std::string& IRCMessage::getParam(int index) const {
   static const std::string empty = "";
@@ -83,9 +78,9 @@ void IRCMessage::setCommand(const std::string& command) {
   command_ = command;
 }
 
-void IRCMessage::setReply(bool isReply) {
-  isReply_ = isReply;
-}
+// void IRCMessage::setIsReply(bool isReply) {
+//   isReply_ = isReply;
+// }
 
 void IRCMessage::addParam(const std::string& param) {
   params_.push_back(param);

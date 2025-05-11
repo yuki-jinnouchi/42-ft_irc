@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "IRCParser.hpp"
+// #include "IRCParser.hpp"
 #include "ClientSession.hpp"
 
 class IRCMessage {
@@ -17,7 +17,7 @@ class IRCMessage {
   std::map<ClientSession*, std::string> responses_; // 宛先client->送信メッセージのmap
   std::string prefix_;
   std::string command_;
-  bool isReply_;
+  // bool isReply_;
   std::vector<std::string> params_;
 
   // Constructor
@@ -36,7 +36,7 @@ class IRCMessage {
   const std::map<ClientSession*, std::string>& getResponses() const;
   const std::string& getPrefix() const;
   const std::string& getCommand() const;
-  bool isReply() const;
+  // bool getIsReply() const;
   const std::string& getParam(int index) const;
   const std::vector<std::string>& getParams() const;
 
@@ -44,7 +44,7 @@ class IRCMessage {
   void setRaw(const std::string& raw);
   void setPrefix(const std::string& prefix);
   void setCommand(const std::string& command);
-  void setReply(bool isReply);
+  // void setIsReply(bool isReply);
   void addParam(const std::string& param);
   void setParams(const std::vector<std::string>& params);
 

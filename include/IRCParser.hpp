@@ -27,7 +27,7 @@ class IRCParser {
   static bool extractCommand(IRCMessage& msg, std::string::size_type& pos);
   static bool extractParams(IRCMessage& msg, std::string::size_type& pos);
   static bool parsePrefix(const std::string& prefix);
-  static bool parseCommand(IRCMessage& msg, const std::string& command);
+  static bool validCommand(const std::string& command);
 };
 
 #endif  // __IRC_PARSER_HPP__

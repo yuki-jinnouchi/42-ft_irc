@@ -4,8 +4,10 @@
 
 #include <map>
 #include <string>
+
 #include "ClientSession.hpp"
 #include "IRCMessage.hpp"
+#include "IRCParser.hpp"
 #include "Socket.hpp"
 
 #define EPOLL_MAX_EVENTS 10
