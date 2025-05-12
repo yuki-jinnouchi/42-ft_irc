@@ -10,8 +10,6 @@
 #include "IRCParser.hpp"
 #include "Socket.hpp"
 
-#define EPOLL_MAX_EVENTS 10
-
 class IRCServer {
  private:
   int epfd_;  // epollのファイルディスクリプタ
@@ -29,6 +27,9 @@ class IRCServer {
 
   static const int BUFFER_SIZE = 1024;
   static const int MAX_MSG_SIZE = 510;  // IRCの仕様
+
+  static const int MAX_BACKLOG = 10;
+  static const int EPOLL_MAX_EVENTS = 10;
 
  public:
   IRCServer(const char* port, const char* password);

@@ -18,8 +18,6 @@
 #include "IRCMessage.hpp"
 #include "Utils.hpp"
 
-#define MAX_BACKLOG 5
-
 IRCServer::IRCServer(const char* port, const char* password) {
   epfd_ = epoll_create1(EPOLL_CLOEXEC);
   if (epfd_ == -1) {
