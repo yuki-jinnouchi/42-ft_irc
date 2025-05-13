@@ -13,8 +13,10 @@ class ClientSession {
   // std::string realName_;
   // bool registered_; // NICKとUSER登録済みか
   // std::set joinedChannels_;
+  std::string receiving_msg_;  // 受信途中のメッセージ
 
   ClientSession();
+  // ClientSessionをdeleteした時にソケットをクローズするため、コピーは許可しない
   ClientSession(const ClientSession& other);
   ClientSession& operator=(const ClientSession& other);
 
@@ -25,6 +27,9 @@ class ClientSession {
   int getFd() const;
   const std::string& getNickName() const;
   void setNickName(const std::string& nick);
+  const std::string& getReceivingMsg();
+  std::string popReceivingMsg();
+  void pushReceivingMsg(const std::string& msg);
   // void setUserInfo(const std::string& user, const std::string& real);
   // bool isRegistered() const;
 

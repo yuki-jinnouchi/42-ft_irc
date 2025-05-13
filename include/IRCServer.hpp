@@ -24,6 +24,11 @@ class IRCServer {
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
   void sendResponses(const IRCMessage& msg);
+  void handleClientMessage(int clientFd);
+  void disconnectClient(ClientSession* client);
+
+  static const int BUFFER_SIZE = 1024;
+  static const int MAX_MSG_SIZE = 510;  // IRCの仕様
 
  public:
   IRCServer(const char* port, const char* password);
