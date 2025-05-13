@@ -125,6 +125,8 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   ev.data.fd = sockfd;
   if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
     std::cerr << "epoll_ctl failed" << std::endl;
+    close(sockfd);
+    return;
   }
 }
 

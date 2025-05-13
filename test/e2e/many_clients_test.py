@@ -64,10 +64,7 @@ def test_many_clients():
     """
     多数クライアントが同時に接続でき、各クライアントが PING を送信できるかを確認する。
     """
-    # たまにうまくいくが、多くの場合固まる
-    # num_clients = 100
-    # 連続して実行すると固まることがある
-    num_clients = 10
+    num_clients = 1000
     client_sockets = []
     threads = []
 

@@ -28,8 +28,8 @@ class IRCServer {
   static const int BUFFER_SIZE = 1024;
   static const int MAX_MSG_SIZE = 510;  // IRCの仕様
 
-  static const int MAX_BACKLOG = 10;
-  static const int EPOLL_MAX_EVENTS = 10;
+  static const int MAX_BACKLOG = 100;
+  static const int EPOLL_MAX_EVENTS = 10000;
 
  public:
   IRCServer(const char* port, const char* password);

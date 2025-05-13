@@ -5,6 +5,9 @@ SRCS := src/main.cpp src/IRCServer.cpp src/ClientSession.cpp \
 		src/IRCParser.cpp src/Utils.cpp
 OBJS := $(SRCS:.cpp=.o)
 CXXFLAGS += -I./include -Wall -Wextra -Werror -O0 -g -std=c++98 -pedantic-errors -DDEBUG
+ifdef PROD_FLG
+CXXFLAGS := -I./include -Wall -Wextra -Werror -O2 -std=c++98 -pedantic-errors
+endif
 CXX := c++
 
 .PHONY: all
@@ -33,7 +36,8 @@ unit_test:
 	&& ctest
 
 .PHONY: e2e_test
-e2e_test: all
+e2e_test:
+	$(MAKE) re PROD_FLG=1
 	cd test/e2e \
 	&& pytest -vs
 
