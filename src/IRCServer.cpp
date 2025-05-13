@@ -154,9 +154,10 @@ void IRCServer::handleClientMessage(int clientFd) {
     return;
   }
   // クライアントからのデータを受信した場合
-  char buffer[1024];
+  char buffer[BUFFER_SIZE];
   ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
-  std::string msg(buffer, bytesRead);
+  std::string msg =
+      it_from->second->popReceivingMsg() + std::string(buffer, bytesRead);
 
   if (bytesRead == 0) {
     // クライアントが切断された場合
@@ -171,8 +172,7 @@ void IRCServer::handleClientMessage(int clientFd) {
   }
   // bytesRead > 0
   // CRLFで分割して処理
-  std::vector<std::string> split_msgs =
-      Utils::split(it_from->second->popReceivingMsg() + msg, "\r\n");
+  std::vector<std::string> split_msgs = Utils::split(msg, "\r\n");
 
   // 受信途中のメッセージをセッションに退避
   if (!Utils::endsWith(msg, "\r\n")) {

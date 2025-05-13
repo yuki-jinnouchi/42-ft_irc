@@ -27,6 +27,8 @@ class IRCServer {
   void handleClientMessage(int clientFd);
   void disconnectClient(ClientSession* client);
 
+  static const int BUFFER_SIZE = 1024;
+
  public:
   IRCServer(const char* port, const char* password);
   ~IRCServer();
