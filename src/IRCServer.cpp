@@ -184,7 +184,7 @@ void IRCServer::handleClientMessage(int clientFd) {
   for (std::vector<std::string>::iterator it = split_msgs.begin();
        it != split_msgs.end(); ++it) {
     // TODO msgが510(CRLFを含めて512)を超えていたら切断
-    if (it->size() > 510) {
+    if (it->size() > IRCServer::MAX_MSG_SIZE) {
       DEBUG_MSG("Message too long: " << it->size());
       disconnectClient(it_from->second);
       return;
@@ -195,7 +195,7 @@ void IRCServer::handleClientMessage(int clientFd) {
     sendResponses(msg);
   }
   // TODO receiving_msg_が510を超えていたら切断
-  if (it_from->second->getReceivingMsg().size() > 510) {
+  if (it_from->second->getReceivingMsg().size() > IRCServer::MAX_MSG_SIZE) {
     DEBUG_MSG(
         "Message too long: " << it_from->second->getReceivingMsg().size());
     disconnectClient(it_from->second);
