@@ -3,7 +3,8 @@
 #include <unistd.h>
 #include <iostream>
 
-ClientSession::ClientSession(int socketFd) : socket_(socketFd), nickName_("") {}
+ClientSession::ClientSession(int socketFd)
+    : socket_(socketFd), nickName_(""), receiving_msg_("") {}
 
 ClientSession::~ClientSession() {}
 
@@ -25,4 +26,18 @@ const std::string& ClientSession::getNickName() const {
 
 void ClientSession::setNickName(const std::string& nick) {
   nickName_ = nick;
+}
+
+const std::string& ClientSession::getReceivingMsg() {
+  return receiving_msg_;
+}
+
+std::string ClientSession::popReceivingMsg() {
+  std::string msg = receiving_msg_;
+  receiving_msg_.clear();
+  return msg;
+}
+
+void ClientSession::pushReceivingMsg(const std::string& msg) {
+  receiving_msg_ += msg;
 }

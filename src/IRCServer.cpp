@@ -16,6 +16,7 @@
 #include "CommandHandler.hpp"
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
+#include "Utils.hpp"
 
 #define MAX_BACKLOG 5
 
@@ -137,9 +138,72 @@ void IRCServer::sendResponses(const IRCMessage& msg) {
   }
 }
 
-void IRCServer::run() {
-  CommandHandler commandHandler(this);
+void IRCServer::disconnectClient(ClientSession* client) {
+  DEBUG_MSG("Client disconnected: " << client->getFd()
+                                    << ", client num: " << clients_.size());
+  // ソケットクローズ
+  delete client;
+  // クライアントセッションを削除
+  clients_.erase(client->getFd());
+}
 
+void IRCServer::handleClientMessage(int clientFd) {
+  // クライアントを検索
+  std::map<int, ClientSession*>::iterator it_from = clients_.find(clientFd);
+  if (it_from == clients_.end()) {
+    return;
+  }
+  // クライアントからのデータを受信した場合
+  char buffer[1024];
+  ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
+  std::string msg(buffer, bytesRead);
+
+  if (bytesRead == 0) {
+    // クライアントが切断された場合
+    disconnectClient(it_from->second);
+    return;
+  }
+  if (bytesRead < 0) {
+    // recv失敗
+    disconnectClient(it_from->second);
+    std::cerr << "recv failed. fd: " << it_from->first << std::endl;
+    return;
+  }
+  // bytesRead > 0
+  // CRLFで分割して処理
+  std::vector<std::string> split_msgs =
+      Utils::split(it_from->second->popReceivingMsg() + msg, "\r\n");
+
+  // 受信途中のメッセージをセッションに退避
+  if (!Utils::endsWith(msg, "\r\n")) {
+    it_from->second->pushReceivingMsg(split_msgs.back());
+    split_msgs.pop_back();
+  }
+
+  CommandHandler commandHandler(this);
+  for (std::vector<std::string>::iterator it = split_msgs.begin();
+       it != split_msgs.end(); ++it) {
+    // TODO msgが510(CRLFを含めて512)を超えていたら切断
+    if (it->size() > 510) {
+      DEBUG_MSG("Message too long: " << it->size());
+      disconnectClient(it_from->second);
+      return;
+    }
+    IRCMessage msg(it_from->second, *it);
+    IRCParser::parseRaw(msg);
+    commandHandler.handleCommand(msg);
+    sendResponses(msg);
+  }
+  // TODO receiving_msg_が510を超えていたら切断
+  if (it_from->second->getReceivingMsg().size() > 510) {
+    DEBUG_MSG(
+        "Message too long: " << it_from->second->getReceivingMsg().size());
+    disconnectClient(it_from->second);
+    return;
+  }
+}
+
+void IRCServer::run() {
   while (true) {
     struct epoll_event evlist[EPOLL_MAX_EVENTS];
     int ready = epoll_wait(epfd_, evlist, EPOLL_MAX_EVENTS, -1);
@@ -159,31 +223,7 @@ void IRCServer::run() {
           // 新しい接続を受け入れる
           acceptConnection(evlist[0].data.fd);
         }
-        // クライアントを検索
-        std::map<int, ClientSession*>::iterator it_from =
-            clients_.find(evlist[j].data.fd);
-        // クライアントからのデータを受信した場合
-        if (it_from != clients_.end()) {
-          // 受信したデータを取得
-          char buffer[1024];
-          ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
-          if (bytesRead > 0) {
-            IRCMessage msg(it_from->second, std::string(buffer, bytesRead));
-            IRCParser::parseRaw(msg);
-            commandHandler.handleCommand(msg);
-            sendResponses(msg);
-          } else if (bytesRead == 0) {
-            // クライアントが切断された場合
-            // クライアントセッションを削除 & ソケットクローズ
-            delete it_from->second;
-            clients_.erase(it_from);
-            DEBUG_MSG("Client disconnected: "
-                      << it_from->first << ", client num: " << clients_.size());
-          } else {
-            std::cerr << "recv failed" << std::endl;
-          }
-        }
-
+        handleClientMessage(evlist[j].data.fd);
       } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
         DEBUG_MSG("    closing fd " << evlist[j].data.fd);
 

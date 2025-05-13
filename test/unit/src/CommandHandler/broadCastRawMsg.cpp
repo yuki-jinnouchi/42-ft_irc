@@ -24,8 +24,8 @@ TEST(CommandHandler, broadCastRawMsg) {
   EXPECT_EQ(res.size(), 2);
 
   // 11, 12にそのままのメッセージが送信されていることを確認
-  EXPECT_EQ(res.at(clients[11]), msgStr);
-  EXPECT_EQ(res.at(clients[12]), msgStr);
+  EXPECT_EQ(res.at(clients[11]), msgStr + "\r\n");
+  EXPECT_EQ(res.at(clients[12]), msgStr + "\r\n");
   // 10には送信されていないことを確認
   EXPECT_EQ(res.find(clients[10]), res.end());
 }

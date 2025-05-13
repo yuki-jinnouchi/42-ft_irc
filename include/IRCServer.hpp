@@ -24,6 +24,8 @@ class IRCServer {
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
   void sendResponses(const IRCMessage& msg);
+  void handleClientMessage(int clientFd);
+  void disconnectClient(ClientSession* client);
 
  public:
   IRCServer(const char* port, const char* password);

@@ -3,8 +3,6 @@
 bool IRCParser::parseRaw(IRCMessage& msg) {
   std::string::size_type pos = 0;
   std::string raw = msg.getRaw();
-  // extract Crlf
-  if (!parseCrlf(msg)) return false;
   // extract prefix
   if (!extractPrefix(msg, pos)) return false;
   // extract command
@@ -14,17 +12,9 @@ bool IRCParser::parseRaw(IRCMessage& msg) {
   return true;
 }
 
-bool IRCParser::parseCrlf(IRCMessage& msg) {
-  std::string raw = msg.getRaw();
-  std::string::size_type pos = raw.find("\r\n");
-  if (pos != raw.size() - 2)
-    return false;
-  msg.setRaw(raw.substr(0, pos));
-  return true;
-}
-
 bool IRCParser::extractPrefix(IRCMessage& msg, std::string::size_type& pos) {
-  if (msg.getRaw()[pos] != ':' || pos == std::string::npos) return true;
+  if (msg.getRaw()[pos] != ':' || pos == std::string::npos)
+    return true;
   std::string raw = msg.getRaw();
   std::string prefix;
   std::string::size_type end = raw.find_first_of(" ", pos);
