@@ -18,8 +18,6 @@
 #include "IRCMessage.hpp"
 #include "Utils.hpp"
 
-#define MAX_BACKLOG 5
-
 IRCServer::IRCServer(const char* port, const char* password) {
   epfd_ = epoll_create1(EPOLL_CLOEXEC);
   if (epfd_ == -1) {
@@ -127,6 +125,8 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   ev.data.fd = sockfd;
   if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
     std::cerr << "epoll_ctl failed" << std::endl;
+    close(sockfd);
+    return;
   }
 }
 

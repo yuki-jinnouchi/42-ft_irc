@@ -5,6 +5,9 @@ SRCS := src/main.cpp src/IRCServer.cpp src/ClientSession.cpp \
 		src/IRCParser.cpp src/Utils.cpp
 OBJS := $(SRCS:.cpp=.o)
 CXXFLAGS += -I./include -Wall -Wextra -Werror -O0 -g -std=c++98 -pedantic-errors -DDEBUG
+ifdef PROD_FLG
+CXXFLAGS := -I./include -Wall -Wextra -Werror -O2 -std=c++98 -pedantic-errors
+endif
 CXX := c++
 
 .PHONY: all
@@ -24,10 +27,6 @@ fclean: clean
 .PHONY: re
 re: fclean all
 
-.PHONY: run
-run: all
-	./$(NAME) 6677 pass123
-
 .PHONY: unit_test
 unit_test:
 	cd test/unit \
@@ -36,6 +35,27 @@ unit_test:
 	&& cd build \
 	&& ctest
 
+.PHONY: e2e_test
+e2e_test:
+	$(MAKE) re PROD_FLG=1
+	cd test/e2e \
+	&& pytest -vs
+
 .PHONY: ngircd
 ngircd:
 	sudo service ngircd restart
+
+.PHONY: server
+server: all
+	./$(NAME) 6677 pass123
+
+.PHONY: client
+client: all
+	@printf "Please enter a nickname: "; \
+	read NICK; \
+	irssi --connect=127.0.0.1 --port=6677 --nick=$$NICK --password=pass123
+
+.PHONY: nc
+nc: all
+	nc -C 127.0.0.1 6677
+
