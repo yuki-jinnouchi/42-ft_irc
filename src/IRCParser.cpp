@@ -76,9 +76,9 @@ bool IRCParser::parsePrefix(const std::string& prefix) {
 bool IRCParser::validCommand(const std::string& command) {
   if (command.empty())
     return false;
-  if (command.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") != std::string::npos)
+  if (command.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::string::npos)
     return true;
-  if (command.find_first_not_of("0123456789") != std::string::npos && command.size() == 3)
+  if (command.find_first_not_of("0123456789") == std::string::npos && command.size() == 3)
     return true;
   return false;
 }
