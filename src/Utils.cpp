@@ -8,7 +8,6 @@ std::vector<std::string> Utils::split(const std::string& str,
   size_t delimiter_pos = str.find(delimiter, pos);
   while (delimiter_pos != std::string::npos) {
     if (delimiter_pos - pos > 0) {
-      std::cout << str.substr(pos, delimiter_pos - pos) << std::endl;
       ret.push_back(str.substr(pos, delimiter_pos - pos));
     }
     pos = delimiter_pos + delimiter.length();

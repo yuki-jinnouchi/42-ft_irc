@@ -6,13 +6,14 @@
 #include <string>
 
 #include "ClientSession.hpp"
+#include "IOWrapper.hpp"
 #include "IRCMessage.hpp"
 #include "IRCParser.hpp"
 #include "Socket.hpp"
 
 class IRCServer {
  private:
-  int epfd_;  // epollのファイルディスクリプタ
+  IOWrapper io_;
   std::string port_;
   std::string password_;
   std::map<int, Socket*> listenSockets_;   // ソケットFD→listeningソケット
@@ -23,13 +24,13 @@ class IRCServer {
   void acceptConnection(int listenSocketFd);
   void sendResponses(const IRCMessage& msg);
   void handleClientMessage(int clientFd);
+  void resendClientMessage(int clientFd);
   void disconnectClient(ClientSession* client);
 
   static const int BUFFER_SIZE = 1024;
   static const int MAX_MSG_SIZE = 510;  // IRCの仕様
 
   static const int MAX_BACKLOG = 100;
-  static const int EPOLL_MAX_EVENTS = 10000;
 
  public:
   IRCServer(const char* port, const char* password);
