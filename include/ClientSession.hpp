@@ -14,6 +14,7 @@ class ClientSession {
   // bool registered_; // NICKとUSER登録済みか
   // std::set joinedChannels_;
   std::string receiving_msg_;  // 受信途中のメッセージ
+  std::string sending_msg_;    // 送信途中のメッセージ
 
   ClientSession();
   // ClientSessionをdeleteした時にソケットをクローズするため、コピーは許可しない
@@ -21,6 +22,8 @@ class ClientSession {
   ClientSession& operator=(const ClientSession& other);
 
  public:
+  static const int kMaxSendingMsgSize = 512 * 100;  // 送信バッファサイズ
+
   ClientSession(int socketFd);
   ~ClientSession();
 
@@ -30,13 +33,15 @@ class ClientSession {
   const std::string& getReceivingMsg();
   std::string popReceivingMsg();
   void pushReceivingMsg(const std::string& msg);
+  const std::string& getSendingMsg();
+  size_t consumeSendingMsg(size_t size);
+  void pushSendingMsg(const std::string& msg);
   // void setUserInfo(const std::string& user, const std::string& real);
   // bool isRegistered() const;
 
   // void joinChannel(Channel* channel);
   // void partChannel(Channel* channel);
   // const std::set& getChannels() const;
-  void sendMessage(const std::string& message);
 };
 
 #endif  // __CLIENT_SESSION_HPP__

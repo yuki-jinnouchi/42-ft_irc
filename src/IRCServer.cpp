@@ -19,11 +19,7 @@
 #include "Utils.hpp"
 
 IRCServer::IRCServer(const char* port, const char* password) {
-  epfd_ = epoll_create1(EPOLL_CLOEXEC);
-  if (epfd_ == -1) {
-    std::cerr << "epoll_create failed\n";
-    exit(EXIT_FAILURE);
-  }
+  IOWrapper io_;
 
   // TODO: ポート番号のバリデーション
   std::istringstream ss(port);
@@ -73,7 +69,7 @@ void IRCServer::startListen() {
   int ret = getaddrinfo(NULL, port_.c_str(), &hints, &res);
   if (ret != 0) {
     std::cerr << "Error: getaddrinfo: " << gai_strerror(ret) << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   for (ai = res; ai != NULL; ai = ai->ai_next) {
     int sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
@@ -94,22 +90,20 @@ void IRCServer::startListen() {
       close(sockfd);
       continue;
     }
+    // 監視対象に追加
+    if (!io_.add_monitoring(sockfd, EPOLLIN)) {
+      std::cerr << "Error: add_monitoring failed" << std::endl;
+      close(sockfd);
+      continue;
+    }
+    listenSockets_[sockfd] = new Socket(sockfd);
     DEBUG_MSG("Listening on port: " << port_ << ", fd: " << sockfd << " ("
                                     << ai->ai_family << ")...");
-
-    // epollで監視
-    listenSockets_[sockfd] = new Socket(sockfd);
-    struct epoll_event ev;
-    ev.events = EPOLLIN; /* Only interested in input events */
-    ev.data.fd = sockfd;
-    if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
-      std::cerr << "epoll_ctl failed" << std::endl;
-    }
   }
   freeaddrinfo(res);  // アドレス情報の解放
   if (listenSockets_.empty()) {
     std::cerr << "Error: socket/bind/listen failed" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
 }
 
@@ -119,12 +113,16 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
   addClient(new ClientSession(sockfd));
 
-  // クライアントのソケットをepollで監視
-  struct epoll_event ev;
-  ev.events = EPOLLIN; /* Only interested in input events */
-  ev.data.fd = sockfd;
-  if (epoll_ctl(epfd_, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
-    std::cerr << "epoll_ctl failed" << std::endl;
+  // ソケットをノンブロッキングに設定
+  if (!IOWrapper::setNonBlockingFlag(sockfd)) {
+    std::cerr << "fcntl: set non-blocking flag failed: fd" << sockfd
+              << std::endl;
+    close(sockfd);
+    return;
+  }
+
+  // クライアントのソケットを監視対象に追加
+  if (!io_.add_monitoring(sockfd, EPOLLIN | EPOLLET)) {
     close(sockfd);
     return;
   }
@@ -134,17 +132,23 @@ void IRCServer::sendResponses(const IRCMessage& msg) {
   for (std::map<ClientSession*, std::string>::const_iterator it =
            msg.getResponses().begin();
        it != msg.getResponses().end(); ++it) {
-    it->first->sendMessage(it->second);
+    if (!io_.sendMessage(it->first, it->second)) {
+      disconnectClient(it->first);
+    }
   }
 }
 
 void IRCServer::disconnectClient(ClientSession* client) {
-  DEBUG_MSG("Client disconnected: " << client->getFd()
-                                    << ", client num: " << clients_.size());
+  int fd = client->getFd();
+  // 監視対象から除外
+  io_.remove_monitoring(fd);
+  // クライアントセッションを削除
+  clients_.erase(fd);
   // ソケットクローズ
   delete client;
-  // クライアントセッションを削除
-  clients_.erase(client->getFd());
+
+  DEBUG_MSG("Client disconnected: " << fd
+                                    << ", client num: " << clients_.size());
 }
 
 void IRCServer::handleClientMessage(int clientFd) {
@@ -203,10 +207,22 @@ void IRCServer::handleClientMessage(int clientFd) {
   }
 }
 
+void IRCServer::resendClientMessage(int clientFd) {
+  // クライアントを検索
+  std::map<int, ClientSession*>::iterator it_from = clients_.find(clientFd);
+  if (it_from == clients_.end()) {
+    return;
+  }
+
+  if (!io_.sendMessage(it_from->second)) {
+    disconnectClient(it_from->second);
+  }
+}
+
 void IRCServer::run() {
   while (true) {
-    struct epoll_event evlist[EPOLL_MAX_EVENTS];
-    int ready = epoll_wait(epfd_, evlist, EPOLL_MAX_EVENTS, -1);
+    io_event evlist[IOWrapper::kEpollMaxEvents];
+    int ready = io_.wait_monitoring(evlist);
     if (ready == -1) {
       if (errno == EINTR) {
         continue; /* Restart if interrupted by signal */
@@ -224,12 +240,15 @@ void IRCServer::run() {
           acceptConnection(evlist[0].data.fd);
         }
         handleClientMessage(evlist[j].data.fd);
+      } else if (evlist[j].events & EPOLLOUT) {
+        // 書き込み可能になったソケットに対して処理を行う
+        resendClientMessage(evlist[j].data.fd);
       } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
         DEBUG_MSG("    closing fd " << evlist[j].data.fd);
 
         if (close(evlist[j].data.fd) == -1) {
           std::cerr << "close failed" << std::endl;
-          exit(EXIT_FAILURE);
+          std::exit(EXIT_FAILURE);
         }
         listenSockets_.erase(evlist[j].data.fd);
       }

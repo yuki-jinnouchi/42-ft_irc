@@ -88,50 +88,42 @@ def test_many_clients():
         s.close()
 
 
-# def test_many_clients_with_hanging():
-#     """
-#     ハングしているクライアントが含まれている場合
-#     """
-#     num_clients = 10
-#     client_sockets = []
-#     hanging_sockets = []
-#     threads = []
+def test_hanging_client():
+    """
+    ハングしているクライアントが含まれている場合
+    """
+    num_clients = 10000
+    client_sockets = []
+    hanging_sockets = []
+    threads = []
 
-#     def client_worker(index):
-#         try:
-#             if index % 3 == 0:
-#                 s = connect_client(is_send_msg=False, is_hang=True)
-#                 hanging_sockets.append(s)
-#             elif index % 3 == 1:
-#                 s = connect_client(is_send_msg=True, is_hang=True)
-#                 hanging_sockets.append(s)
-#             else:
-#                 s = connect_client(is_send_msg=True, is_hang=False)
-#                 client_sockets.append(s)
-#         except Exception as e:
-#             pytest.fail(f"Client {index} failed to connect: {e}")
+    def client_worker(index):
+        try:
+            if index % 3 == 0:
+                s = connect_client(is_send_msg=False, is_hang=True)
+                hanging_sockets.append(s)
+            elif index % 3 == 1:
+                s = connect_client(is_send_msg=True, is_hang=True)
+                hanging_sockets.append(s)
+            else:
+                s = connect_client(is_send_msg=True, is_hang=False)
+                client_sockets.append(s)
+        except Exception as e:
+            pytest.fail(f"Client {index} failed to connect: {e}")
 
-#     for i in range(num_clients):
-#         t = threading.Thread(target=client_worker, args=(i,))
-#         threads.append(t)
-#         t.start()
-#     for t in threads:
-#         t.join()
+    for i in range(num_clients):
+        t = threading.Thread(target=client_worker, args=(i,))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
 
-#     assert (
-#         len(client_sockets) + len(hanging_sockets)
-#     ) == num_clients, "全てのクライアントが接続できなかった"
+    assert (
+        len(client_sockets) + len(hanging_sockets)
+    ) == num_clients, "全てのクライアントが接続できなかった"
 
-#     try:
-#         for s in client_sockets:
-#             data = "aaa"
-#             # data = s.recv(1024)
-#             # assert data == b"PONG\r\n", f"クライアントからの応答が不正: {data}"
-#             assert len(data) > 0, "正常なクライアントの応答が空"
-#     except Exception as e:
-#         pytest.fail(f"正常なクライアントの受信に失敗: {e}")
-#     finally:
-#         for s in client_sockets:
-#             s.close()
-#         for s in hanging_sockets:
-#             s.close()
+
+    for s in client_sockets:
+        s.close()
+    for s in hanging_sockets:
+        s.close()
