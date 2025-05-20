@@ -235,9 +235,9 @@ void IRCServer::run() {
     for (int j = 0; j < ready; j++) {
       if (evlist[j].events & EPOLLIN) {
         // イベントが発生したソケットに対して処理を行う
-        if (listenSockets_.count(evlist[0].data.fd) > 0) {
+        if (listenSockets_.count(evlist[j].data.fd) > 0) {
           // 新しい接続を受け入れる
-          acceptConnection(evlist[0].data.fd);
+          acceptConnection(evlist[j].data.fd);
         }
         handleClientMessage(evlist[j].data.fd);
       } else if (evlist[j].events & EPOLLOUT) {

@@ -82,7 +82,8 @@ bool IOWrapper::sendMessage(ClientSession* client) {
       continue;
     } else {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        // 一時的に書き込みがブロックされているため、EPOLL書き込み可能になるまで監視
+        // ノンブロッキングIOにより一時的に書き込みがブロックされているため、
+        // EPOLLで書き込み可能になるまで監視
         modify_monitoring(client->getFd(), EPOLLIN | EPOLLOUT | EPOLLET);
         pending_write_fds_.insert(client->getFd());
         return true;
