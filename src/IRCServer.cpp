@@ -113,14 +113,6 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
   addClient(new ClientSession(sockfd));
 
-  // ソケットをノンブロッキングに設定
-  if (!IOWrapper::setNonBlockingFlag(sockfd)) {
-    std::cerr << "fcntl: set non-blocking flag failed: fd" << sockfd
-              << std::endl;
-    close(sockfd);
-    return;
-  }
-
   // クライアントのソケットを監視対象に追加
   if (!io_.add_monitoring(sockfd, EPOLLIN | EPOLLET)) {
     close(sockfd);
