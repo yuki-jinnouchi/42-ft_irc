@@ -23,6 +23,8 @@ class IOWrapper {
   bool sendMessage(ClientSession* client, const std::string& msg);
   bool sendMessage(ClientSession* client);
 
+  bool writeLog();
+
   static bool setNonBlockingFlag(int fd);
 
  private:

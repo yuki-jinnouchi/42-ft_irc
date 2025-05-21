@@ -101,6 +101,40 @@ bool IOWrapper::sendMessage(ClientSession* client) {
   return true;
 }
 
+bool IOWrapper::writeLog() {
+  int log_fd = IRCLogger::getInstance().getFd();
+  size_t log_size = IRCLogger::getInstance().getLog().size();
+  if (log_size == 0) {
+    return true;
+  }
+  while (log_size > 0) {
+    ssize_t bytes_written =
+        write(STDERR_FILENO, IRCLogger::getInstance().getLog().c_str(),
+              IRCLogger::getInstance().getLog().size());
+    if (bytes_written >= 0) {
+      log_size = IRCLogger::getInstance().consumeLog(bytes_written);
+      continue;
+    } else {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // ノンブロッキングIOにより一時的に書き込みがブロックされているため、
+        // EPOLLで書き込み可能になるまで監視
+        modify_monitoring(log_fd, EPOLLIN | EPOLLOUT | EPOLLET);
+        pending_write_fds_.insert(log_fd);
+        return true;
+      } else {
+        std::cerr << "write failed" << std::endl;
+        return false;
+      }
+    }
+  }
+  // すべてのログが出力された場合
+  if (pending_write_fds_.find(log_fd) != pending_write_fds_.end()) {
+    modify_monitoring(log_fd, EPOLLIN | EPOLLET);
+    pending_write_fds_.erase(log_fd);
+  }
+  return true;
+}
+
 bool IOWrapper::setNonBlockingFlag(int fd) {
   int flags = fcntl(fd, F_GETFL, 0);
   if (flags == -1) {
