@@ -22,7 +22,7 @@ class IRCServer {
   // ChannelManager channelManager_;
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
-  void sendResponses(const IRCMessage& msg);
+  void sendResponses(const std::map<ClientSession*, std::string>& res);
   void handleClientMessage(int clientFd);
   void resendClientMessage(int clientFd);
   void disconnectClient(ClientSession* client);

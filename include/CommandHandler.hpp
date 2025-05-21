@@ -24,10 +24,10 @@ class CommandHandler {
   CommandHandler(const CommandHandler& other);
   CommandHandler& operator=(const CommandHandler& other);
 
-  void handleCommand(IRCMessage& msg);
-  void broadCastRawMsg(IRCMessage& msg);
-  void handleNick(IRCMessage& msg);
-  void handlePing(IRCMessage& msg);
+  const std::map<ClientSession*, std::string>& handleCommand(IRCMessage& msg);
+  const std::map<ClientSession*, std::string>& broadCastRawMsg(IRCMessage& msg);
+  const std::map<ClientSession*, std::string>& handleNick(IRCMessage& msg);
+  const std::map<ClientSession*, std::string>& handlePing(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_HANDLER_HPP__
