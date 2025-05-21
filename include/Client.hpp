@@ -3,9 +3,10 @@
 #define __CLIENT_SESSION_HPP__
 
 #include <string>
+
 #include "Socket.hpp"
 
-class ClientSession {
+class Client {
  private:
   Socket socket_;
   std::string nickName_;
@@ -16,16 +17,16 @@ class ClientSession {
   std::string receiving_msg_;  // 受信途中のメッセージ
   std::string sending_msg_;    // 送信途中のメッセージ
 
-  ClientSession();
-  // ClientSessionをdeleteした時にソケットをクローズするため、コピーは許可しない
-  ClientSession(const ClientSession& other);
-  ClientSession& operator=(const ClientSession& other);
+  Client();
+  // Clientをdeleteした時にソケットをクローズするため、コピーは許可しない
+  Client(const Client& other);
+  Client& operator=(const Client& other);
 
  public:
   static const int kMaxSendingMsgSize = 512 * 100;  // 送信バッファサイズ
 
-  ClientSession(int socketFd);
-  ~ClientSession();
+  Client(int socketFd);
+  ~Client();
 
   int getFd() const;
   const std::string& getNickName() const;

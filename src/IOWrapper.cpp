@@ -1,11 +1,14 @@
 #include "IOWrapper.hpp"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
 #include <cstdlib>
 #include <iostream>
+
 #include "IRCLogger.hpp"
 
 IOWrapper::IOWrapper() {
@@ -57,9 +60,9 @@ int IOWrapper::wait_monitoring(epoll_event* events) {
   return epoll_wait(epfd_, events, kEpollMaxEvents, -1);
 }
 
-bool IOWrapper::sendMessage(ClientSession* client, const std::string& msg) {
+bool IOWrapper::sendMessage(Client* client, const std::string& msg) {
   client->pushSendingMsg(msg);
-  if (client->getSendingMsg().size() > ClientSession::kMaxSendingMsgSize) {
+  if (client->getSendingMsg().size() > Client::kMaxSendingMsgSize) {
     std::cerr << "Sending message size exceeds limit: "
               << client->getSendingMsg().size() << std::endl;
     return false;
@@ -67,7 +70,7 @@ bool IOWrapper::sendMessage(ClientSession* client, const std::string& msg) {
   return sendMessage(client);
 }
 
-bool IOWrapper::sendMessage(ClientSession* client) {
+bool IOWrapper::sendMessage(Client* client) {
   size_t msg_size = client->getSendingMsg().size();
   if (msg_size == 0) {
     // 送信するメッセージがない場合は何もしない

@@ -8,32 +8,30 @@
 
 #include "IRCLogger.hpp"
 
-ClientSession::ClientSession(int socketFd)
+Client::Client(int socketFd)
     : socket_(socketFd), nickName_(""), receiving_msg_("") {}
 
-ClientSession::~ClientSession() {}
+Client::~Client() {}
 
-int ClientSession::getFd() const { return socket_.getFd(); }
+int Client::getFd() const { return socket_.getFd(); }
 
-const std::string& ClientSession::getNickName() const { return nickName_; }
+const std::string& Client::getNickName() const { return nickName_; }
 
-void ClientSession::setNickName(const std::string& nick) { nickName_ = nick; }
+void Client::setNickName(const std::string& nick) { nickName_ = nick; }
 
-const std::string& ClientSession::getReceivingMsg() { return receiving_msg_; }
+const std::string& Client::getReceivingMsg() { return receiving_msg_; }
 
-std::string ClientSession::popReceivingMsg() {
+std::string Client::popReceivingMsg() {
   std::string msg = receiving_msg_;
   receiving_msg_.clear();
   return msg;
 }
 
-void ClientSession::pushReceivingMsg(const std::string& msg) {
-  receiving_msg_ += msg;
-}
+void Client::pushReceivingMsg(const std::string& msg) { receiving_msg_ += msg; }
 
-const std::string& ClientSession::getSendingMsg() { return sending_msg_; }
+const std::string& Client::getSendingMsg() { return sending_msg_; }
 
-size_t ClientSession::consumeSendingMsg(size_t size) {
+size_t Client::consumeSendingMsg(size_t size) {
   if (size > sending_msg_.size()) {
     sending_msg_.clear();
   } else {
@@ -42,6 +40,4 @@ size_t ClientSession::consumeSendingMsg(size_t size) {
   return sending_msg_.size();
 }
 
-void ClientSession::pushSendingMsg(const std::string& msg) {
-  sending_msg_ += msg;
-}
+void Client::pushSendingMsg(const std::string& msg) { sending_msg_ += msg; }

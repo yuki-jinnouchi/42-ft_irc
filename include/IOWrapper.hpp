@@ -22,8 +22,8 @@ class IOWrapper {
   bool remove_monitoring(int fd);
   int wait_monitoring(io_event* events);
 
-  bool sendMessage(ClientSession* client, const std::string& msg);
-  bool sendMessage(ClientSession* client);
+  bool sendMessage(Client* client, const std::string& msg);
+  bool sendMessage(Client* client);
 
   bool writeLog();
 

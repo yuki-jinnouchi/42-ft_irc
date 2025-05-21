@@ -12,10 +12,9 @@
 class IRCMessage {
  private:
   // Member variables
-  ClientSession* from_;
+  Client* from_;
   std::string raw_;
-  std::map<ClientSession*, std::string>
-      responses_;  // 宛先client->送信メッセージのmap
+  std::map<Client*, std::string> responses_;  // 宛先client->送信メッセージのmap
   std::string prefix_;
   std::string command_;
   // bool isReply_;
@@ -26,15 +25,15 @@ class IRCMessage {
 
  public:
   // Orthodox Cannonical Form
-  IRCMessage(ClientSession* from, const std::string& raw);
+  IRCMessage(Client* from, const std::string& raw);
   ~IRCMessage();
   IRCMessage(const IRCMessage& other);
   IRCMessage& operator=(const IRCMessage& other);
 
   // Getters
-  ClientSession* getFrom() const;
+  Client* getFrom() const;
   const std::string& getRaw() const;
-  const std::map<ClientSession*, std::string>& getResponses() const;
+  const std::map<Client*, std::string>& getResponses() const;
   const std::string& getPrefix() const;
   const std::string& getCommand() const;
   // bool getIsReply() const;
@@ -51,8 +50,8 @@ class IRCMessage {
 
   // Member functions
   // std::string toString() const;  // メッセージの文字列化
-  bool isFromMe(const ClientSession* client) const;
-  void addResponse(ClientSession* client, const std::string& response);
+  bool isFromMe(const Client* client) const;
+  void addResponse(Client* client, const std::string& response);
 };
 
 #endif  // __IRC_MESSAGE_HPP__

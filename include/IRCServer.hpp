@@ -16,16 +16,16 @@ class IRCServer {
   IOWrapper io_;
   std::string port_;
   std::string password_;
-  std::map<int, Socket*> listenSockets_;   // ソケットFD→listeningソケット
-  std::map<int, ClientSession*> clients_;  // ソケットFD→クライアント
+  std::map<int, Socket*> listenSockets_;  // ソケットFD→listeningソケット
+  std::map<int, Client*> clients_;        // ソケットFD→クライアント
   // UserManager userManager_;
   // ChannelManager channelManager_;
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
-  void sendResponses(const std::map<ClientSession*, std::string>& res);
+  void sendResponses(const std::map<Client*, std::string>& res);
   void handleClientMessage(int clientFd);
   void resendClientMessage(int clientFd);
-  void disconnectClient(ClientSession* client);
+  void disconnectClient(Client* client);
 
   static const int BUFFER_SIZE = 1024;
   static const int MAX_MSG_SIZE = 510;  // IRCの仕様
@@ -41,13 +41,13 @@ class IRCServer {
   void startListen();  // ソケットをバインドしてリッスン状態にする
   void run();          // メインループ。接続受付、読み書き処理
   // void acceptConnection();
-  // void receiveMessage(ClientSession* client);
-  // void sendMessage(ClientSession* client, const std::string& message);
-  // void disconnectClient(ClientSession* client);
+  // void receiveMessage(Client* client);
+  // void sendMessage(Client* client, const std::string& message);
+  // void disconnectClient(Client* client);
 
   // clients_を取得
-  const std::map<int, ClientSession*>& getClients() const;
-  void addClient(ClientSession* client);
+  const std::map<int, Client*>& getClients() const;
+  void addClient(Client* client);
 };
 
 #endif  // __IRC_SERVER_HPP__
