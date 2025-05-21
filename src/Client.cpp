@@ -1,8 +1,11 @@
-#include "ClientSession.hpp"
+#include "Client.hpp"
+
 #include <errno.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
 #include <iostream>
+
 #include "IRCLogger.hpp"
 
 ClientSession::ClientSession(int socketFd)
@@ -10,21 +13,13 @@ ClientSession::ClientSession(int socketFd)
 
 ClientSession::~ClientSession() {}
 
-int ClientSession::getFd() const {
-  return socket_.getFd();
-}
+int ClientSession::getFd() const { return socket_.getFd(); }
 
-const std::string& ClientSession::getNickName() const {
-  return nickName_;
-}
+const std::string& ClientSession::getNickName() const { return nickName_; }
 
-void ClientSession::setNickName(const std::string& nick) {
-  nickName_ = nick;
-}
+void ClientSession::setNickName(const std::string& nick) { nickName_ = nick; }
 
-const std::string& ClientSession::getReceivingMsg() {
-  return receiving_msg_;
-}
+const std::string& ClientSession::getReceivingMsg() { return receiving_msg_; }
 
 std::string ClientSession::popReceivingMsg() {
   std::string msg = receiving_msg_;
@@ -36,9 +31,7 @@ void ClientSession::pushReceivingMsg(const std::string& msg) {
   receiving_msg_ += msg;
 }
 
-const std::string& ClientSession::getSendingMsg() {
-  return sending_msg_;
-}
+const std::string& ClientSession::getSendingMsg() { return sending_msg_; }
 
 size_t ClientSession::consumeSendingMsg(size_t size) {
   if (size > sending_msg_.size()) {

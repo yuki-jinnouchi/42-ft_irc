@@ -3,8 +3,10 @@
 #define __I_O_WRAPPER_HPP__
 
 #include <stdint.h>
+
 #include <set>
-#include "ClientSession.hpp"
+
+#include "Client.hpp"
 
 typedef struct epoll_event io_event;
 

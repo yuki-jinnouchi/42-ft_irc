@@ -7,14 +7,15 @@
 #include <vector>
 
 // #include "IRCParser.hpp"
-#include "ClientSession.hpp"
+#include "Client.hpp"
 
 class IRCMessage {
  private:
   // Member variables
   ClientSession* from_;
   std::string raw_;
-  std::map<ClientSession*, std::string> responses_; // 宛先client->送信メッセージのmap
+  std::map<ClientSession*, std::string>
+      responses_;  // 宛先client->送信メッセージのmap
   std::string prefix_;
   std::string command_;
   // bool isReply_;

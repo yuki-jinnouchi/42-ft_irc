@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 
-#include "ClientSession.hpp"
+#include "Client.hpp"
 #include "IOWrapper.hpp"
 #include "IRCMessage.hpp"
 #include "IRCParser.hpp"

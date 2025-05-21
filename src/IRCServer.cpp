@@ -1,7 +1,4 @@
 #include "IRCServer.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
 
 #include <errno.h>
 #include <netdb.h>
@@ -9,10 +6,13 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include "ClientSession.hpp"
+#include <sstream>
+
+#include "Client.hpp"
 #include "CommandHandler.hpp"
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
@@ -48,9 +48,7 @@ IRCServer::~IRCServer() {
   DEBUG_MSG("Server stopped.");
 }
 
-IRCServer::IRCServer(const IRCServer& other) {
-  *this = other;
-}
+IRCServer::IRCServer(const IRCServer& other) { *this = other; }
 
 IRCServer& IRCServer::operator=(const IRCServer& other) {
   if (this == &other) {
@@ -80,8 +78,7 @@ void IRCServer::startListen() {
   }
   for (ai = res; ai != NULL; ai = ai->ai_next) {
     int sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-    if (sockfd < 0)
-      continue;
+    if (sockfd < 0) continue;
     // ソケット再利用
     int yes = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
