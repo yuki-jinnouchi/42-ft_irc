@@ -27,6 +27,13 @@ IRCServer::IRCServer(const char* port, const char* password) {
 
   password_ = std::string(password);
 
+  // ログ出力をノンブロッキングに設定
+  if (!io_.modify_monitoring(IRCLogger::getInstance().getFd(),
+                             EPOLLIN | EPOLLET)) {
+    std::cerr << "Error: modify_monitoring failed" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
   DEBUG_MSG("Port: " << port_ << ", Password: " << password_);
 }
 
@@ -211,8 +218,6 @@ void IRCServer::resendClientMessage(int clientFd) {
 }
 
 void IRCServer::run() {
-  io_.modify_monitoring(IRCLogger::getInstance().getFd(), EPOLLIN | EPOLLET);
-
   while (true) {
     io_event evlist[IOWrapper::kEpollMaxEvents];
     // TODO ログ書き出し
