@@ -1,7 +1,4 @@
 #include "IRCServer.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
 
 #include <errno.h>
 #include <netdb.h>
@@ -9,10 +6,13 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include "ClientSession.hpp"
+#include <sstream>
+
+#include "Client.hpp"
 #include "CommandHandler.hpp"
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
@@ -48,9 +48,7 @@ IRCServer::~IRCServer() {
   DEBUG_MSG("Server stopped.");
 }
 
-IRCServer::IRCServer(const IRCServer& other) {
-  *this = other;
-}
+IRCServer::IRCServer(const IRCServer& other) { *this = other; }
 
 IRCServer& IRCServer::operator=(const IRCServer& other) {
   if (this == &other) {
@@ -80,8 +78,7 @@ void IRCServer::startListen() {
   }
   for (ai = res; ai != NULL; ai = ai->ai_next) {
     int sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-    if (sockfd < 0)
-      continue;
+    if (sockfd < 0) continue;
     // ソケット再利用
     int yes = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
@@ -118,7 +115,7 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   sockaddr_storage addr;
   socklen_t addrlen = sizeof(addr);
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
-  addClient(new ClientSession(sockfd));
+  addClient(new Client(sockfd));
 
   // クライアントのソケットを監視対象に追加
   if (!io_.add_monitoring(sockfd, EPOLLIN | EPOLLET)) {
@@ -127,9 +124,8 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   }
 }
 
-void IRCServer::sendResponses(
-    const std::map<ClientSession*, std::string>& res) {
-  for (std::map<ClientSession*, std::string>::const_iterator it = res.begin();
+void IRCServer::sendResponses(const std::map<Client*, std::string>& res) {
+  for (std::map<Client*, std::string>::const_iterator it = res.begin();
        it != res.end(); ++it) {
     if (!io_.sendMessage(it->first, it->second)) {
       disconnectClient(it->first);
@@ -137,7 +133,7 @@ void IRCServer::sendResponses(
   }
 }
 
-void IRCServer::disconnectClient(ClientSession* client) {
+void IRCServer::disconnectClient(Client* client) {
   int fd = client->getFd();
   // 監視対象から除外
   io_.remove_monitoring(fd);
@@ -152,7 +148,7 @@ void IRCServer::disconnectClient(ClientSession* client) {
 
 void IRCServer::handleClientMessage(int clientFd) {
   // クライアントを検索
-  std::map<int, ClientSession*>::iterator it_from = clients_.find(clientFd);
+  std::map<int, Client*>::iterator it_from = clients_.find(clientFd);
   if (it_from == clients_.end()) {
     return;
   }
@@ -192,7 +188,7 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    const std::map<ClientSession*, std::string>& res =
+    const std::map<Client*, std::string>& res =
         commandHandler.handleCommand(msg);
     sendResponses(res);
   }
@@ -207,7 +203,7 @@ void IRCServer::handleClientMessage(int clientFd) {
 
 void IRCServer::resendClientMessage(int clientFd) {
   // クライアントを検索
-  std::map<int, ClientSession*>::iterator it_from = clients_.find(clientFd);
+  std::map<int, Client*>::iterator it_from = clients_.find(clientFd);
   if (it_from == clients_.end()) {
     return;
   }
@@ -261,11 +257,9 @@ void IRCServer::run() {
   }
 }
 
-const std::map<int, ClientSession*>& IRCServer::getClients() const {
-  return clients_;
-}
+const std::map<int, Client*>& IRCServer::getClients() const { return clients_; }
 
-void IRCServer::addClient(ClientSession* client) {
+void IRCServer::addClient(Client* client) {
   clients_[client->getFd()] = client;
   DEBUG_MSG("New client connected: " << client->getFd()
                                      << ", client num: " << clients_.size());
