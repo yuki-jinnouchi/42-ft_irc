@@ -12,7 +12,7 @@ class Client;
 class Channel {
  private:
   // Member variables
-  std::string name_;
+  std::string const name_;
   std::string topic_;
   std::string password_;
   bool isInviteOnly_;
@@ -40,7 +40,6 @@ class Channel {
   bool isInvited(Client* client) const;
 
   // Setters
-  bool setName(const std::string& name);
   bool setTopic(const std::string& topic);
   bool setPassword(const std::string& password);
   bool setInviteOnly(bool isInviteOnly);
