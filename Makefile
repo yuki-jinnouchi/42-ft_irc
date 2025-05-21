@@ -2,7 +2,7 @@ NAME := ircserv
 
 SRCS := src/main.cpp src/IRCServer.cpp src/ClientSession.cpp \
 		src/CommandHandler.cpp src/IRCMessage.cpp src/Socket.cpp \
-		src/IRCParser.cpp src/Utils.cpp src/IOWrapper.cpp
+		src/IRCParser.cpp src/Utils.cpp src/IOWrapper.cpp src/IRCLogger.cpp
 OBJS := $(SRCS:.cpp=.o)
 CXXFLAGS += -I./include -Wall -Wextra -Werror -O0 -g -std=c++98 -pedantic-errors -DDEBUG
 ifdef PROD_FLG
@@ -37,7 +37,6 @@ unit_test:
 
 .PHONY: e2e_test
 e2e_test:
-	$(MAKE) re PROD_FLG=1
 	cd test/e2e \
 	&& pytest -vs
 

@@ -27,6 +27,13 @@ IRCServer::IRCServer(const char* port, const char* password) {
 
   password_ = std::string(password);
 
+  // ログ出力をノンブロッキングに設定
+  if (!io_.modify_monitoring(IRCLogger::getInstance().getFd(),
+                             EPOLLIN | EPOLLET)) {
+    std::cerr << "Error: modify_monitoring failed" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
   DEBUG_MSG("Port: " << port_ << ", Password: " << password_);
 }
 
@@ -113,14 +120,6 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
   addClient(new ClientSession(sockfd));
 
-  // ソケットをノンブロッキングに設定
-  if (!IOWrapper::setNonBlockingFlag(sockfd)) {
-    std::cerr << "fcntl: set non-blocking flag failed: fd" << sockfd
-              << std::endl;
-    close(sockfd);
-    return;
-  }
-
   // クライアントのソケットを監視対象に追加
   if (!io_.add_monitoring(sockfd, EPOLLIN | EPOLLET)) {
     close(sockfd);
@@ -160,9 +159,6 @@ void IRCServer::handleClientMessage(int clientFd) {
   // クライアントからのデータを受信した場合
   char buffer[BUFFER_SIZE];
   ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
-  std::string msg =
-      it_from->second->popReceivingMsg() + std::string(buffer, bytesRead);
-
   if (bytesRead == 0) {
     // クライアントが切断された場合
     disconnectClient(it_from->second);
@@ -175,6 +171,8 @@ void IRCServer::handleClientMessage(int clientFd) {
     return;
   }
   // bytesRead > 0
+  std::string msg =
+      it_from->second->popReceivingMsg() + std::string(buffer, bytesRead);
   // CRLFで分割して処理
   std::vector<std::string> split_msgs = Utils::split(msg, "\r\n");
 
@@ -187,7 +185,7 @@ void IRCServer::handleClientMessage(int clientFd) {
   CommandHandler commandHandler(this);
   for (std::vector<std::string>::iterator it = split_msgs.begin();
        it != split_msgs.end(); ++it) {
-    // TODO msgが510(CRLFを含めて512)を超えていたら切断
+    // msgが510(CRLFを含めて512)を超えていたら切断
     if (it->size() > IRCServer::MAX_MSG_SIZE) {
       DEBUG_MSG("Message too long: " << it->size());
       disconnectClient(it_from->second);
@@ -198,7 +196,7 @@ void IRCServer::handleClientMessage(int clientFd) {
     commandHandler.handleCommand(msg);
     sendResponses(msg);
   }
-  // TODO receiving_msg_が510を超えていたら切断
+  // receiving_msg_が510を超えていたら切断
   if (it_from->second->getReceivingMsg().size() > IRCServer::MAX_MSG_SIZE) {
     DEBUG_MSG(
         "Message too long: " << it_from->second->getReceivingMsg().size());
@@ -222,6 +220,9 @@ void IRCServer::resendClientMessage(int clientFd) {
 void IRCServer::run() {
   while (true) {
     io_event evlist[IOWrapper::kEpollMaxEvents];
+    // TODO ログ書き出し
+    io_.writeLog();
+
     int ready = io_.wait_monitoring(evlist);
     if (ready == -1) {
       if (errno == EINTR) {
@@ -235,14 +236,18 @@ void IRCServer::run() {
     for (int j = 0; j < ready; j++) {
       if (evlist[j].events & EPOLLIN) {
         // イベントが発生したソケットに対して処理を行う
-        if (listenSockets_.count(evlist[0].data.fd) > 0) {
+        if (listenSockets_.count(evlist[j].data.fd) > 0) {
           // 新しい接続を受け入れる
-          acceptConnection(evlist[0].data.fd);
+          acceptConnection(evlist[j].data.fd);
         }
         handleClientMessage(evlist[j].data.fd);
       } else if (evlist[j].events & EPOLLOUT) {
         // 書き込み可能になったソケットに対して処理を行う
         resendClientMessage(evlist[j].data.fd);
+        // TODO ログ書き出し
+        if (evlist[j].data.fd == IRCLogger::getInstance().getFd()) {
+          io_.writeLog();
+        }
       } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
         DEBUG_MSG("    closing fd " << evlist[j].data.fd);
 
