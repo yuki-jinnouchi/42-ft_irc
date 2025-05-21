@@ -24,6 +24,7 @@ IOWrapper::~IOWrapper() {
 }
 
 bool IOWrapper::add_monitoring(int fd, uint32_t events) {
+#ifndef UNIT_TEST
   struct epoll_event ev;
   ev.events = events;
   ev.data.fd = fd;
@@ -31,10 +32,12 @@ bool IOWrapper::add_monitoring(int fd, uint32_t events) {
     std::cerr << "epoll_ctl failed" << std::endl;
     return false;
   }
+#endif
   return true;
 }
 
 bool IOWrapper::modify_monitoring(int fd, uint32_t events) {
+#ifndef UNIT_TEST
   struct epoll_event ev;
   ev.events = events;
   ev.data.fd = fd;
@@ -42,14 +45,17 @@ bool IOWrapper::modify_monitoring(int fd, uint32_t events) {
     std::cerr << "epoll_ctl failed" << std::endl;
     return false;
   }
+#endif
   return true;
 }
 
 bool IOWrapper::remove_monitoring(int fd) {
+#ifndef UNIT_TEST
   if (epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL) == -1) {
     std::cerr << "epoll_ctl failed" << std::endl;
     return false;
   }
+#endif
   return true;
 }
 
@@ -136,6 +142,7 @@ bool IOWrapper::writeLog() {
 }
 
 bool IOWrapper::setNonBlockingFlag(int fd) {
+#ifndef UNIT_TEST
   int flags = fcntl(fd, F_GETFL, 0);
   if (flags == -1) {
     return false;
@@ -143,5 +150,6 @@ bool IOWrapper::setNonBlockingFlag(int fd) {
   if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
     return false;
   }
+#endif
   return true;
 }
