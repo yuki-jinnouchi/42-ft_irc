@@ -19,7 +19,8 @@ TEST(CommandHandlerTE, handleNick1) {
   IRCMessage msg(clients[10], msgStr);
 
   CommandHandler commandHandler(&server);
-  const std::map<Client*, std::string> res = commandHandler.handleNick(msg);
+  commandHandler.handleCommand(msg);
+  const std::map<Client*, std::string> res = msg.getResponses();
 
   EXPECT_EQ(res.size(), 0);
   EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);

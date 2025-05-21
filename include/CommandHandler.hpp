@@ -6,29 +6,38 @@
 
 #include "IRCMessage.hpp"
 #include "IRCServer.hpp"
+#include "IRCLogger.hpp"
 
 class CommandHandler {
  private:
+  // Member variables
   IRCServer* server_;
-
- private:
-  // void handleUser(Client* client, const IRCMessage& message);
-  // void handleJoin(Client* client, const IRCMessage& message);
-  // void handlePrivmsg(Client* client, const IRCMessage& message);
-  // void handlePart(Client* client, const IRCMessage& message);
-  // void handleQuit(Client* client, const IRCMessage& message);
-  // void handlePong(Client* client, const IRCMessage& message);
+  // IRCMessage msg_;
+  std::map<Client*, std::string> responses_;
+  
+  // Handle commands
+  void Pass(const IRCMessage& msg);
+  void Nick(const IRCMessage& msg);
+  void User(const IRCMessage& msg);
+  void Join(const IRCMessage& msg);
+  // void Privmsg(const IRCMessage& msg);
+  // void Part(const IRCMessage& msg);
+  // void Quit(const IRCMessage& msg);
+  void Ping(IRCMessage& msg);
+  // void handlePong(IRCMessage& msg);
 
  public:
+  // Orthodox Canonical Form
+  // CommandHandler();
   CommandHandler(IRCServer* server);
   ~CommandHandler();
   CommandHandler(const CommandHandler& other);
   CommandHandler& operator=(const CommandHandler& other);
 
+  // Member functions
   const std::map<Client*, std::string>& handleCommand(IRCMessage& msg);
   const std::map<Client*, std::string>& broadCastRawMsg(IRCMessage& msg);
-  const std::map<Client*, std::string>& handleNick(IRCMessage& msg);
-  const std::map<Client*, std::string>& handlePing(IRCMessage& msg);
+  // const std::map<Client*, std::string>& handlePing(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_HANDLER_HPP__
