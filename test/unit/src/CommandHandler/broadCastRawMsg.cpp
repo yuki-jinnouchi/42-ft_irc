@@ -17,9 +17,8 @@ TEST(CommandHandler, broadCastRawMsg) {
   IRCMessage msg(clients[10], msgStr);
 
   CommandHandler commandHandler(&server);
-  commandHandler.broadCastRawMsg(msg);
-
-  const std::map<ClientSession*, std::string> res = msg.getResponses();
+  const std::map<ClientSession*, std::string>& res =
+      commandHandler.broadCastRawMsg(msg);
 
   EXPECT_EQ(res.size(), 2);
 

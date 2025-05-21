@@ -18,7 +18,7 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
 }
 
 // Member functions
-void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
+const std::map<ClientSession*, std::string>& CommandHandler::broadCastRawMsg(IRCMessage& msg) {
   for (std::map<int, ClientSession*>::const_iterator it =
            server_->getClients().begin();
        it != server_->getClients().end(); ++it) {
@@ -30,19 +30,24 @@ void CommandHandler::broadCastRawMsg(IRCMessage& msg) {
       msg.addResponse(it->second, msg.getRaw() + "\r\n");
     }
   }
+  return msg.getResponses();
 }
 
-void CommandHandler::handleNick(IRCMessage& msg) {
+const std::map<ClientSession*, std::string>& CommandHandler::handleNick(IRCMessage& msg) {
   // TODO NICKコマンドの処理をちゃんと書く
   msg.getFrom()->setNickName("nick1");
+  return msg.getResponses();
 }
 
-void CommandHandler::handlePing(IRCMessage& msg) {
+const std::map<ClientSession*, std::string>& CommandHandler::handlePing(IRCMessage& msg) {
   // TODO PINGコマンドの処理をちゃんと書く
   msg.addResponse(msg.getFrom(), "PONG\r\n");
+  return msg.getResponses();
 }
 
-void CommandHandler::handleCommand(IRCMessage& msg) {
+const std::map<ClientSession*, std::string>& CommandHandler::handleCommand(
+    IRCMessage& msg) {
+  IRCParser::parseRaw(msg);
   DEBUG_MSG("CommandHandler::handleCommand from: "
             << msg.getFrom()->getFd() << std::endl
             << "----------------------" << std::endl
@@ -55,12 +60,10 @@ void CommandHandler::handleCommand(IRCMessage& msg) {
 
   // TODO コマンドを解析して処理を分岐
   if (msg.getRaw().compare(0, 4, "NICK") == 0) {
-    handleNick(msg);
-    return;
+    return handleNick(msg);
   } else if (msg.getRaw().compare(0, 4, "PING") == 0) {
-    handlePing(msg);
-    return;
+    return handlePing(msg);
   }
   // 受信したデータを他のクライアントにそのまま送信
-  broadCastRawMsg(msg);
+  return broadCastRawMsg(msg);
 }

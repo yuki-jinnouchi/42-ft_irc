@@ -127,10 +127,10 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   }
 }
 
-void IRCServer::sendResponses(const IRCMessage& msg) {
-  for (std::map<ClientSession*, std::string>::const_iterator it =
-           msg.getResponses().begin();
-       it != msg.getResponses().end(); ++it) {
+void IRCServer::sendResponses(
+    const std::map<ClientSession*, std::string>& res) {
+  for (std::map<ClientSession*, std::string>::const_iterator it = res.begin();
+       it != res.end(); ++it) {
     if (!io_.sendMessage(it->first, it->second)) {
       disconnectClient(it->first);
     }
@@ -192,9 +192,9 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    IRCParser::parseRaw(msg);
-    commandHandler.handleCommand(msg);
-    sendResponses(msg);
+    const std::map<ClientSession*, std::string>& res =
+        commandHandler.handleCommand(msg);
+    sendResponses(res);
   }
   // receiving_msg_が510を超えていたら切断
   if (it_from->second->getReceivingMsg().size() > IRCServer::MAX_MSG_SIZE) {
