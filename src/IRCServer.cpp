@@ -28,7 +28,7 @@ IRCServer::IRCServer(const char* port, const char* password) {
   password_ = std::string(password);
 
   // ログ出力をノンブロッキングに設定
-  if (!io_.modify_monitoring(IRCLogger::getInstance().getFd(),
+  if (!io_.add_monitoring(IRCLogger::getInstance().getFd(),
                              EPOLLIN | EPOLLET)) {
     std::cerr << "Error: modify_monitoring failed" << std::endl;
     std::exit(EXIT_FAILURE);
