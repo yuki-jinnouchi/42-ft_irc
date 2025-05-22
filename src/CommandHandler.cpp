@@ -1,9 +1,7 @@
 #include "CommandHandler.hpp"
 
 // Orthodox Cannonical Form
-CommandHandler::CommandHandler(IRCServer* server)
-  : server_(server) {
-}
+CommandHandler::CommandHandler(IRCServer* server) : server_(server) {}
 
 CommandHandler::~CommandHandler() {}
 
@@ -20,19 +18,18 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
 }
 
 // Member functions
-const std::map<Client*, std::string>& CommandHandler::handleCommand(IRCMessage& msg) {
+const std::map<Client*, std::string>& CommandHandler::handleCommand(
+    IRCMessage& msg) {
   IRCParser::parseRaw(msg);
-  DEBUG_MSG(
-    "CommandHandler::handleCommand from: "
-    << msg.getFrom()->getFd() << std::endl
-    << "----------------------" << std::endl
-    << msg.getRaw() << std::endl
-    << "prefix: " << msg.getPrefix() << std::endl
-    << "command: " << msg.getCommand() << std::endl
-    << "param[0]: " << msg.getParam(0) << std::endl
-    << "param[1]: " << msg.getParam(1) << std::endl
-    << "----------------------"
-  );
+  DEBUG_MSG("CommandHandler::handleCommand from: "
+            << msg.getFrom()->getFd() << std::endl
+            << "----------------------" << std::endl
+            << msg.getRaw() << std::endl
+            << "prefix: " << msg.getPrefix() << std::endl
+            << "command: " << msg.getCommand() << std::endl
+            << "param[0]: " << msg.getParam(0) << std::endl
+            << "param[1]: " << msg.getParam(1) << std::endl
+            << "----------------------");
 
   // コマンドごとに処理を分岐
   // TODO: switch文など、もっと簡単に書けそう
@@ -61,14 +58,13 @@ const std::map<Client*, std::string>& CommandHandler::handleCommand(IRCMessage& 
   // 受信したデータを他のクライアントにそのまま送信
   else
     broadCastRawMsg(msg);
-  std::cout << command << std::endl;
+  DEBUG_MSG(command);
   return msg.getResponses();
 }
 
 void CommandHandler::Pass(const IRCMessage& msg) {
   Client* from = msg.getFrom();
-  if (from->getPassword() == "")
-    msg.getFrom()->setPassword(msg.getParam(0));
+  if (from->getPassword() == "") msg.getFrom()->setPassword(msg.getParam(0));
 }
 
 void CommandHandler::Nick(const IRCMessage& msg) {
@@ -78,10 +74,10 @@ void CommandHandler::Nick(const IRCMessage& msg) {
 }
 
 void CommandHandler::User(const IRCMessage& msg) {
-  Client *from = msg.getFrom();
+  Client* from = msg.getFrom();
   // <hostname> <servername>　を無視
   // TODO: Valid入れる？
-  from->setNickName(msg.getParam(0)); //
+  from->setNickName(msg.getParam(0));  //
   from->setRealName(msg.getParam(4));
 }
 
@@ -110,10 +106,11 @@ void CommandHandler::Ping(IRCMessage& msg) {
   msg.addResponse(msg.getFrom(), "PONG" + msg.getParam(0) + "\r\n");
 }
 
-const std::map<Client*, std::string>& CommandHandler::broadCastRawMsg(IRCMessage& msg) {
+const std::map<Client*, std::string>& CommandHandler::broadCastRawMsg(
+    IRCMessage& msg) {
   for (std::map<int, Client*>::const_iterator it =
-    server_->getClients().begin();
-    it != server_->getClients().end(); ++it) {
+           server_->getClients().begin();
+       it != server_->getClients().end(); ++it) {
     if (msg.isFromMe(it->second)) {
       // 自分自身はスキップ
       continue;

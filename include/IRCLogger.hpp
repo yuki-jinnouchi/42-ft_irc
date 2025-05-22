@@ -8,13 +8,22 @@
 #ifdef DEBUG
 #define DEBUG_MSG(msg)                                         \
   do {                                                         \
-    IRCLogger::getInstance() << "DEBUG: " << msg << std::endl; \
+    IRCLogger::getInstance()                                   \
+        << "\033[30mDEBUG: " << msg << "\033[0m" << std::endl; \
   } while (0)
 #else
-#define DEBUG_MSG(msg) \
-  do {                 \
-  } while (0)
+#define DEBUG_MSG(msg)
 #endif
+
+#define ERROR_MSG(msg)                                                        \
+  do {                                                                        \
+    IRCLogger::getInstance() << "\033[31mERROR\033[0m: " << msg << std::endl; \
+  } while (0)
+
+#define INFO_MSG(msg)                                                        \
+  do {                                                                       \
+    IRCLogger::getInstance() << "\033[36mINFO\033[0m: " << msg << std::endl; \
+  } while (0)
 
 class IRCLogger {
  public:

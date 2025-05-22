@@ -31,7 +31,7 @@ IRCServer::IRCServer(const char* port, const char* password) {
   // ログ出力をノンブロッキングに設定
   if (!io_.add_monitoring(IRCLogger::getInstance().getFd(),
                           EPOLLIN | EPOLLET)) {
-    std::cerr << "Error: modify_monitoring failed" << std::endl;
+    ERROR_MSG("Error: modify_monitoring failed");
     // TODO: なぜかE2Eテストの時だけエラーになる。
     // 暫定的に強制終了をコメントアウト
     // std::exit(EXIT_FAILURE);
@@ -130,16 +130,19 @@ void IRCServer::startListen() {
 
   int ret = getaddrinfo(NULL, port_.c_str(), &hints, &res);
   if (ret != 0) {
-    std::cerr << "Error: getaddrinfo: " << gai_strerror(ret) << std::endl;
+    ERROR_MSG("getaddrinfo: " << gai_strerror(ret));
     std::exit(EXIT_FAILURE);
   }
   for (ai = res; ai != NULL; ai = ai->ai_next) {
     int sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-    if (sockfd < 0) continue;
+    if (sockfd < 0) {
+      ERROR_MSG("socket failed");
+      continue;
+    }
     // ソケット再利用
     int yes = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-      std::cerr << "Error: setsockopt failed" << std::endl;
+      ERROR_MSG("setsockopt failed");
       close(sockfd);
       continue;
     }
@@ -163,7 +166,7 @@ void IRCServer::startListen() {
     }
     // 監視対象に追加
     if (!io_.add_monitoring(sockfd, EPOLLIN)) {
-      std::cerr << "Error: add_monitoring failed" << std::endl;
+      ERROR_MSG("add_monitoring failed");
       close(sockfd);
       continue;
     }
@@ -173,7 +176,7 @@ void IRCServer::startListen() {
   }
   freeaddrinfo(res);  // アドレス情報の解放
   if (listenSockets_.empty()) {
-    std::cerr << "Error: socket/bind/listen failed" << std::endl;
+    ERROR_MSG("socket/bind/listen failed");
     std::exit(EXIT_FAILURE);
   }
 }
@@ -182,6 +185,10 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   sockaddr_storage addr;
   socklen_t addrlen = sizeof(addr);
   int sockfd = accept(listenSocketFd, (struct sockaddr*)&addr, &addrlen);
+  if (sockfd < 0) {
+    ERROR_MSG("accept failed");
+    return;
+  }
   addClient(new Client(sockfd));
 
   // クライアントのソケットを監視対象に追加
@@ -230,7 +237,7 @@ void IRCServer::handleClientMessage(int clientFd) {
   if (bytesRead < 0) {
     // recv失敗
     disconnectClient(it_from->second);
-    std::cerr << "recv failed. fd: " << it_from->first << std::endl;
+    ERROR_MSG("recv failed. fd: " << it_from->first);
     return;
   }
   // bytesRead > 0
@@ -291,7 +298,7 @@ void IRCServer::run() {
       if (errno == EINTR) {
         continue; /* Restart if interrupted by signal */
       } else {
-        std::cerr << "epoll_wait failed" << std::endl;
+        ERROR_MSG("epoll_wait failed");
       }
     }
     DEBUG_MSG("Ready: " << ready);
@@ -315,7 +322,7 @@ void IRCServer::run() {
         DEBUG_MSG("    closing fd " << evlist[j].data.fd);
 
         if (close(evlist[j].data.fd) == -1) {
-          std::cerr << "close failed" << std::endl;
+          ERROR_MSG("close failed");
           std::exit(EXIT_FAILURE);
         }
         listenSockets_.erase(evlist[j].data.fd);

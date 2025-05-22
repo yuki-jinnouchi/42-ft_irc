@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
 #include <iostream>
 
 #include "IRCLogger.hpp"
@@ -81,12 +82,4 @@ void Client::pushSendingMsg(const std::string& msg) {
 
 void Client::pushReceivingMsg(const std::string& msg) {
   receiving_msg_ += msg;
-}  
-
-void Client::sendMessage(const std::string& msg) {
-  if (send(socket_.getFd(), msg.c_str(), msg.size(), 0) == -1) {
-    std::cerr << "send failed. fd: " << socket_.getFd()
-              << ", nick: " << nickName_ << std::endl;
-    throw std::runtime_error("send failed");
-  }
 }
