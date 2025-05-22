@@ -17,7 +17,7 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
   }
   server_ = other.server_;
   return *this;
-}  
+}
 
 // Member functions
 const std::map<Client*, std::string>& CommandHandler::handleCommand(IRCMessage& msg) {
@@ -35,6 +35,7 @@ const std::map<Client*, std::string>& CommandHandler::handleCommand(IRCMessage& 
   );
 
   // コマンドごとに処理を分岐
+  // TODO: switch文など、もっと簡単に書けそう
   std::string command = msg.getCommand();
   DEBUG_MSG("Command: " << command);
   if (command == "NICK")
@@ -43,11 +44,11 @@ const std::map<Client*, std::string>& CommandHandler::handleCommand(IRCMessage& 
     User(msg);
   // else if (command == "JOIN")
   //   Join(msg);
-  // else if (command == "PRIVMSG")  
+  // else if (command == "PRIVMSG")
   //   Privmsg(msg);
   // else if (command == "PART")
   //   Part(msg);
-  // else if (command == "QUIT")  
+  // else if (command == "QUIT")
   //   Quit(msg);
   else if (command == "PING")
     Ping(msg);
@@ -62,28 +63,27 @@ const std::map<Client*, std::string>& CommandHandler::handleCommand(IRCMessage& 
     broadCastRawMsg(msg);
   std::cout << command << std::endl;
   return msg.getResponses();
-}  
+}
 
 void CommandHandler::Pass(const IRCMessage& msg) {
   Client* from = msg.getFrom();
   if (from->getPassword() == "")
     msg.getFrom()->setPassword(msg.getParam(0));
-}  
+}
 
 void CommandHandler::Nick(const IRCMessage& msg) {
   // TODO: Valid nick (dup)
   Client* from = msg.getFrom();
-  if (from->getNickName() == "")
-    from->setNickName(msg.getParam(0));
-}  
+  from->setNickName(msg.getParam(0));
+}
 
 void CommandHandler::User(const IRCMessage& msg) {
   Client *from = msg.getFrom();
   // <hostname> <servername>　を無視
   // TODO: Valid入れる？
-  from->setNickName(msg.getParam(0)); // 
+  from->setNickName(msg.getParam(0)); //
   from->setRealName(msg.getParam(4));
-}  
+}
 
 void CommandHandler::Join(const IRCMessage& msg) {
   Client* client = msg.getFrom();

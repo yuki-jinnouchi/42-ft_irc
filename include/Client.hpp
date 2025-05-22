@@ -19,20 +19,22 @@ class Client {
   std::string realName_;
   std::string password_;
   // bool isRegistered_; // NICKとUSER登録済みか
-  std::vector<Channel*> joinedChannels_;
+  // std::map<std::string, Channel*> joinedChannels_;
   std::string receiving_msg_;  // 受信途中のメッセージ
   std::string sending_msg_;    // 送信途中のメッセージ
-  
+
+  // Constractor & Destructor
+  Client();
+  // // Clientをdeleteした時にソケットをクローズするため、コピーは許可しない
+  Client(const Client& other);
+  Client& operator=(const Client& other);
+
   public:
   static const int kMaxSendingMsgSize = 512 * 100;  // 送信バッファサイズ
-  
+
   // Constructor & Destructor
-  // Client();
   ~Client();
   Client(int socketFd);
-  // // Clientをdeleteした時にソケットをクローズするため、コピーは許可しない
-  // Client(const Client& other);
-  // Client& operator=(const Client& other);
 
   // Getters
   int getFd() const;

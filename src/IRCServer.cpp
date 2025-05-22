@@ -97,9 +97,7 @@ bool IRCServer::addChannel(const std::string& name, Client* client) {
 }
 
 bool IRCServer::ifChannleExists(const std::string& name) const {
-  if (channels_.find(name) != channels_.end())
-    return true;
-  return false;
+  return (channels_.find(name) != channels_.end());
 }
 
 // bool IRCServer::removeClient(Client* client) {
@@ -111,15 +109,15 @@ bool IRCServer::ifChannleExists(const std::string& name) const {
 //   return false;
 // }
 
-bool IRCServer::removeChannel(const std::string& name) {
-  std::map<std::string, Channel*>::iterator it = channels_.find(name);
-  if (it != channels_.end()) {
-    delete it->second;
-    channels_.erase(it);
-    return true;
-  }
-  return false;
-}
+// bool IRCServer::removeChannel(const std::string& name) {
+//   std::map<std::string, Channel*>::iterator it = channels_.find(name);
+//   if (it != channels_.end()) {
+//     delete it->second;
+//     channels_.erase(it);
+//     return true;
+//   }
+//   return false;
+// }
 
 void IRCServer::startListen() {
   struct addrinfo hints, *res, *ai;
