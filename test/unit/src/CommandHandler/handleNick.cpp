@@ -19,33 +19,33 @@ TEST(CommandHandlerTE, handleNick1) {
   IRCMessage msg(clients[10], msgStr);
 
   CommandHandler commandHandler(&server);
-  const std::map<Client*, std::string> res = commandHandler.handleNick(msg);
+  commandHandler.handleCommand(msg);
+  const std::map<Client*, std::string> res = msg.getResponses();
 
   EXPECT_EQ(res.size(), 0);
   EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);
 }
 
-// TODO まだニックネームがnick1の時しか実装していないので、エラーになる
-// TEST(CommandHandlerTE, handleNick2) {
-//   IRCServer server("6677", "pass123");
+TEST(CommandHandlerTE, handleNick2) {
+  IRCServer server("6677", "pass123");
 
-//   std::map<int, Client*> clients;
-//   clients[10] = new Client(10);
-//   clients[11] = new Client(11);
-//   clients[12] = new Client(12);
-//   server.addClient(clients[10]);
-//   server.addClient(clients[11]);
-//   server.addClient(clients[12]);
+  std::map<int, Client*> clients;
+  clients[10] = new Client(10);
+  clients[11] = new Client(11);
+  clients[12] = new Client(12);
+  server.addClient(clients[10]);
+  server.addClient(clients[11]);
+  server.addClient(clients[12]);
 
-//   std::string msgStr = "NICK nick2";
-//   std::string expected = "nick2";
-//   IRCMessage msg(clients[10], msgStr);
+  std::string msgStr = "NICK nick2";
+  std::string expected = "nick2";
+  IRCMessage msg(clients[10], msgStr);
 
-//   CommandHandler commandHandler(&server);
-//   commandHandler.handleNick(msg);
+  CommandHandler commandHandler(&server);
+  commandHandler.handleCommand(msg);
 
-//   const std::map<Client*, std::string> res = msg.getResponses();
+  const std::map<Client*, std::string> res = msg.getResponses();
 
-//   EXPECT_EQ(res.size(), 0);
-//   EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);
-// }
+  EXPECT_EQ(res.size(), 0);
+  EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);
+}
