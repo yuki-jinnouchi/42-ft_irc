@@ -36,7 +36,7 @@ unit_test:
 	&& ctest
 
 .PHONY: e2e_test
-e2e_test:
+e2e_test: all
 	cd test/e2e \
 	&& pytest -vs
 
