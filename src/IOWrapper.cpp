@@ -14,14 +14,14 @@
 IOWrapper::IOWrapper() {
   epfd_ = epoll_create1(EPOLL_CLOEXEC);
   if (epfd_ == -1) {
-    std::cerr << "epoll_create failed\n";
+    ERROR_MSG("epoll_create failed");
     std::exit(EXIT_FAILURE);
   }
 }
 
 IOWrapper::~IOWrapper() {
   if (close(epfd_) == -1) {
-    std::cerr << "close failed" << std::endl;
+    ERROR_MSG("close epfd failed.");
     std::exit(EXIT_FAILURE);
   }
 }
@@ -32,7 +32,7 @@ bool IOWrapper::add_monitoring(int fd, uint32_t events) {
   ev.events = events;
   ev.data.fd = fd;
   if (epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &ev) == -1) {
-    std::cerr << "epoll_ctl failed" << std::endl;
+    ERROR_MSG("epoll_ctl add failed. fd: " << fd);
     return false;
   }
 #endif
@@ -45,7 +45,7 @@ bool IOWrapper::modify_monitoring(int fd, uint32_t events) {
   ev.events = events;
   ev.data.fd = fd;
   if (epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &ev) == -1) {
-    std::cerr << "epoll_ctl failed" << std::endl;
+    ERROR_MSG("epoll_ctl modify failed. fd: " << fd);
     return false;
   }
 #endif
@@ -55,7 +55,7 @@ bool IOWrapper::modify_monitoring(int fd, uint32_t events) {
 bool IOWrapper::remove_monitoring(int fd) {
 #ifndef UNIT_TEST
   if (epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL) == -1) {
-    std::cerr << "epoll_ctl failed" << std::endl;
+    ERROR_MSG("epoll_ctl remove failed. fd: " << fd);
     return false;
   }
 #endif
@@ -69,8 +69,8 @@ int IOWrapper::wait_monitoring(epoll_event* events) {
 bool IOWrapper::sendMessage(Client* client, const std::string& msg) {
   client->pushSendingMsg(msg);
   if (client->getSendingMsg().size() > Client::kMaxSendingMsgSize) {
-    std::cerr << "Sending message size exceeds limit: "
-              << client->getSendingMsg().size() << std::endl;
+    ERROR_MSG("Sending message size exceeds limit: "
+              << client->getSendingMsg().size());
     return false;
   }
   return sendMessage(client);
@@ -97,7 +97,7 @@ bool IOWrapper::sendMessage(Client* client) {
         pending_write_fds_.insert(client->getFd());
         return true;
       } else {
-        std::cerr << "send failed. fd: " << client->getFd() << std::endl;
+        ERROR_MSG("send failed. fd: " << client->getFd());
         return false;
       }
     }
@@ -131,7 +131,7 @@ bool IOWrapper::writeLog() {
         pending_write_fds_.insert(log_fd);
         return true;
       } else {
-        std::cerr << "write failed" << std::endl;
+        ERROR_MSG("write failed");
         return false;
       }
     }

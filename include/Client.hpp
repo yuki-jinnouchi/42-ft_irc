@@ -29,7 +29,7 @@ class Client {
   Client(const Client& other);
   Client& operator=(const Client& other);
 
-  public:
+ public:
   static const int kMaxSendingMsgSize = 512 * 100;  // 送信バッファサイズ
 
   // Constructor & Destructor
@@ -58,7 +58,6 @@ class Client {
   const std::string& getSendingMsg();
   size_t consumeSendingMsg(size_t size);
   void pushSendingMsg(const std::string& msg);
-  void sendMessage(const std::string& msg);
   // void setUserInfo(const std::string& user, const std::string& real);
   // bool isRegistered() const;
   // void joinChannel(Channel* channel);

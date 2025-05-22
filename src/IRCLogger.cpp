@@ -1,8 +1,11 @@
 
 
 #include "IRCLogger.hpp"
+
 #include <unistd.h>
+
 #include <iostream>
+
 #include "IOWrapper.hpp"
 
 IRCLogger& IRCLogger::getInstance() {
@@ -18,7 +21,10 @@ IRCLogger::IRCLogger() {
   }
 }
 
-IRCLogger::~IRCLogger() {}
+IRCLogger::~IRCLogger() {
+  std::cerr << log_;
+  std::cerr.flush();
+}
 
 const std::string& IRCLogger::getLog() const {
   return log_;
