@@ -56,5 +56,8 @@ client: all
 
 .PHONY: nc
 nc: all
-	nc -C 127.0.0.1 6677
+	nc -C -4 127.0.0.1 6677
 
+.PHONY: ncv6
+ncv6: all
+	nc -C -6 ::1 6677

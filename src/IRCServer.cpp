@@ -122,12 +122,7 @@ bool IRCServer::ifChannleExists(const std::string& name) const {
 void IRCServer::startListen() {
   struct addrinfo hints, *res, *ai;
   memset(&hints, 0, sizeof(hints));
-  // TODO IPv6にも対応する必要あり
-  // hints.ai_family = AF_UNSPEC;  // IPv4 or IPv6
-  hints.ai_family = AF_INET;  // IPv4
-  // hints.ai_family = AF_INET6;  // IPv6
-  // netcatでIPv6で接続する方法
-  // nc -6 ::1 <port>
+  hints.ai_family = AF_INET6;  // IPv6
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;  // 自分のIPアドレスを使用
 
@@ -145,6 +140,16 @@ void IRCServer::startListen() {
       std::cerr << "Error: setsockopt failed" << std::endl;
       close(sockfd);
       continue;
+    }
+    // IPV6_V6ONLYにnoに設定して、
+    // デュアルスタック（IPv4, IPv6両方受け付ける）とする
+    if (ai->ai_family == AF_INET6) {
+      int no = 0;
+      if (setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, &no, sizeof(no)) < 0) {
+        std::cerr << "Error: setsockopt(IPV6_V6ONLY) failed" << std::endl;
+        close(sockfd);
+        continue;
+      }
     }
     if (bind(sockfd, ai->ai_addr, ai->ai_addrlen) < 0) {
       close(sockfd);
