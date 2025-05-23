@@ -18,14 +18,53 @@
 #include "IRCMessage.hpp"
 #include "Utils.hpp"
 
+static bool isValidPort(const char* port_str) {
+  if (port_str == NULL) {
+    return false;
+  }
+  int i = 0;
+  while (port_str[i] != '\0') {
+    if (!std::isdigit(port_str[i])) {
+      return false;
+    }
+    i++;
+  }
+  if (i > 6) {
+    return false;
+  }
+  int port_num = std::atoi(port_str);
+  if (port_num < 1 || 65535 < port_num) {
+    return false;
+  }
+  return true;
+}
+
+static bool isValidPassword(const char* password_str) {
+  if (password_str == NULL) {
+    return false;
+  }
+  int i = 0;
+  while (password_str[i] != '\0') {
+    i++;
+  }
+  if (i < 1 || 100 < i) {
+    return false;
+  }
+  return true;
+}
+
 // Constructor & Destructor
 IRCServer::IRCServer(const char* port, const char* password) {
   IOWrapper io_;
 
-  // TODO: ポート番号のバリデーション
-  std::istringstream ss(port);
-  ss >> port_;
+  if (!isValidPort(port)) {
+    throw std::invalid_argument("invalid port number");
+  }
+  port_ = std::string(port);
 
+  if (!isValidPassword(password)) {
+    throw std::invalid_argument("invalid password");
+  }
   password_ = std::string(password);
 
   // ログ出力をノンブロッキングに設定
@@ -78,6 +117,14 @@ Channel* IRCServer::getChannel(const std::string& name) const {
     return it->second;
   }
   return NULL;
+}
+
+const std::string& IRCServer::getPort() const {
+  return port_;
+}
+
+const std::string& IRCServer::getPassword() const {
+  return password_;
 }
 
 // Setters

@@ -20,7 +20,8 @@ class IRCServer {
   std::string password_;
   std::map<int, Socket*> listenSockets_;  // ソケットFD→listeningソケット
   std::map<int, Client*> clients_;        // ソケットFD→クライアント
-  std::map<std::string, Channel*> channels_;  // チャンネル名→チャンネルオブジェクト
+  std::map<std::string, Channel*>
+      channels_;  // チャンネル名→チャンネルオブジェクト
   // UserManager userManager_;
   // ChannelManager channelManager_;
   // Logger logger_;
@@ -46,6 +47,8 @@ class IRCServer {
   const std::map<int, Client*>& getClients() const;
   const std::map<std::string, Channel*>& getChannels() const;
   Channel* getChannel(const std::string& name) const;
+  const std::string& getPort() const;
+  const std::string& getPassword() const;
 
   // Setters
   bool addClient(Client* client);
