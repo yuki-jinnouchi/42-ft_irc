@@ -31,9 +31,8 @@ class IRCServer {
   void resendClientMessage(int clientFd);
   void disconnectClient(Client* client);
 
-  static const int BUFFER_SIZE = 1024;
-  static const int MAX_MSG_SIZE = 510;  // IRCの仕様
-  static const int MAX_BACKLOG = 100;
+  static const int kMaxMsgSize = 510;  // IRCの仕様
+  static const int kMaxBacklog = 100;
 
  public:
   // Orthodox Canonical Form

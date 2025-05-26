@@ -8,11 +8,6 @@
 #include "IRCLogger.hpp"
 
 Socket::Socket(int fd) : fd_(fd) {
-  // ソケットをノンブロッキングに設定
-  if (!IOWrapper::setNonBlockingFlag(fd_)) {
-    ERROR_MSG("fcntl: set non-blocking flag failed: fd" << fd_);
-    close(fd_);
-  }
   DEBUG_MSG("Socket created fd: " << fd_);
 }
 

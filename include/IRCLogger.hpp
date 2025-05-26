@@ -11,20 +11,22 @@
     IRCLogger::getInstance()                                   \
         << "\033[30mDEBUG: " << msg << "\033[0m" << std::endl; \
   } while (0)
-#else
-#define DEBUG_MSG(msg)
-#endif
-
 #define ERROR_MSG(msg)                                                        \
   do {                                                                        \
     IRCLogger::getInstance() << "\033[31mERROR\033[0m: " << msg << std::endl; \
   } while (0)
-
 #define INFO_MSG(msg)                                                        \
   do {                                                                       \
     IRCLogger::getInstance() << "\033[36mINFO\033[0m: " << msg << std::endl; \
   } while (0)
 
+#else
+#define DEBUG_MSG(msg)
+#define ERROR_MSG(msg)
+#define INFO_MSG(msg)
+#endif
+
+#ifdef DEBUG
 class IRCLogger {
  public:
   // シングルトン
@@ -59,5 +61,6 @@ class IRCLogger {
   IRCLogger(const IRCLogger& other);
   IRCLogger& operator=(const IRCLogger& other);
 };
+#endif  // DEBUG
 
 #endif  // __IRC_LOGGER_HPP__

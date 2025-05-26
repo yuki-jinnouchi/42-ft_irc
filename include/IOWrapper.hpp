@@ -13,6 +13,7 @@ typedef struct epoll_event io_event;
 class IOWrapper {
  public:
   static const int kEpollMaxEvents = 10000;
+  static const int kRecvBufferSize = 1024;
 
   IOWrapper();
   ~IOWrapper();
@@ -25,9 +26,9 @@ class IOWrapper {
   bool sendMessage(Client* client, const std::string& msg);
   bool sendMessage(Client* client);
 
-  bool writeLog();
+  bool receiveMessage(Client* client, std::string& msg);
 
-  static bool setNonBlockingFlag(int fd);
+  bool writeLog(int fd);
 
  private:
   int epfd_;                         // epollのファイルディスクリプタ
