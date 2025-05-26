@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]) {
   try {
     if (argc != 3) {
-      std::cout << "Usage: ircserv <port> <password>" << std::endl;
+      std::cerr << "Usage: ircserv <port> <password>" << std::endl;
       return 1;
     }
     IRCServer server(argv[1], argv[2]);
