@@ -110,6 +110,31 @@ bool IOWrapper::sendMessage(Client* client) {
   return true;
 }
 
+bool IOWrapper::receiveMessage(Client* client, std::string& msg) {
+  // クライアントからのデータを受信した場合
+  char buffer[kRecvBufferSize];
+  ssize_t bytesRead =
+      recv(client->getFd(), buffer, sizeof(buffer), MSG_DONTWAIT);
+  if (bytesRead == 0) {
+    // クライアントが切断された場合
+    return false;
+  }
+  if (bytesRead < 0) {
+    // ノンブロッキングの場合
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      // 受信待ち
+      return true;
+    }
+    // recv失敗
+    ERROR_MSG("recv failed. fd: " << client->getFd());
+    return false;
+  }
+
+  // 前回受信途中のメッセージと結合
+  msg = client->popReceivingMsg() + std::string(buffer, bytesRead);
+  return true;
+}
+
 bool IOWrapper::writeLog(int fd) {
 #ifdef DEBUG
   if (fd != IRCLogger::getInstance().getFd() && fd != -1) {

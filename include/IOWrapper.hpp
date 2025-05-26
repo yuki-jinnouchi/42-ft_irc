@@ -13,6 +13,7 @@ typedef struct epoll_event io_event;
 class IOWrapper {
  public:
   static const int kEpollMaxEvents = 10000;
+  static const int kRecvBufferSize = 1024;
 
   IOWrapper();
   ~IOWrapper();
@@ -24,6 +25,8 @@ class IOWrapper {
 
   bool sendMessage(Client* client, const std::string& msg);
   bool sendMessage(Client* client);
+
+  bool receiveMessage(Client* client, std::string& msg);
 
   bool writeLog(int fd);
 

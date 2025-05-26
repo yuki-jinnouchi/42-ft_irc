@@ -210,7 +210,7 @@ void IRCServer::startListen() {
       close(sockfd);
       continue;
     }
-    if (listen(sockfd, MAX_BACKLOG) < 0) {
+    if (listen(sockfd, kMaxBacklog) < 0) {
       close(sockfd);
       continue;
     }
@@ -277,28 +277,16 @@ void IRCServer::handleClientMessage(int clientFd) {
     return;
   }
   // クライアントからのデータを受信した場合
-  char buffer[BUFFER_SIZE];
-  ssize_t bytesRead =
-      recv(it_from->first, buffer, sizeof(buffer), MSG_DONTWAIT);
-  if (bytesRead == 0) {
-    // クライアントが切断された場合
+  std::string msg = "";
+  if (!io_.receiveMessage(it_from->second, msg)) {
     disconnectClient(it_from->second);
     return;
   }
-  if (bytesRead < 0) {
-    // ノンブロッキングの場合
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      // 受信待ち
-      return;
-    }
-    // recv失敗
-    disconnectClient(it_from->second);
-    ERROR_MSG("recv failed. fd: " << it_from->first);
+  if (msg.empty()) {
+    // 受信したメッセージが空、またはブロックされた場合は何もしない
     return;
   }
-  // bytesRead > 0
-  std::string msg =
-      it_from->second->popReceivingMsg() + std::string(buffer, bytesRead);
+
   // CRLFで分割して処理
   std::vector<std::string> split_msgs = Utils::split(msg, "\r\n");
 
@@ -308,22 +296,22 @@ void IRCServer::handleClientMessage(int clientFd) {
     split_msgs.pop_back();
   }
 
-  CommandHandler commandHandler(this);
   for (std::vector<std::string>::iterator it = split_msgs.begin();
        it != split_msgs.end(); ++it) {
     // msgが510(CRLFを含めて512)を超えていたら切断
-    if (it->size() > IRCServer::MAX_MSG_SIZE) {
+    if (it->size() > IRCServer::kMaxMsgSize) {
       DEBUG_MSG("Message too long: " << it->size());
       disconnectClient(it_from->second);
       return;
     }
     IRCMessage msg(it_from->second, *it);
+    CommandHandler commandHandler(this);
     const std::map<Client*, std::string>& res =
         commandHandler.handleCommand(msg);
     sendResponses(res);
   }
   // receiving_msg_が510を超えていたら切断
-  if (it_from->second->getReceivingMsg().size() > IRCServer::MAX_MSG_SIZE) {
+  if (it_from->second->getReceivingMsg().size() > IRCServer::kMaxMsgSize) {
     DEBUG_MSG(
         "Message too long: " << it_from->second->getReceivingMsg().size());
     disconnectClient(it_from->second);
