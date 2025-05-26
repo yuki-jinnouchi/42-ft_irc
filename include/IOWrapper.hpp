@@ -25,9 +25,7 @@ class IOWrapper {
   bool sendMessage(Client* client, const std::string& msg);
   bool sendMessage(Client* client);
 
-  bool writeLog();
-
-  static bool setNonBlockingFlag(int fd);
+  bool writeLog(int fd);
 
  private:
   int epfd_;                         // epollのファイルディスクリプタ

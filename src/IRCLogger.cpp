@@ -2,12 +2,14 @@
 
 #include "IRCLogger.hpp"
 
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <iostream>
 
 #include "IOWrapper.hpp"
 
+#ifdef DEBUG
 IRCLogger& IRCLogger::getInstance() {
   static IRCLogger instance;
   return instance;
@@ -15,9 +17,9 @@ IRCLogger& IRCLogger::getInstance() {
 
 IRCLogger::IRCLogger() {
   log_ = "";
-  fd_ = STDERR_FILENO;
-  if (!IOWrapper::setNonBlockingFlag(fd_)) {
-    throw std::runtime_error("fcntl: set non-blocking flag failed");
+  fd_ = open("/dev/stderr", O_WRONLY | O_NONBLOCK);
+  if (fd_ < 0) {
+    throw std::runtime_error("cannot open log file");
   }
 }
 
@@ -42,3 +44,4 @@ size_t IRCLogger::consumeLog(size_t size) {
   log_.erase(0, size);
   return log_.size();
 }
+#endif  // DEBUG

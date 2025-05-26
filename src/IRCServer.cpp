@@ -67,7 +67,8 @@ IRCServer::IRCServer(const char* port, const char* password) {
   }
   password_ = std::string(password);
 
-  // ログ出力をノンブロッキングに設定
+// ログ出力をepollで監視
+#ifdef DEBUG
   if (!io_.add_monitoring(IRCLogger::getInstance().getFd(),
                           EPOLLIN | EPOLLET)) {
     ERROR_MSG("Error: modify_monitoring failed");
@@ -75,6 +76,7 @@ IRCServer::IRCServer(const char* port, const char* password) {
     // 暫定的に強制終了をコメントアウト
     // std::exit(EXIT_FAILURE);
   }
+#endif
   DEBUG_MSG("Port: " << port_ << ", Password: " << password_);
 }
 
@@ -181,7 +183,8 @@ void IRCServer::startListen() {
     std::exit(EXIT_FAILURE);
   }
   for (ai = res; ai != NULL; ai = ai->ai_next) {
-    int sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+    int sockfd =
+        socket(ai->ai_family, ai->ai_socktype | SOCK_NONBLOCK, ai->ai_protocol);
     if (sockfd < 0) {
       ERROR_MSG("socket failed");
       continue;
@@ -275,13 +278,19 @@ void IRCServer::handleClientMessage(int clientFd) {
   }
   // クライアントからのデータを受信した場合
   char buffer[BUFFER_SIZE];
-  ssize_t bytesRead = recv(it_from->first, buffer, sizeof(buffer), 0);
+  ssize_t bytesRead =
+      recv(it_from->first, buffer, sizeof(buffer), MSG_DONTWAIT);
   if (bytesRead == 0) {
     // クライアントが切断された場合
     disconnectClient(it_from->second);
     return;
   }
   if (bytesRead < 0) {
+    // ノンブロッキングの場合
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      // 受信待ち
+      return;
+    }
     // recv失敗
     disconnectClient(it_from->second);
     ERROR_MSG("recv failed. fd: " << it_from->first);
@@ -338,7 +347,7 @@ void IRCServer::run() {
   while (true) {
     io_event evlist[IOWrapper::kEpollMaxEvents];
     // TODO ログ書き出し
-    io_.writeLog();
+    io_.writeLog(-1);
 
     int ready = io_.wait_monitoring(evlist);
     if (ready == -1) {
@@ -361,10 +370,8 @@ void IRCServer::run() {
       } else if (evlist[j].events & EPOLLOUT) {
         // 書き込み可能になったソケットに対して処理を行う
         resendClientMessage(evlist[j].data.fd);
-        // TODO ログ書き出し
-        if (evlist[j].data.fd == IRCLogger::getInstance().getFd()) {
-          io_.writeLog();
-        }
+        // ログ書き出し
+        io_.writeLog(evlist[j].data.fd);
       } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
         DEBUG_MSG("    closing fd " << evlist[j].data.fd);
 

@@ -84,7 +84,7 @@ bool IOWrapper::sendMessage(Client* client) {
   }
   while (msg_size > 0) {
     ssize_t bytes_sent = send(client->getFd(), client->getSendingMsg().c_str(),
-                              client->getSendingMsg().size(), 0);
+                              client->getSendingMsg().size(), MSG_DONTWAIT);
     if (bytes_sent >= 0) {
       // 送信したバイト数を送信待ちメッセージから削除
       msg_size = client->consumeSendingMsg(bytes_sent);
@@ -110,16 +110,20 @@ bool IOWrapper::sendMessage(Client* client) {
   return true;
 }
 
-bool IOWrapper::writeLog() {
+bool IOWrapper::writeLog(int fd) {
+#ifdef DEBUG
+  if (fd != IRCLogger::getInstance().getFd() && fd != -1) {
+    return true;
+  }
   int log_fd = IRCLogger::getInstance().getFd();
   size_t log_size = IRCLogger::getInstance().getLog().size();
   if (log_size == 0) {
     return true;
   }
   while (log_size > 0) {
-    ssize_t bytes_written =
-        write(STDERR_FILENO, IRCLogger::getInstance().getLog().c_str(),
-              IRCLogger::getInstance().getLog().size());
+    ssize_t bytes_written = write(IRCLogger::getInstance().getFd(),
+                                  IRCLogger::getInstance().getLog().c_str(),
+                                  IRCLogger::getInstance().getLog().size());
     if (bytes_written >= 0) {
       log_size = IRCLogger::getInstance().consumeLog(bytes_written);
       continue;
@@ -141,18 +145,8 @@ bool IOWrapper::writeLog() {
     modify_monitoring(log_fd, EPOLLIN | EPOLLET);
     pending_write_fds_.erase(log_fd);
   }
-  return true;
-}
-
-bool IOWrapper::setNonBlockingFlag(int fd) {
-#ifndef UNIT_TEST
-  int flags = fcntl(fd, F_GETFL, 0);
-  if (flags == -1) {
-    return false;
-  }
-  if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-    return false;
-  }
+#else
+  (void)fd;
 #endif
   return true;
 }
