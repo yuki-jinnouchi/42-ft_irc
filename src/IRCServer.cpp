@@ -332,6 +332,7 @@ void IRCServer::resendClientMessage(int clientFd) {
 }
 
 void IRCServer::run() {
+  startListen();
   while (true) {
     io_event evlist[IOWrapper::kEpollMaxEvents];
     // TODO ログ書き出し

@@ -30,6 +30,7 @@ class IRCServer {
   void handleClientMessage(int clientFd);
   void resendClientMessage(int clientFd);
   void disconnectClient(Client* client);
+  void startListen();  // ソケットをバインドしてリッスン状態にする
 
   static const int kMaxMsgSize = 510;  // IRCの仕様
   static const int kMaxBacklog = 100;
@@ -57,8 +58,7 @@ class IRCServer {
   bool removeChannel(const std::string& name);
 
   // Member functions
-  void startListen();  // ソケットをバインドしてリッスン状態にする
-  void run();          // メインループ。接続受付、読み書き処理
+  void run();  // メインループ。接続受付、読み書き処理
   // void acceptConnection();
   // void receiveMessage(Client* client);
   // void sendMessage(Client* client, const std::string& message);
