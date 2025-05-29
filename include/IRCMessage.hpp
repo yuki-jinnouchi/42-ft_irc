@@ -17,7 +17,6 @@ class IRCMessage {
   std::map<Client*, std::string> responses_;  // 宛先client->送信メッセージのmap
   std::string prefix_;
   std::string command_;
-  // bool isReply_;
   std::vector<std::string> params_;
 
   // Constructor

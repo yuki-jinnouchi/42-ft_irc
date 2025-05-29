@@ -4,9 +4,9 @@
 
 #include <string>
 
+#include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
 #include "IRCServer.hpp"
-#include "IRCLogger.hpp"
 
 class CommandHandler {
  private:
@@ -14,17 +14,21 @@ class CommandHandler {
   IRCServer* server_;
   // IRCMessage msg_;
   std::map<Client*, std::string> responses_;
-  
+
   // Handle commands
-  void Pass(const IRCMessage& msg);
-  void Nick(const IRCMessage& msg);
-  void User(const IRCMessage& msg);
-  void Join(const IRCMessage& msg);
+  // void cap(IRCMessage& msg);
+  void pass(IRCMessage& msg);
+  void nick(IRCMessage& msg);
+  void user(IRCMessage& msg);
+  void join(IRCMessage& msg);
   // void Privmsg(const IRCMessage& msg);
   // void Part(const IRCMessage& msg);
   // void Quit(const IRCMessage& msg);
-  void Ping(IRCMessage& msg);
+  void ping(IRCMessage& msg);
+
+  // Member functions
   // void handlePong(IRCMessage& msg);
+  void sendWelcome(IRCMessage& msg);
 
  public:
   // Orthodox Canonical Form

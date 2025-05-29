@@ -373,3 +373,13 @@ void IRCServer::run() {
     }
   }
 }
+
+bool IRCServer::isNickTaken(const std::string nick) const {
+  for (std::map<int, Client*>::const_iterator it = clients_.begin();
+       it != clients_.end(); ++it) {
+    if (it->second->getNickName() == nick) {
+      return true;
+    }
+  }
+  return false;
+}
