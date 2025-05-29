@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __COMMAND_HANDLER_HPP__
-#define __COMMAND_HANDLER_HPP__
+#ifndef __REQUEST_HANDLER_HPP__
+#define __REQUEST_HANDLER_HPP__
 
 #include <string>
 
@@ -8,7 +8,7 @@
 #include "IRCMessage.hpp"
 #include "IRCServer.hpp"
 
-class CommandHandler {
+class RequestHandler {
  private:
   // Member variables
   IRCServer* server_;
@@ -32,11 +32,11 @@ class CommandHandler {
 
  public:
   // Orthodox Canonical Form
-  // CommandHandler();
-  CommandHandler(IRCServer* server);
-  ~CommandHandler();
-  CommandHandler(const CommandHandler& other);
-  CommandHandler& operator=(const CommandHandler& other);
+  // RequestHandler();
+  RequestHandler(IRCServer* server);
+  ~RequestHandler();
+  RequestHandler(const RequestHandler& other);
+  RequestHandler& operator=(const RequestHandler& other);
 
   // Member functions
   const std::map<Client*, std::string>& handleCommand(IRCMessage& msg);
@@ -44,4 +44,4 @@ class CommandHandler {
   // const std::map<Client*, std::string>& handlePing(IRCMessage& msg);
 };
 
-#endif  // __COMMAND_HANDLER_HPP__
+#endif  // __REQUEST_HANDLER_HPP__

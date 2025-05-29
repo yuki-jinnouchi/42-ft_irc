@@ -1,15 +1,15 @@
-#include "CommandHandler.hpp"
+#include "RequestHandler.hpp"
 
 // Orthodox Cannonical Form
-CommandHandler::CommandHandler(IRCServer* server) : server_(server) {}
+RequestHandler::RequestHandler(IRCServer* server) : server_(server) {}
 
-CommandHandler::~CommandHandler() {}
+RequestHandler::~RequestHandler() {}
 
-CommandHandler::CommandHandler(const CommandHandler& other) {
+RequestHandler::RequestHandler(const RequestHandler& other) {
   *this = other;
 }
 
-CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
+RequestHandler& RequestHandler::operator=(const RequestHandler& other) {
   if (this == &other) {
     return *this;
   }
@@ -18,7 +18,7 @@ CommandHandler& CommandHandler::operator=(const CommandHandler& other) {
 }
 
 // Member functions
-const std::map<Client*, std::string>& CommandHandler::handleCommand(
+const std::map<Client*, std::string>& RequestHandler::handleCommand(
     IRCMessage& msg) {
   IRCParser::parseRaw(msg);
   DEBUG_MSG("[COMMAND] " << " fd: " << msg.getFrom()->getFd()
@@ -63,7 +63,7 @@ const std::map<Client*, std::string>& CommandHandler::handleCommand(
   return msg.getResponses();
 }
 
-// void CommandHandler::cap(IRCMessage& msg) {
+// void RequestHandler::cap(IRCMessage& msg) {
 //   Client* from = msg.getFrom();
 //   if (msg.getParam(0).empty()) {
 //     msg.addResponse(msg.getFrom(), "461 CAP :Not enough parameters");
@@ -80,7 +80,7 @@ const std::map<Client*, std::string>& CommandHandler::handleCommand(
 //   }
 // }
 
-void CommandHandler::pass(IRCMessage& msg) {
+void RequestHandler::pass(IRCMessage& msg) {
   Client* from = msg.getFrom();
   std::string password = msg.getParam(0);
   // NOTE: ignore hop count
@@ -103,7 +103,7 @@ void CommandHandler::pass(IRCMessage& msg) {
   from->setIsPasswordPassed(true);
 }
 
-void CommandHandler::nick(IRCMessage& msg) {
+void RequestHandler::nick(IRCMessage& msg) {
   Client* from = msg.getFrom();
   if (msg.getParam(0).empty()) {
     std::string errorMsg = "431 :No nickname given";
@@ -126,7 +126,7 @@ void CommandHandler::nick(IRCMessage& msg) {
   sendWelcome(msg);
 }
 
-void CommandHandler::user(IRCMessage& msg) {
+void RequestHandler::user(IRCMessage& msg) {
   Client* from = msg.getFrom();
   if (msg.getParam(0).empty() || msg.getParam(3).empty()) {
     std::string errorMsg = "461 USER :Not enough parameters";
@@ -143,7 +143,7 @@ void CommandHandler::user(IRCMessage& msg) {
   sendWelcome(msg);
 }
 
-void CommandHandler::join(IRCMessage& msg) {
+void RequestHandler::join(IRCMessage& msg) {
   Client* client = msg.getFrom();
   if (msg.getParam(0).empty() || msg.getParam(3).empty()) {
     std::string errorMsg = "461 JOIN :Not enough parameters";
@@ -164,23 +164,23 @@ void CommandHandler::join(IRCMessage& msg) {
     server_->getChannel(channelName)->addMember(client);
 }
 
-// void CommandHandler::Privmsg(const IRCMessage& msg) {
+// void RequestHandler::Privmsg(const IRCMessage& msg) {
 //   // TODO: 追って追記
 // }
 
-// void CommandHandler::Part(const IRCMessage& msg) {
+// void RequestHandler::Part(const IRCMessage& msg) {
 //   // TODO: 追って追記
 // }
 
-// void CommandHandler::Quit(const IRCMessage& msg) {
+// void RequestHandler::Quit(const IRCMessage& msg) {
 //   // TODO: 追って追記
 // }
 
-void CommandHandler::ping(IRCMessage& msg) {
+void RequestHandler::ping(IRCMessage& msg) {
   msg.addResponse(msg.getFrom(), "PONG " + msg.getParam(0));
 }
 
-void CommandHandler::sendWelcome(IRCMessage& msg) {
+void RequestHandler::sendWelcome(IRCMessage& msg) {
   Client* from = msg.getFrom();
   if (from->getIsRegistered() || !from->getIsPasswordPassed() ||
       from->getNickName().empty() || from->getUserName().empty()) {
@@ -193,7 +193,7 @@ void CommandHandler::sendWelcome(IRCMessage& msg) {
   msg.addResponse(from, welcomeMsg);
 }
 
-const std::map<Client*, std::string>& CommandHandler::broadCastRawMsg(
+const std::map<Client*, std::string>& RequestHandler::broadCastRawMsg(
     IRCMessage& msg) {
   for (std::map<int, Client*>::const_iterator it =
            server_->getClients().begin();

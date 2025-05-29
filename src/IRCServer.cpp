@@ -13,9 +13,9 @@
 #include <sstream>
 
 #include "Client.hpp"
-#include "CommandHandler.hpp"
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
+#include "RequestHandler.hpp"
 #include "Utils.hpp"
 
 static bool isValidPort(const char* port_str) {
@@ -305,9 +305,9 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    CommandHandler commandHandler(this);
+    RequestHandler requestHandler(this);
     const std::map<Client*, std::string>& res =
-        commandHandler.handleCommand(msg);
+        requestHandler.handleCommand(msg);
     sendResponses(res);
   }
   // receiving_msg_が510を超えていたら切断

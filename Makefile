@@ -1,7 +1,7 @@
 NAME := ircserv
 
 SRCS := src/main.cpp src/IRCServer.cpp src/Client.cpp src/Channel.cpp\
-		src/CommandHandler.cpp src/IRCMessage.cpp src/Socket.cpp \
+		src/RequestHandler.cpp src/IRCMessage.cpp src/Socket.cpp \
 		src/IRCParser.cpp src/Utils.cpp src/IOWrapper.cpp src/IRCLogger.cpp \
 		src/IRCSignal.cpp
 OBJS := $(SRCS:.cpp=.o)

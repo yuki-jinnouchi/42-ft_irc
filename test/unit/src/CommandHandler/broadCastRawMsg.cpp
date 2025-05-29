@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "CommandHandler.hpp"
 #include "IRCServer.hpp"
+#include "RequestHandler.hpp"
 
-TEST(CommandHandler, broadCastRawMsg) {
+TEST(RequestHandler, broadCastRawMsg) {
   IRCServer server("6677", "pass123");
 
   std::map<int, Client*> clients;
@@ -17,9 +17,9 @@ TEST(CommandHandler, broadCastRawMsg) {
   std::string msgStr = "abcdefg";
   IRCMessage msg(clients[10], msgStr);
 
-  CommandHandler commandHandler(&server);
+  RequestHandler requestHandler(&server);
   const std::map<Client*, std::string>& res =
-      commandHandler.broadCastRawMsg(msg);
+      requestHandler.broadCastRawMsg(msg);
 
   EXPECT_EQ(res.size(), 2);
 
