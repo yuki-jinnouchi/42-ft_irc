@@ -8,7 +8,7 @@ class CommandPass : public ACommand {
  public:
   // Orthodox Canonical Form
   CommandPass(IRCServer* server, std::string commandName);
-  ~CommandPass() {}
+  ~CommandPass();
   // CommandPass(const CommandPass& other);
   // CommandPass& operator=(const CommandPass& other);
 

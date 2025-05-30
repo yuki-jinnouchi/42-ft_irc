@@ -50,23 +50,23 @@ class ACommand {
 
   // Member functions
   // ResponserBuilder
-  void addResponse(std::vector<Client*> Clients,
-                          ResponseCode responseCode);
-  std::string formatResponse(int const responseCode,
-                                    std::string const& fromat,
-                                    std::vector<std::string> const& values);
+  // void addResponse(std::vector<Client*> Clients, ResponseCode responseCode);
+  // std::string formatResponse(int const responseCode, std::string const&
+  // fromat,
+  //                            std::vector<std::string> const& values);
   std::string generateResponse(int responseCode);
 
   // Registration
-  void registrate(IRCMessage& msg);
+  // void registrate(IRCMessage& msg);
+
+  ACommand(const ACommand& other);
+  ACommand& operator=(const ACommand& other);
 
  public:
   // Orthodox Canonical Form
   // ACommand();
   ACommand(IRCServer* server, std::string commandName);
   virtual ~ACommand();
-  // virtual ACommand(const ACommand& other);
-  // virtual ACommand& operator=(const ACommand& other);
 
   // Getters
   const std::string& getCommandName() const;

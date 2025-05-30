@@ -1,4 +1,6 @@
-#include "CommandPass.hpp"
+#include "command/CommandPass.hpp"
+
+#include "IRCLogger.hpp"
 
 /*
   @brief IRC command "PASS" handler.
@@ -12,16 +14,21 @@ CommandPass::CommandPass(IRCServer* server, std::string commandName)
 CommandPass::~CommandPass() {}
 
 void CommandPass::execute(IRCMessage& msg) {
-  Client* from = msg.getFrom();
-  std::string password = msg.getParam(0);
-  // NOTE: ignore hop count
-  if (password.empty()) {
-    ResponseBuilder::addResponse({from}, ERR_NEEDMOREPARAMS, {"PASS"});
-    return;
-  }
-  if (from->getIsRegistered()) {
-    ResponseBuilder::addResponse({from}, ERR_ALREADYREGISTRED, {});
-    return;
-  }
-  from->setPassword(password);
+  // Client* from = msg.getFrom();
+  // std::string password = msg.getParam(0);
+  // // NOTE: ignore hop count
+  // if (password.empty()) {
+  //   // TODO
+  //   // ResponseBuilder::addResponse({from}, ERR_NEEDMOREPARAMS, {"PASS"});
+  //   DEBUG_MSG("CommandPass: Password is empty.");
+  //   return;
+  // }
+  // if (from->getIsRegistered()) {
+  //   // TODO
+  //   // ResponseBuilder::addResponse({from}, ERR_ALREADYREGISTRED, {});
+  //   DEBUG_MSG("CommandPass: Client is already registered.");
+  //   return;
+  // }
+  // from->setPassword(password);
+  (void)msg;
 }

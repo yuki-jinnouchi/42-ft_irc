@@ -6,28 +6,30 @@
 
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
-#include "IRCServer.hpp"
+// #include "IRCServer.hpp"
+#include "command/ACommand.hpp"
 
+// class IRCServer;
 class RequestHandler {
  private:
   // Member variables
   IRCServer* server_;
-  std::map<Client*, std::string> responses_;
+  std::map<std::string, ACommand*> commands_;
 
-  // Member functions
-  void sendWelcome(IRCMessage& msg);
+  void initializeCommands(IRCServer* server_);
+
+  RequestHandler(const RequestHandler& other);
+  RequestHandler& operator=(const RequestHandler& other);
 
  public:
   // Orthodox Canonical Form
   // RequestHandler();
   RequestHandler(IRCServer* server);
   ~RequestHandler();
-  RequestHandler(const RequestHandler& other);
-  RequestHandler& operator=(const RequestHandler& other);
 
   // Member functions
-  const std::map<Client*, std::string>& handleCommand(IRCMessage& msg);
-  const std::map<Client*, std::string>& broadCastRawMsg(IRCMessage& msg);
+  void handleCommand(IRCMessage& msg);
+  // const std::map<Client*, std::string>& broadCastRawMsg(IRCMessage& msg);
 };
 
 #endif  // __REQUEST_HANDLER_HPP__
