@@ -43,7 +43,7 @@ class CommandManager {
   void registerCommands();
   void unregisterCommands();
 
-  public:
+ public:
   // Orthodox Canonical Form
   // CommandManager();
   CommandManager(IRCServer* server);

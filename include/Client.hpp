@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __CLIENT_SESSION_HPP__
-#define __CLIENT_SESSION_HPP__
+#ifndef __CLIENT_HPP__
+#define __CLIENT_HPP__
 
 #include <string>
 #include <vector>
@@ -17,11 +17,11 @@ class Client {
   std::string nickName_;
   std::string userName_;
   std::string realName_;
+  std::string password_;  // パスワード
   // bool isRegistered_; // NICKとUSER登録済みか
   // std::map<std::string, Channel*> joinedChannels_;
   std::string receiving_msg_;  // 受信途中のメッセージ
   std::string sending_msg_;    // 送信途中のメッセージ
-  bool isPasswordPassed_;  // パスワードが設定されているか
   // bool isCapabilityNegotiating_;  // CAPABILITYネゴシエーション中か
   bool isRegistered_;  // NICKとUSER登録済みか
 
@@ -44,9 +44,9 @@ class Client {
   const std::string& getNickName() const;
   const std::string& getUserName() const;
   const std::string& getRealName() const;
+  const std::string& getPassword() const;
   // const bool& getIsRegistrated() const;
   const std::string& getReceivingMsg() const;
-  bool getIsPasswordPassed() const;
   // bool getIsCapabilityNegotiating() const;
   bool getIsRegistered() const;
 
@@ -54,7 +54,7 @@ class Client {
   void setNickName(const std::string& name);
   void setUserName(const std::string& name);
   void setRealName(const std::string& name);
-  void setIsPasswordPassed(const bool isPasswordPassed);
+  void setPassword(const std::string& password);
   // void setIsCapabilityNegotiating(const bool isCapabilityNegotiating);
   void setIsRegistered(const bool isRegisterd);
 
@@ -71,4 +71,4 @@ class Client {
   // const std::set& getChannels() const;
 };
 
-#endif  // __CLIENT_SESSION_HPP__
+#endif  // __CLIENT_HPP__
