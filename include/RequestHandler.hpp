@@ -4,19 +4,17 @@
 
 #include <string>
 
-#include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
 // #include "IRCServer.hpp"
 #include "command/ACommand.hpp"
 
-// class IRCServer;
 class RequestHandler {
  private:
   // Member variables
   IRCServer* server_;
   std::map<std::string, ACommand*> commands_;
 
-  void initializeCommands(IRCServer* server_);
+  void initializeCommands();
 
   RequestHandler(const RequestHandler& other);
   RequestHandler& operator=(const RequestHandler& other);

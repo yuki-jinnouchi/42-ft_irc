@@ -55,7 +55,7 @@ static bool isValidPassword(const char* password_str) {
 
 // Constructor & Destructor
 IRCServer::IRCServer(const char* port, const char* password)
-    : request_handler_(this) {
+    : request_handler_(this), server_name_("irc.example.net") {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -252,11 +252,11 @@ void IRCServer::acceptConnection(int listenSocketFd) {
 void IRCServer::sendResponses() {
   for (std::set<Client*>::const_iterator it = send_queue_.begin();
        it != send_queue_.end(); ++it) {
-    send_queue_.erase(*it);  // 送信待ちから削除
     if (!io_.sendMessage(*it)) {
       disconnectClient(*it);
     }
   }
+  send_queue_.clear();  // 送信待ちキューをクリア
 }
 
 void IRCServer::disconnectClient(Client* client) {
@@ -382,4 +382,8 @@ bool IRCServer::isNickTaken(const std::string nick) const {
     }
   }
   return false;
+}
+
+void IRCServer::insertSendQueue(Client* client) {
+  send_queue_.insert(client);
 }

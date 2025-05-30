@@ -9,7 +9,6 @@
 #include "Client.hpp"
 #include "IOWrapper.hpp"
 #include "IRCMessage.hpp"
-#include "IRCParser.hpp"
 #include "RequestHandler.hpp"
 #include "Socket.hpp"
 
@@ -27,6 +26,8 @@ class IRCServer {
   // ChannelManager channelManager_;
   std::set<Client*> send_queue_;  // メッセージ送信待ちのクライアント
   RequestHandler request_handler_;
+
+  std::string server_name_;
 
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
@@ -53,6 +54,7 @@ class IRCServer {
   Channel* getChannel(const std::string& name) const;
   const std::string& getPort() const;
   const std::string& getPassword() const;
+  const std::string& getServerName() const;
 
   // Setters
   bool addClient(Client* client);
@@ -68,6 +70,7 @@ class IRCServer {
   // void receiveMessage(Client* client);
   // void sendMessage(Client* client, const std::string& message);
   // void disconnectClient(Client* client);
+  void insertSendQueue(Client* client);
 };
 
 #endif  // __IRC_SERVER_HPP__

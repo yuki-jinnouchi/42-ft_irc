@@ -2,13 +2,13 @@
 
 // Constructor & Destructor
 ACommand::ACommand(IRCServer* server, std::string commandName)
-    : server_(server), commandName_(commandName) {}
+    : server_(server), command_name_(commandName) {}
 
 ACommand::~ACommand() {}
 
 // Getters
 const std::string& ACommand::getCommandName() const {
-  return commandName_;
+  return command_name_;
 }
 
 // // Member functions
@@ -61,7 +61,7 @@ const std::string& ACommand::getCommandName() const {
 //   response += formattedString;
 //   return response;
 // }
-
+/*
 std::string ACommand::generateResponse(int responseCode) {
   // char codeStr[4];
   // // sprintf(codeStr, "%03d", responseCode);
@@ -177,3 +177,4 @@ std::string ACommand::generateResponse(int responseCode) {
       return "";
   }
 }
+*/
