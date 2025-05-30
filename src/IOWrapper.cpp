@@ -85,6 +85,9 @@ bool IOWrapper::sendMessage(Client* client) {
   while (msg_size > 0) {
     ssize_t bytes_sent = send(client->getFd(), client->getSendingMsg().c_str(),
                               client->getSendingMsg().size(), MSG_DONTWAIT);
+    DEBUG_MSG("[RESPONSE] "
+              << "fd: " << client->getFd() << ", bytes_sent: " << bytes_sent << std::endl
+              << "                  " << "msg: " << client->getSendingMsg().substr(0, msg_size - 2));
     if (bytes_sent >= 0) {
       // 送信したバイト数を送信待ちメッセージから削除
       msg_size = client->consumeSendingMsg(bytes_sent);

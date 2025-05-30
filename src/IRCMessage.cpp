@@ -48,7 +48,7 @@ const std::string& IRCMessage::getParam(int index) const {
   if (params_.empty())  // paramsが空の場合のガード
     return empty;
   if (index < 0 || index >= static_cast<int>(params_.size()))
-    return params_[0];  // TODO: 例外を投げるか、エラーメッセージを返すなど
+    return empty;  // TODO: 例外を投げるか、エラーメッセージを返すなど
   return params_[index];
 }
 
@@ -81,5 +81,5 @@ bool IRCMessage::isFromMe(const Client* client) const {
 }
 
 void IRCMessage::addResponse(Client* client_to, const std::string& message) {
-  responses_[client_to] = message;
+  responses_[client_to] = message + "\r\n";  // CRLFを追加して応答を保存
 }

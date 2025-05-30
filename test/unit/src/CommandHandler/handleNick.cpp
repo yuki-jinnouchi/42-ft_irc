@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "CommandHandler.hpp"
 #include "IRCServer.hpp"
+#include "RequestHandler.hpp"
 
-TEST(CommandHandlerTE, handleNick1) {
+TEST(RequestHandlerTE, handleNick1) {
   IRCServer server("6677", "pass123");
 
   std::map<int, Client*> clients;
@@ -18,15 +18,15 @@ TEST(CommandHandlerTE, handleNick1) {
   std::string expected = "nick1";
   IRCMessage msg(clients[10], msgStr);
 
-  CommandHandler commandHandler(&server);
-  commandHandler.handleCommand(msg);
+  RequestHandler requestHandler(&server);
+  requestHandler.handleCommand(msg);
   const std::map<Client*, std::string> res = msg.getResponses();
 
   EXPECT_EQ(res.size(), 0);
   EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);
 }
 
-TEST(CommandHandlerTE, handleNick2) {
+TEST(RequestHandlerTE, handleNick2) {
   IRCServer server("6677", "pass123");
 
   std::map<int, Client*> clients;
@@ -41,8 +41,8 @@ TEST(CommandHandlerTE, handleNick2) {
   std::string expected = "nick2";
   IRCMessage msg(clients[10], msgStr);
 
-  CommandHandler commandHandler(&server);
-  commandHandler.handleCommand(msg);
+  RequestHandler requestHandler(&server);
+  requestHandler.handleCommand(msg);
 
   const std::map<Client*, std::string> res = msg.getResponses();
 

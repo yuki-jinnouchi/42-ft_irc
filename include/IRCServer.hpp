@@ -58,7 +58,8 @@ class IRCServer {
   bool removeChannel(const std::string& name);
 
   // Member functions
-  void run();  // メインループ。接続受付、読み書き処理
+  void run();          // メインループ。接続受付、読み書き処理
+  bool isNickTaken(const std::string nick) const;
   // void acceptConnection();
   // void receiveMessage(Client* client);
   // void sendMessage(Client* client, const std::string& message);

@@ -31,8 +31,16 @@ const std::string& Client::getRealName() const {
   return realName_;
 }
 
-const std::string& Client::getPassword() const {
-  return password_;
+bool Client::getIsPasswordPassed() const {
+  return isPasswordPassed_;
+}
+
+// bool Client::getIsCapabilityNegotiating() const {
+//   return isCapabilityNegotiating_;
+// }
+
+bool Client::getIsRegistered() const {
+  return isRegistered_;
 }
 
 const std::string& Client::getReceivingMsg() const {
@@ -52,8 +60,16 @@ void Client::setRealName(const std::string& real) {
   realName_ = real;
 }
 
-void Client::setPassword(const std::string& pass) {
-  password_ = pass;
+void Client::setIsPasswordPassed(const bool isPasswordPassed) {
+  isPasswordPassed_ = isPasswordPassed;
+}
+
+// void Client::setIsCapabilityNegotiating(const bool isCapabilityNegotiating) {
+//   isCapabilityNegotiating_ = isCapabilityNegotiating;
+// }
+
+void Client::setIsRegistered(const bool isRegistered) {
+  isRegistered_ = isRegistered;
 }
 
 // Member Functions
