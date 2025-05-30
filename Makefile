@@ -12,17 +12,6 @@ OBJS_ROOT_DIR =	objs
 OBJS_DIR =	$(patsubst $(SRCS_ROOT_DIR)%,$(OBJS_ROOT_DIR)%,$(SRCS_DIR))
 
 # Files
-# Directories
-INCL_ROOT_DIR =	include
-INCL_DIR := $(INCL_ROOT_DIR)
-INCL_DIR += $(shell find $(INCL_ROOT_DIR) -mindepth 1 -type d)
-SRCS_ROOT_DIR = src
-SRCS_DIR = $(SRCS_ROOT_DIR)
-SRCS_DIR +=	$(shell find $(SRCS_ROOT_DIR) -mindepth 1 -type d)
-OBJS_ROOT_DIR =	objs
-OBJS_DIR =	$(patsubst $(SRCS_ROOT_DIR)%,$(OBJS_ROOT_DIR)%,$(SRCS_DIR))
-
-# Files
 SRCS := src/main.cpp src/IRCServer.cpp src/Client.cpp src/Channel.cpp\
 		src/RequestHandler.cpp src/IRCMessage.cpp src/Socket.cpp \
 		src/IRCParser.cpp src/Utils.cpp src/IOWrapper.cpp src/IRCLogger.cpp \
