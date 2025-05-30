@@ -54,7 +54,7 @@ static bool isValidPassword(const char* password_str) {
 }
 
 // Constructor & Destructor
-IRCServer::IRCServer(const char* port, const char* password) {
+IRCServer::IRCServer(const char* port, const char* password) : commandManager_(this) {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -91,20 +91,24 @@ IRCServer::~IRCServer() {
   DEBUG_MSG("Server stopped.");
 }
 
-IRCServer::IRCServer(const IRCServer& other) {
-  *this = other;
-}
+// IRCServer::IRCServer(const IRCServer& other) {
+//   *this = other;
+// }
 
-IRCServer& IRCServer::operator=(const IRCServer& other) {
-  if (this == &other) {
-    return *this;
-  }
-  port_ = other.port_;
-  password_ = other.password_;
-  return *this;
-}
+// IRCServer& IRCServer::operator=(const IRCServer& other) {
+//   if (this == &other) {
+//     return *this;
+//   }
+//   port_ = other.port_;
+//   password_ = other.password_;
+//   return *this;
+// }
 
 // Getters
+CommandManager& IRCServer::getCommandManager() {
+  return commandManager_;
+}
+
 const std::map<int, Client*>& IRCServer::getClients() const {
   return clients_;
 }
