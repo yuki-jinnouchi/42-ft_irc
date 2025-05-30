@@ -54,7 +54,8 @@ static bool isValidPassword(const char* password_str) {
 }
 
 // Constructor & Destructor
-IRCServer::IRCServer(const char* port, const char* password) {
+IRCServer::IRCServer(const char* port, const char* password)
+    : server_name_("irc.example.net") {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -127,6 +128,10 @@ const std::string& IRCServer::getPort() const {
 
 const std::string& IRCServer::getPassword() const {
   return password_;
+}
+
+const std::string& IRCServer::getName() const {
+  return server_name_;
 }
 
 // Setters

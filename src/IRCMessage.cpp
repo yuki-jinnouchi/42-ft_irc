@@ -1,8 +1,21 @@
 #include "IRCMessage.hpp"
 
 // Orthodox Cannonical Form
+IRCMessage::IRCMessage() {
+  from_ = NULL;
+  to_ = NULL;
+  raw_ = "";
+  responses_ = std::map<Client*, std::string>();
+  prefix_ = "";
+  command_ = "";
+  params_ = std::vector<std::string>();
+}
+
 IRCMessage::IRCMessage(Client* from, const std::string& raw)
     : from_(from),
+      to_(NULL),
+      error_code_(IRCErrorCode::ERR_NONE),
+      rpl_code_(IRCRplCode::RPL_NONE),
       raw_(raw),
       prefix_(""),
       command_(""),
@@ -10,7 +23,9 @@ IRCMessage::IRCMessage(Client* from, const std::string& raw)
 
 IRCMessage::~IRCMessage() {}
 
-IRCMessage::IRCMessage(const IRCMessage& other) { *this = other; }
+IRCMessage::IRCMessage(const IRCMessage& other) {
+  *this = other;
+}
 
 IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   if (this == &other) {
@@ -27,17 +42,25 @@ IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
 }
 
 // Getters
-Client* IRCMessage::getFrom() const { return from_; }
+Client* IRCMessage::getFrom() const {
+  return from_;
+}
 
-const std::string& IRCMessage::getRaw() const { return raw_; }
+const std::string& IRCMessage::getRaw() const {
+  return raw_;
+}
 
 const std::map<Client*, std::string>& IRCMessage::getResponses() const {
   return responses_;
 }
 
-const std::string& IRCMessage::getPrefix() const { return prefix_; }
+const std::string& IRCMessage::getPrefix() const {
+  return prefix_;
+}
 
-const std::string& IRCMessage::getCommand() const { return command_; }
+const std::string& IRCMessage::getCommand() const {
+  return command_;
+}
 
 // bool IRCMessage::getIsReply() const {
 //   return isReply_;
@@ -57,11 +80,17 @@ const std::vector<std::string>& IRCMessage::getParams() const {
 }
 
 // Setters
-void IRCMessage::setRaw(const std::string& raw) { raw_ = raw; }
+void IRCMessage::setRaw(const std::string& raw) {
+  raw_ = raw;
+}
 
-void IRCMessage::setPrefix(const std::string& prefix) { prefix_ = prefix; }
+void IRCMessage::setPrefix(const std::string& prefix) {
+  prefix_ = prefix;
+}
 
-void IRCMessage::setCommand(const std::string& command) { command_ = command; }
+void IRCMessage::setCommand(const std::string& command) {
+  command_ = command;
+}
 
 // void IRCMessage::setIsReply(bool isReply) {
 //   isReply_ = isReply;
@@ -80,6 +109,9 @@ bool IRCMessage::isFromMe(const Client* client) const {
   return from_ == client;
 }
 
-void IRCMessage::addResponse(Client* client_to, const std::string& message) {
-  responses_[client_to] = message + "\r\n";  // CRLFを追加して応答を保存
+void IRCMessage::pushResponse(Client* client_to, const std::string& message) {
+  if (responses_.find(client_to) == responses_.end()) {
+    responses_[client_to] = "";  // 初期化
+  }
+  responses_[client_to] += message + "\r\n";  // CRLFを追加して応答を保存
 }

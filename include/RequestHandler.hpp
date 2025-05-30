@@ -7,6 +7,7 @@
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
 #include "IRCServer.hpp"
+#include "command/ACommand.hpp"
 
 class RequestHandler {
  private:
@@ -14,6 +15,8 @@ class RequestHandler {
   IRCServer* server_;
   // IRCMessage msg_;
   std::map<Client*, std::string> responses_;
+
+  std::map<std::string, ACommand*> commandMap_;
 
   // Handle commands
   // void cap(IRCMessage& msg);
@@ -39,6 +42,7 @@ class RequestHandler {
   RequestHandler& operator=(const RequestHandler& other);
 
   // Member functions
+  void initializeCommands(IRCServer* server_);
   const std::map<Client*, std::string>& handleCommand(IRCMessage& msg);
   const std::map<Client*, std::string>& broadCastRawMsg(IRCMessage& msg);
   // const std::map<Client*, std::string>& handlePing(IRCMessage& msg);

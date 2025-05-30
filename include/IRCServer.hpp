@@ -15,6 +15,7 @@
 class IRCServer {
  private:
   // Member variables
+  std::string server_name_;
   IOWrapper io_;
   std::string port_;
   std::string password_;
@@ -49,6 +50,7 @@ class IRCServer {
   Channel* getChannel(const std::string& name) const;
   const std::string& getPort() const;
   const std::string& getPassword() const;
+  const std::string& getName() const;
 
   // Setters
   bool addClient(Client* client);
@@ -58,7 +60,7 @@ class IRCServer {
   bool removeChannel(const std::string& name);
 
   // Member functions
-  void run();          // メインループ。接続受付、読み書き処理
+  void run();  // メインループ。接続受付、読み書き処理
   bool isNickTaken(const std::string nick) const;
   // void acceptConnection();
   // void receiveMessage(Client* client);

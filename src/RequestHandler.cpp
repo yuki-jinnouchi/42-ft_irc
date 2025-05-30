@@ -1,5 +1,7 @@
 #include "RequestHandler.hpp"
 
+#include "command/Ping.hpp"
+
 // Orthodox Cannonical Form
 RequestHandler::RequestHandler(IRCServer* server) : server_(server) {}
 
@@ -17,6 +19,18 @@ RequestHandler& RequestHandler::operator=(const RequestHandler& other) {
   return *this;
 }
 
+void RequestHandler::initializeCommands(IRCServer* server_) {
+  // commandMap_["CAP"] = new Cap(server_);
+  // commandMap_["PASS"] = new Pass(server_);
+  // commandMap_["NICK"] = new Nick(server_);
+  // commandMap_["USER"] = new User(server_);
+  // commandMap_["JOIN"] = new Join(server_);
+  // commandMap_["PRIVMSG"] = new Privmsg(server_);
+  // commandMap_["PART"] = new Part(server_);
+  // commandMap_["QUIT"] = new Quit(server_);
+  commandMap_["PING"] = new Ping(server_);
+}
+
 // Member functions
 const std::map<Client*, std::string>& RequestHandler::handleCommand(
     IRCMessage& msg) {
@@ -30,53 +44,31 @@ const std::map<Client*, std::string>& RequestHandler::handleCommand(
                          << ", param[1]: " << msg.getParam(1));
 
   // コマンドごとに処理を分岐
-  // TODO: switch文など、もっと簡単に書けそう
-  std::string command = msg.getCommand();
-  // DEBUG_MSG("[EXECUTE]: " << command);
-  // if (command == "CAP")
-  //   cap(msg);
-  if (command == "PASS")
-    pass(msg);
-  else if (command == "NICK")
-    nick(msg);
-  else if (command == "USER")
-    user(msg);
-  // else if (command == "JOIN")
-  //   Join(msg);
-  // else if (command == "PRIVMSG")
-  //   Privmsg(msg);
-  // else if (command == "PART")
-  //   Part(msg);
-  // else if (command == "QUIT")
-  //   Quit(msg);
-  else if (command == "PING")
-    ping(msg);
-
-  // TODO: add commands
-  /*
-    KICK, INVITE, TOPIC, MODE
-  */
-
-  // 受信したデータを他のクライアントにそのまま送信
-  else
+  std::string cmd = msg.getCommand();
+  auto it = commandMap_.find(cmd);
+  if (it != commandMap_.end()) {
+    it->second->execute(msg);
+  } else {
     broadCastRawMsg(msg);
+  }
+
   return msg.getResponses();
 }
 
 // void RequestHandler::cap(IRCMessage& msg) {
 //   Client* from = msg.getFrom();
 //   if (msg.getParam(0).empty()) {
-//     msg.addResponse(msg.getFrom(), "461 CAP :Not enough parameters");
+//     msg.pushResponse(msg.getFrom(), "461 CAP :Not enough parameters");
 //   } else if (msg.getParam(0) == "LS") {  // CAP LS
 //     from->setIsCapabilityNegotiating(true);
-//     msg.addResponse(msg.getFrom(), "CAP * LS :multi-prefix");
+//     msg.pushResponse(msg.getFrom(), "CAP * LS :multi-prefix");
 //   } else if (msg.getParam(0) == "REQ") {  // CAP REQ
-//     msg.addResponse(msg.getFrom(), "CAP * ACK :multi-prefix");
+//     msg.pushResponse(msg.getFrom(), "CAP * ACK :multi-prefix");
 //   } else if (msg.getParam(0) == "END") {  // CAP END
-//     msg.addResponse(msg.getFrom(), "CAP END");
+//     msg.pushResponse(msg.getFrom(), "CAP END");
 //     from->setIsCapabilityNegotiating(false);
 //   } else {
-//     msg.addResponse(msg.getFrom(), "421 :Invalid CAP command");
+//     msg.pushResponse(msg.getFrom(), "421 :Invalid CAP command");
 //   }
 // }
 
@@ -86,17 +78,17 @@ void RequestHandler::pass(IRCMessage& msg) {
   // NOTE: ignore hop count
   if (password.empty()) {
     std::string errorMsg = "461 PASS :Not enough parameters";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     return;
   }
   if (from->getIsPasswordPassed()) {
     std::string errorMsg = "462 :You may not reregister";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     return;
   }
   if (password != server_->getPassword()) {
     std::string errorMsg = "464 :Password incorrect";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     // TODO:パスワードが間違っている場合には、クライアントを切断したい
     return;
   }
@@ -107,18 +99,18 @@ void RequestHandler::nick(IRCMessage& msg) {
   Client* from = msg.getFrom();
   if (msg.getParam(0).empty()) {
     std::string errorMsg = "431 :No nickname given";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     return;
   }
   if (msg.getParam(0).size() > Client::kMaxNickNameSize) {
     std::string errorMsg = "432 :Nickname too long";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     return;
   }
   if (server_->isNickTaken(msg.getParam(0))) {
     std::string errorMsg =
         "433 " + msg.getParam(0) + " :Nickname is already in use";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     return;
   }
   // TODO: valid Nick characters (432 ERR_ERRONEUSNICKNAME)
@@ -134,7 +126,7 @@ void RequestHandler::user(IRCMessage& msg) {
   }
   if (from->getIsRegistered()) {
     std::string errorMsg = "462 :You may not reregister";
-    msg.addResponse(from, errorMsg);
+    msg.pushResponse(from, errorMsg);
     return;
   }
   // TODO: Valid入れる？
@@ -154,7 +146,7 @@ void RequestHandler::join(IRCMessage& msg) {
   std::string channelName = msg.getParam(0).substr(1);
   if (firstChar != '#' && firstChar != '&') {
     std::string errorMsg = "403 " + channelName + " :No such channel";
-    msg.addResponse(client, errorMsg);
+    msg.pushResponse(client, errorMsg);
     return;
   }
   // TODO: now ignore invitation and password
@@ -177,7 +169,7 @@ void RequestHandler::join(IRCMessage& msg) {
 // }
 
 void RequestHandler::ping(IRCMessage& msg) {
-  msg.addResponse(msg.getFrom(), "PONG " + msg.getParam(0));
+  msg.pushResponse(msg.getFrom(), "PONG " + msg.getParam(0));
 }
 
 void RequestHandler::sendWelcome(IRCMessage& msg) {
@@ -190,7 +182,7 @@ void RequestHandler::sendWelcome(IRCMessage& msg) {
   std::string welcomeMsg = "001 " + from->getNickName() +
                            " :Welcome to the IRC server, " +
                            from->getNickName() + "!";
-  msg.addResponse(from, welcomeMsg);
+  msg.pushResponse(from, welcomeMsg);
 }
 
 const std::map<Client*, std::string>& RequestHandler::broadCastRawMsg(
@@ -203,7 +195,7 @@ const std::map<Client*, std::string>& RequestHandler::broadCastRawMsg(
       continue;
     } else {
       // 受信したデータを他のクライアントにそのまま送信
-      msg.addResponse(it->second, msg.getRaw());
+      msg.pushResponse(it->second, msg.getRaw());
     }
   }
   return msg.getResponses();
