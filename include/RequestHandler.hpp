@@ -6,28 +6,23 @@
 
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
-#include "IRCServer.hpp"
+
+class IRCServer;
+class ACommand;
 
 class RequestHandler {
  private:
   // Member variables
   IRCServer* server_;
-  // IRCMessage msg_;
-  std::map<Client*, std::string> responses_;
+  std::map<std::string, ACommand*> commands_;
 
-  // Handle commands
-  // void cap(IRCMessage& msg);
-  void pass(IRCMessage& msg);
-  void nick(IRCMessage& msg);
-  void user(IRCMessage& msg);
-  void join(IRCMessage& msg);
-  // void Privmsg(const IRCMessage& msg);
-  // void Part(const IRCMessage& msg);
-  // void Quit(const IRCMessage& msg);
-  void ping(IRCMessage& msg);
+  // Initialize/Delete Command List (commands_)
+  void registerCommands();
+  void unregisterCommands();
 
   // Member functions
-  // void handlePong(IRCMessage& msg);
+  ACommand* getCommand(const std::string& commandName);
+  void execCommand(IRCMessage& msg);
   void sendWelcome(IRCMessage& msg);
 
  public:
@@ -39,9 +34,8 @@ class RequestHandler {
   RequestHandler& operator=(const RequestHandler& other);
 
   // Member functions
-  const std::map<Client*, std::string>& handleCommand(IRCMessage& msg);
+  void handleCommand(IRCMessage& msg);
   const std::map<Client*, std::string>& broadCastRawMsg(IRCMessage& msg);
-  // const std::map<Client*, std::string>& handlePing(IRCMessage& msg);
 };
 
 #endif  // __REQUEST_HANDLER_HPP__

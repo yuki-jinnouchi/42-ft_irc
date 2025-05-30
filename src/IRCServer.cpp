@@ -54,7 +54,8 @@ static bool isValidPassword(const char* password_str) {
 }
 
 // Constructor & Destructor
-IRCServer::IRCServer(const char* port, const char* password) {
+IRCServer::IRCServer(const char* port, const char* password)
+    : request_handler_(new RequestHandler(this)) {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -81,6 +82,7 @@ IRCServer::IRCServer(const char* port, const char* password) {
 }
 
 IRCServer::~IRCServer() {
+  delete request_handler_;
   // listenSockets_の全てのソケットを閉じる
   for (std::map<int, Socket*>::iterator it = listenSockets_.begin();
        it != listenSockets_.end(); ++it) {
@@ -91,18 +93,18 @@ IRCServer::~IRCServer() {
   DEBUG_MSG("Server stopped.");
 }
 
-IRCServer::IRCServer(const IRCServer& other) {
-  *this = other;
-}
+// IRCServer::IRCServer(const IRCServer& other) {
+//   *this = other;
+// }
 
-IRCServer& IRCServer::operator=(const IRCServer& other) {
-  if (this == &other) {
-    return *this;
-  }
-  port_ = other.port_;
-  password_ = other.password_;
-  return *this;
-}
+// IRCServer& IRCServer::operator=(const IRCServer& other) {
+//   if (this == &other) {
+//     return *this;
+//   }
+//   port_ = other.port_;
+//   password_ = other.password_;
+//   return *this;
+// }
 
 // Getters
 const std::map<int, Client*>& IRCServer::getClients() const {
@@ -169,6 +171,12 @@ bool IRCServer::ifChannleExists(const std::string& name) const {
 //   }
 //   return false;
 // }
+
+void IRCServer::addSendQueue(Client* client) {
+  send_queue_.insert(client);
+  DEBUG_MSG("Added client to send queue: "
+            << client->getFd() << ", send queue size: " << send_queue_.size());
+}
 
 void IRCServer::startListen() {
   struct addrinfo hints, *res, *ai;
@@ -248,11 +256,14 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   }
 }
 
-void IRCServer::sendResponses(const std::map<Client*, std::string>& res) {
-  for (std::map<Client*, std::string>::const_iterator it = res.begin();
-       it != res.end(); ++it) {
-    if (!io_.sendMessage(it->first, it->second)) {
-      disconnectClient(it->first);
+void IRCServer::sendResponses() {
+  // NOTE: 実行時エラーを避けるために、send_queue_を一時的にコピー
+  std::set<Client*> temp_queue = send_queue_;
+  send_queue_.clear();
+  for (std::set<Client*>::const_iterator it = temp_queue.begin();
+       it != temp_queue.end(); ++it) {
+    if (!io_.sendMessage(*it)) {
+      disconnectClient(*it);
     }
   }
 }
@@ -305,10 +316,8 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    RequestHandler requestHandler(this);
-    const std::map<Client*, std::string>& res =
-        requestHandler.handleCommand(msg);
-    sendResponses(res);
+    request_handler_->handleCommand(msg);
+    sendResponses();
   }
   // receiving_msg_が510を超えていたら切断
   if (it_from->second->getReceivingMsg().size() > IRCServer::kMaxMsgSize) {

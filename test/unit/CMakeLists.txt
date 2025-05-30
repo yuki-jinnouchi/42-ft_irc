@@ -31,6 +31,7 @@ target_compile_definitions(libftirc PRIVATE UNIT_TEST)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -DUNIT_TEST=1")
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../include/commands"
   # "${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/googletest-src/googletest/include"
 )
 
