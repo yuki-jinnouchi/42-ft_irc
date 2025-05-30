@@ -28,7 +28,7 @@ const std::map<Client*, std::string>& RequestHandler::handleCommand(
                          << ", command: " << msg.getCommand()
                          << ", param[0]: " << msg.getParam(0)
                          << ", param[1]: " << msg.getParam(1));
-  server_->getCommandManager().execCommand(msg);
+  // server_->getCommandManager().execCommand(msg);
   return msg.getResponses();
 }
 

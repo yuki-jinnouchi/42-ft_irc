@@ -66,16 +66,6 @@ int IOWrapper::wait_monitoring(epoll_event* events) {
   return epoll_wait(epfd_, events, kEpollMaxEvents, -1);
 }
 
-bool IOWrapper::sendMessage(Client* client, const std::string& msg) {
-  client->pushSendingMsg(msg);
-  if (client->getSendingMsg().size() > Client::kMaxSendingMsgSize) {
-    ERROR_MSG("Sending message size exceeds limit: "
-              << client->getSendingMsg().size());
-    return false;
-  }
-  return sendMessage(client);
-}
-
 bool IOWrapper::sendMessage(Client* client) {
   size_t msg_size = client->getSendingMsg().size();
   if (msg_size == 0) {
@@ -85,9 +75,10 @@ bool IOWrapper::sendMessage(Client* client) {
   while (msg_size > 0) {
     ssize_t bytes_sent = send(client->getFd(), client->getSendingMsg().c_str(),
                               client->getSendingMsg().size(), MSG_DONTWAIT);
-    DEBUG_MSG("[RESPONSE] "
-              << "fd: " << client->getFd() << ", bytes_sent: " << bytes_sent << std::endl
-              << "                  " << "msg: " << client->getSendingMsg().substr(0, msg_size - 2));
+    DEBUG_MSG("[RESPONSE] " << "fd: " << client->getFd()
+                            << ", bytes_sent: " << bytes_sent << std::endl
+                            << "                  " << "msg: "
+                            << client->getSendingMsg().substr(0, msg_size - 2));
     if (bytes_sent >= 0) {
       // 送信したバイト数を送信待ちメッセージから削除
       msg_size = client->consumeSendingMsg(bytes_sent);

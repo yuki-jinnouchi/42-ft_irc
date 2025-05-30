@@ -8,9 +8,9 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 #include "IOWrapper.hpp"
-#include "CommandManager.hpp"
 #include "IRCMessage.hpp"
 #include "IRCParser.hpp"
+#include "RequestHandler.hpp"
 #include "Socket.hpp"
 
 class IRCServer {
@@ -23,13 +23,14 @@ class IRCServer {
   std::map<int, Client*> clients_;        // ソケットFD→クライアント
   std::map<std::string, Channel*>
       channels_;  // チャンネル名→チャンネルオブジェクト
-  CommandManager commandManager_;
   // UserManager userManager_;
   // ChannelManager channelManager_;
+  std::set<Client*> send_queue_;  // メッセージ送信待ちのクライアント
+  RequestHandler request_handler_;
 
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
-  void sendResponses(const std::map<Client*, std::string>& res);
+  void sendResponses();
   void handleClientMessage(int clientFd);
   void resendClientMessage(int clientFd);
   void disconnectClient(Client* client);
@@ -47,7 +48,6 @@ class IRCServer {
   // IRCServer& operator=(const IRCServer& other);
 
   // Getters
-  CommandManager& getCommandManager();
   const std::map<int, Client*>& getClients() const;
   const std::map<std::string, Channel*>& getChannels() const;
   Channel* getChannel(const std::string& name) const;
@@ -62,7 +62,7 @@ class IRCServer {
   bool removeChannel(const std::string& name);
 
   // Member functions
-  void run();          // メインループ。接続受付、読み書き処理
+  void run();  // メインループ。接続受付、読み書き処理
   bool isNickTaken(const std::string nick) const;
   // void acceptConnection();
   // void receiveMessage(Client* client);

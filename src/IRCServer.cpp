@@ -54,7 +54,8 @@ static bool isValidPassword(const char* password_str) {
 }
 
 // Constructor & Destructor
-IRCServer::IRCServer(const char* port, const char* password) : commandManager_(this) {
+IRCServer::IRCServer(const char* port, const char* password)
+    : request_handler_(this) {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -105,10 +106,6 @@ IRCServer::~IRCServer() {
 // }
 
 // Getters
-CommandManager& IRCServer::getCommandManager() {
-  return commandManager_;
-}
-
 const std::map<int, Client*>& IRCServer::getClients() const {
   return clients_;
 }
@@ -252,11 +249,12 @@ void IRCServer::acceptConnection(int listenSocketFd) {
   }
 }
 
-void IRCServer::sendResponses(const std::map<Client*, std::string>& res) {
-  for (std::map<Client*, std::string>::const_iterator it = res.begin();
-       it != res.end(); ++it) {
-    if (!io_.sendMessage(it->first, it->second)) {
-      disconnectClient(it->first);
+void IRCServer::sendResponses() {
+  for (std::set<Client*>::const_iterator it = send_queue_.begin();
+       it != send_queue_.end(); ++it) {
+    send_queue_.erase(*it);  // 送信待ちから削除
+    if (!io_.sendMessage(*it)) {
+      disconnectClient(*it);
     }
   }
 }
@@ -309,10 +307,8 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    RequestHandler requestHandler(this);
-    const std::map<Client*, std::string>& res =
-        requestHandler.handleCommand(msg);
-    sendResponses(res);
+    request_handler_.handleCommand(msg);
+    sendResponses();
   }
   // receiving_msg_が510を超えていたら切断
   if (it_from->second->getReceivingMsg().size() > IRCServer::kMaxMsgSize) {
