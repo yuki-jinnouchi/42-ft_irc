@@ -177,7 +177,7 @@ void RequestHandler::join(IRCMessage& msg) {
 // }
 
 void RequestHandler::ping(IRCMessage& msg) {
-  msg.addResponse(msg.getFrom(), "PONG " + msg.getParam(0));
+  msg.addResponse(msg.getFrom(), "PONG" + msg.getParam(0));
 }
 
 void RequestHandler::sendWelcome(IRCMessage& msg) {
