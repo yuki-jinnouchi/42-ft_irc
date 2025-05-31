@@ -12,6 +12,8 @@
 #include "IRCParser.hpp"
 #include "Socket.hpp"
 
+class RequestHandler;
+
 class IRCServer {
  private:
   // Member variables
@@ -24,9 +26,12 @@ class IRCServer {
       channels_;  // チャンネル名→チャンネルオブジェクト
   // UserManager userManager_;
   // ChannelManager channelManager_;
+  std::set<Client*> send_queue_;  // メッセージ送信待ちのクライアント
+  RequestHandler *request_handler_;
+
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
-  void sendResponses(const std::map<Client*, std::string>& res);
+  void sendResponses();
   void handleClientMessage(int clientFd);
   void resendClientMessage(int clientFd);
   void disconnectClient(Client* client);
@@ -40,8 +45,8 @@ class IRCServer {
   IRCServer();
   IRCServer(const char* port, const char* password);
   ~IRCServer();
-  IRCServer(const IRCServer& other);
-  IRCServer& operator=(const IRCServer& other);
+  // IRCServer(const IRCServer& other);
+  // IRCServer& operator=(const IRCServer& other);
 
   // Getters
   const std::map<int, Client*>& getClients() const;
@@ -56,9 +61,10 @@ class IRCServer {
   bool ifChannleExists(const std::string& name) const;
   // bool removeClient(Client* client);
   bool removeChannel(const std::string& name);
+  void addSendQueue(Client* client);
 
   // Member functions
-  void run();          // メインループ。接続受付、読み書き処理
+  void run();  // メインループ。接続受付、読み書き処理
   bool isNickTaken(const std::string nick) const;
   // void acceptConnection();
   // void receiveMessage(Client* client);

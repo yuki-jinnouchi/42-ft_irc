@@ -18,14 +18,11 @@ TEST(RequestHandler, broadCastRawMsg) {
   IRCMessage msg(clients[10], msgStr);
 
   RequestHandler requestHandler(&server);
-  const std::map<Client*, std::string>& res =
-      requestHandler.broadCastRawMsg(msg);
-
-  EXPECT_EQ(res.size(), 2);
+  requestHandler.broadCastRawMsg(msg);
 
   // 11, 12にそのままのメッセージが送信されていることを確認
-  EXPECT_EQ(res.at(clients[11]), msgStr + "\r\n");
-  EXPECT_EQ(res.at(clients[12]), msgStr + "\r\n");
+  EXPECT_EQ(clients[11]->getSendingMsg(), msgStr + "\r\n");
+  EXPECT_EQ(clients[12]->getSendingMsg(), msgStr + "\r\n");
   // 10には送信されていないことを確認
-  EXPECT_EQ(res.find(clients[10]), res.end());
+  EXPECT_TRUE(clients[10]->getSendingMsg().empty());
 }

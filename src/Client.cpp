@@ -31,8 +31,8 @@ const std::string& Client::getRealName() const {
   return realName_;
 }
 
-bool Client::getIsPasswordPassed() const {
-  return isPasswordPassed_;
+const std::string& Client::getPassword() const {
+  return password_;
 }
 
 // bool Client::getIsCapabilityNegotiating() const {
@@ -60,8 +60,8 @@ void Client::setRealName(const std::string& real) {
   realName_ = real;
 }
 
-void Client::setIsPasswordPassed(const bool isPasswordPassed) {
-  isPasswordPassed_ = isPasswordPassed;
+void Client::setPassword(const std::string& password) {
+  password_ = password;
 }
 
 // void Client::setIsCapabilityNegotiating(const bool isCapabilityNegotiating) {

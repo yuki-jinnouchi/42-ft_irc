@@ -79,7 +79,3 @@ void IRCMessage::setParams(const std::vector<std::string>& params) {
 bool IRCMessage::isFromMe(const Client* client) const {
   return from_ == client;
 }
-
-void IRCMessage::addResponse(Client* client_to, const std::string& message) {
-  responses_[client_to] = message + "\r\n";  // CRLFを追加して応答を保存
-}

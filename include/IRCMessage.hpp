@@ -50,7 +50,6 @@ class IRCMessage {
   // Member functions
   // std::string toString() const;  // メッセージの文字列化
   bool isFromMe(const Client* client) const;
-  void addResponse(Client* client, const std::string& response);
 };
 
 #endif  // __IRC_MESSAGE_HPP__
