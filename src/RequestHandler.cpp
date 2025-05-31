@@ -91,7 +91,7 @@ const std::map<Client*, std::string>& RequestHandler::broadCastRawMsg(
       continue;
     } else {
       // 受信したデータを他のクライアントにそのまま送信
-      it->second->pushSendingMsg(msg.getRaw());
+      it->second->pushSendingMsg(msg.getRaw() +"\r\n");
       server_->addSendQueue(it->second);
     }
   }
