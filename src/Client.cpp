@@ -10,7 +10,7 @@
 
 // Constructor & Destructor
 Client::Client(int socketFd)
-    : socket_(socketFd), nickName_(""), receiving_msg_("") {}
+    : socket_(socketFd), nickName_(""), receiving_msg_(""), sending_msg_("") {}
 
 Client::~Client() {}
 

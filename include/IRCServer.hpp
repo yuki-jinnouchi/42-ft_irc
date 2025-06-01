@@ -27,7 +27,8 @@ class IRCServer {
   // UserManager userManager_;
   // ChannelManager channelManager_;
   std::set<Client*> send_queue_;  // メッセージ送信待ちのクライアント
-  RequestHandler *request_handler_;
+  RequestHandler* request_handler_;
+  std::string server_name_;
 
   // Logger logger_;
   void acceptConnection(int listenSocketFd);
@@ -37,10 +38,11 @@ class IRCServer {
   void disconnectClient(Client* client);
   void startListen();  // ソケットをバインドしてリッスン状態にする
 
-  static const int kMaxMsgSize = 510;  // IRCの仕様
   static const int kMaxBacklog = 100;
 
  public:
+  static const int kMaxMsgSize = 510;  // IRCの仕様
+
   // Orthodox Canonical Form
   IRCServer();
   IRCServer(const char* port, const char* password);
@@ -54,6 +56,7 @@ class IRCServer {
   Channel* getChannel(const std::string& name) const;
   const std::string& getPort() const;
   const std::string& getPassword() const;
+  const std::string& getServerName() const;
 
   // Setters
   bool addClient(Client* client);

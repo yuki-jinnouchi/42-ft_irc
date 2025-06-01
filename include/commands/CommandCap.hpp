@@ -14,9 +14,9 @@ class CommandCap : public ACommand {
 
   // Member functions
   void execute(IRCMessage& msg);
-  void commandCapList(IRCMessage& msg);
-  void commandCapAck(IRCMessage& msg);
-  void commandCapEnd(IRCMessage& msg);
+  void commandCapList(IRCMessage& reply);
+  void commandCapAck(IRCMessage& msg, IRCMessage& reply);
+  void commandCapEnd(IRCMessage& reply);
 };
 
 #endif  // __COMMAND_CAP_HPP__

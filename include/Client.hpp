@@ -34,7 +34,7 @@ class Client {
 
  public:
   static const int kMaxSendingMsgSize = 512 * 100;  // 送信バッファサイズ
-  static const int kMaxNickNameSize = 9;  // NICK名の最大長
+  static const int kMaxNickNameSize = 9;            // NICK名の最大長
 
   // Constructor & Destructor
   ~Client();

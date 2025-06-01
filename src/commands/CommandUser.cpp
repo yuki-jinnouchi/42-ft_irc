@@ -11,14 +11,17 @@ CommandUser::~CommandUser() {}
 
 void CommandUser::execute(IRCMessage& msg) {
   Client* from = msg.getFrom();
-  std::vector<Client*> clients;
-  clients.push_back(from);
+  IRCMessage reply(from, from);
+  reply.setParams(msg.getParams());
+
   if (msg.getParam(0).empty() || msg.getParam(3).empty()) {
-    addResponseByCode(clients, ERR_NEEDMOREPARAMS);
+    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    pushResponse(reply);
     return;
   }
   if (from->getIsRegistered()) {
-    addResponseByCode(clients, ERR_ALREADYREGISTRED);
+    reply.setErrCode(ERR_ALREADYREGISTRED);
+    pushResponse(reply);
     return;
   }
   // TODO: Valid入れる？

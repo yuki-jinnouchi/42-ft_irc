@@ -11,10 +11,10 @@ CommandPing::~CommandPing() {}
 
 void CommandPing::execute(IRCMessage& msg) {
   Client* from = msg.getFrom();
-  std::vector<Client*> clients;
-  clients.push_back(from);
+  IRCMessage reply(from, from);
   // if (!from->getIsRegistered()) {
   //   return;
   // }
-  addResponseText(from, "PONG");
+  reply.setRaw("PONG");
+  pushResponse(reply);
 }
