@@ -4,8 +4,7 @@
   @brief IRC command "PONG" handler.
 */
 
-CommandPing::CommandPing(IRCServer* server, std::string commandName)
-    : ACommand(server, commandName) {}
+CommandPing::CommandPing(IRCServer* server) : ACommand(server, "PING") {}
 
 CommandPing::~CommandPing() {}
 

@@ -7,7 +7,7 @@
 class CommandNick : public ACommand {
  public:
   // Orthodox Canonical Form
-  CommandNick(IRCServer* server, std::string commandName);
+  CommandNick(IRCServer* server);
   ~CommandNick();
   // CommandNick(const CommandNick& other);
   // CommandNick& operator=(const CommandNick& other);

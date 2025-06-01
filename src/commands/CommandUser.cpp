@@ -4,8 +4,7 @@
   @brief IRC command "USER" handler.
 */
 
-CommandUser::CommandUser(IRCServer* server, std::string commandName)
-    : ACommand(server, commandName) {}
+CommandUser::CommandUser(IRCServer* server) : ACommand(server, "USER") {}
 
 CommandUser::~CommandUser() {}
 

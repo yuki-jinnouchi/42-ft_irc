@@ -9,6 +9,9 @@
   @url https://ircv3.net/specs/core/capability-negotiation-3.1.html
 */
 
+CommandCap::CommandCap(IRCServer* server) : ACommand(server, "CAP") {}
+CommandCap::~CommandCap() {}
+
 void CommandCap::execute(IRCMessage& msg) {
   std::vector<std::string> params = msg.getParams();
   IRCMessage reply(msg.getFrom(), msg.getFrom());

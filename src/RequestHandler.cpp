@@ -33,14 +33,14 @@ RequestHandler& RequestHandler::operator=(const RequestHandler& other) {
 
 void RequestHandler::registerCommands() {
   // commands_["CAP"] = new CommandCap(server_, "CAP");
-  commands_["PASS"] = new CommandPass(server_, "PASS");
-  commands_["NICK"] = new CommandNick(server_, "NICK");
-  commands_["USER"] = new CommandUser(server_, "USER");
+  commands_["PASS"] = new CommandPass(server_);
+  commands_["NICK"] = new CommandNick(server_);
+  commands_["USER"] = new CommandUser(server_);
   // commands_["JOIN"] = new CommandJoin(server_, "JOIN");
   // commands_["PART"] = new CommandPart(server_, "PART");
   // commands_["PRIVMSG"] = new CommandPrivmsg(server_, "PRIVMSG");
   // commands_["QUIT"] = new CommandQuit(server_, "QUIT");
-  commands_["PING"] = new CommandPing(server_, "PING");
+  commands_["PING"] = new CommandPing(server_);
   // commands_["PONG"] = new CommandPong(server_, "PONG");
 }
 
@@ -74,8 +74,7 @@ ACommand* RequestHandler::getCommand(const std::string& commandName) {
 void RequestHandler::execCommand(IRCMessage& msg) {
   std::string commandName = msg.getCommand();
   ACommand* command = getCommand(commandName);
-  if (command)
-    command->execute(msg);
+  if (command) command->execute(msg);
   // else
   // TODO: コマンドがない場合のレスポンス送信が必要
   // それ用のコマンド"NULL"みたいなの作る？
@@ -91,7 +90,7 @@ const std::map<Client*, std::string>& RequestHandler::broadCastRawMsg(
       continue;
     } else {
       // 受信したデータを他のクライアントにそのまま送信
-      it->second->pushSendingMsg(msg.getRaw() +"\r\n");
+      it->second->pushSendingMsg(msg.getRaw() + "\r\n");
       server_->addSendQueue(it->second);
     }
   }

@@ -6,11 +6,11 @@
 
 class CommandPing : public ACommand {
  public:
-  //Member variables
+  // Member variables
   IRCServer* server_;  // Serverオブジェクトへのポインタ
 
- // Orthodox Canonical Form
-  CommandPing(IRCServer* server, std::string commandName);
+  // Orthodox Canonical Form
+  CommandPing(IRCServer* server);
   ~CommandPing();
   // CommandPing(const CommandPing& other);
   // CommandPing& operator=(const CommandPing& other);

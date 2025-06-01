@@ -6,11 +6,11 @@
 
 class CommandUser : public ACommand {
  public:
-  //Member variables
+  // Member variables
   IRCServer* server_;  // Serverオブジェクトへのポインタ
 
- // Orthodox Canonical Form
-  CommandUser(IRCServer* server, std::string commandName);
+  // Orthodox Canonical Form
+  CommandUser(IRCServer* server);
   ~CommandUser();
   // CommandUser(const CommandUser& other);
   // CommandUser& operator=(const CommandUser& other);

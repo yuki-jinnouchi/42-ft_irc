@@ -7,8 +7,8 @@
 class CommandCap : public ACommand {
  public:
   // Orthodox Canonical Form
-  CommandCap(IRCServer* server, std::string commandName);
-  ~CommandCap() {}
+  CommandCap(IRCServer* server);
+  ~CommandCap();
   // CommandCap(const CommandCap& other);
   // CommandCap& operator=(const CommandCap& other);
 

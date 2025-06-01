@@ -4,8 +4,7 @@
   @brief IRC command "NICK" handler.
 */
 
-CommandNick::CommandNick(IRCServer* server, std::string commandName)
-    : ACommand(server, commandName) {}
+CommandNick::CommandNick(IRCServer* server) : ACommand(server, "NICK") {}
 
 CommandNick::~CommandNick() {}
 

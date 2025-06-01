@@ -6,8 +6,7 @@
            password authentication during the connection registration process.
 */
 
-CommandPass::CommandPass(IRCServer* server, std::string commandName)
-    : ACommand(server, commandName) {}
+CommandPass::CommandPass(IRCServer* server) : ACommand(server, "PASS") {}
 
 CommandPass::~CommandPass() {}
 
