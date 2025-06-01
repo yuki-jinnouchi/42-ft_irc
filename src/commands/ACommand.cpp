@@ -7,14 +7,14 @@
 #include "IRCMessage.hpp"
 
 // Constructor & Destructor
-ACommand::ACommand(IRCServer* server, std::string commandName)
-    : server_(server), commandName_(commandName) {}
+ACommand::ACommand(IRCServer* server, std::string command_name)
+    : server_(server), command_name_(command_name) {}
 
 ACommand::~ACommand() {}
 
 // Getters
 const std::string& ACommand::getCommandName() const {
-  return commandName_;
+  return command_name_;
 }
 
 // Member functions
@@ -124,6 +124,9 @@ std::string ACommand::generateErrorMsg(IRCMessage& reply_msg) {
     //   // <channel> :You have joined too many channels
     //   return formatResponse(responseCode,
     //                         "%s :You have joined too many channels", values);
+    case ERR_NOORIGIN:  // 409
+      // :No origin specified
+      return ":No origin specified";
     // case ERR_UNKNOWNCOMMAND:  // 421
     //   // <command> :Unknown command
     //   return formatResponse(responseCode, "%s :Unknown command", values);
@@ -160,7 +163,7 @@ std::string ACommand::generateErrorMsg(IRCMessage& reply_msg) {
     //   values);
     case ERR_NEEDMOREPARAMS:  // 461
       // <command> :Not enough parameters
-      oss << this->commandName_ << " :Not enough parameters";
+      oss << getCommandName() << " :Not enough parameters";
       return oss.str();
     case ERR_ALREADYREGISTRED:  // 462
       return ":You may not reregister";

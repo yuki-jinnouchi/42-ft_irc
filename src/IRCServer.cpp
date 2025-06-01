@@ -55,8 +55,7 @@ static bool isValidPassword(const char* password_str) {
 
 // Constructor & Destructor
 IRCServer::IRCServer(const char* port, const char* password)
-    : request_handler_(new RequestHandler(this)),
-      server_name_("irc.example.net") {
+    : request_handler_(NULL), server_name_("irc.example.net") {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -83,7 +82,9 @@ IRCServer::IRCServer(const char* port, const char* password)
 }
 
 IRCServer::~IRCServer() {
-  delete request_handler_;
+  if (request_handler_ != NULL) {
+    delete request_handler_;
+  }
   // listenSockets_の全てのソケットを閉じる
   for (std::map<int, Socket*>::iterator it = listenSockets_.begin();
        it != listenSockets_.end(); ++it) {
@@ -262,15 +263,13 @@ void IRCServer::acceptConnection(int listenSocketFd) {
 }
 
 void IRCServer::sendResponses() {
-  // NOTE: 実行時エラーを避けるために、send_queue_を一時的にコピー
-  std::set<Client*> temp_queue = send_queue_;
-  send_queue_.clear();
-  for (std::set<Client*>::const_iterator it = temp_queue.begin();
-       it != temp_queue.end(); ++it) {
+  for (std::set<Client*>::const_iterator it = send_queue_.begin();
+       it != send_queue_.end(); ++it) {
     if (!io_.sendMessage(*it)) {
       disconnectClient(*it);
     }
   }
+  send_queue_.clear();
 }
 
 void IRCServer::disconnectClient(Client* client) {
@@ -346,6 +345,7 @@ void IRCServer::resendClientMessage(int clientFd) {
 }
 
 void IRCServer::run() {
+  request_handler_ = new RequestHandler(this);
   startListen();
   while (true) {
     io_event evlist[IOWrapper::kEpollMaxEvents];

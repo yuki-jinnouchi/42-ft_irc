@@ -17,7 +17,7 @@ class ACommand {
  protected:
   // Member variables
   IRCServer* server_;
-  std::string commandName_;
+  std::string command_name_;
 
   // Member functions
   void pushResponse(IRCMessage& reply_msg);
@@ -29,7 +29,7 @@ class ACommand {
 
  public:
   // Orthodox Canonical Form
-  ACommand(IRCServer* server, std::string commandName);
+  ACommand(IRCServer* server, std::string command_name);
   virtual ~ACommand();
 
   // Getters

@@ -6,9 +6,6 @@
 
 class CommandUser : public ACommand {
  public:
-  // Member variables
-  IRCServer* server_;  // Serverオブジェクトへのポインタ
-
   // Orthodox Canonical Form
   CommandUser(IRCServer* server);
   ~CommandUser();
