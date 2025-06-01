@@ -87,6 +87,7 @@ class IRCMessage {
   IRCErrCode getErrCode() const;
 
   // Setters
+  void setTo(Client* to);
   void setRaw(const std::string& raw);
   void setPrefix(const std::string& prefix);
   void setCommand(const std::string& command);

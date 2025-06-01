@@ -1,6 +1,7 @@
 #include "RequestHandler.hpp"
 
 #include "ACommand.hpp"
+#include "CommandBroadCast.hpp"
 #include "CommandNick.hpp"
 #include "CommandPass.hpp"
 #include "CommandPing.hpp"
@@ -11,11 +12,25 @@
 
 // Orthodox Cannonical Form
 RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
-  registerCommands();
+  // commands_["CAP"] = new CommandCap(server_, "CAP");
+  commands_["PASS"] = new CommandPass(server_);
+  commands_["NICK"] = new CommandNick(server_);
+  commands_["USER"] = new CommandUser(server_);
+  // commands_["JOIN"] = new CommandJoin(server_, "JOIN");
+  // commands_["PART"] = new CommandPart(server_, "PART");
+  // commands_["PRIVMSG"] = new CommandPrivmsg(server_, "PRIVMSG");
+  // commands_["QUIT"] = new CommandQuit(server_, "QUIT");
+  commands_["PING"] = new CommandPing(server_);
+  // commands_["PONG"] = new CommandPong(server_, "PONG");
+  commands_["BROADCAST"] = new CommandBroadCast(server_);
 }
 
 RequestHandler::~RequestHandler() {
-  unregisterCommands();
+  for (std::map<std::string, ACommand*>::iterator it = commands_.begin();
+       it != commands_.end(); ++it) {
+    delete it->second;
+  }
+  commands_.clear();
 }
 
 RequestHandler::RequestHandler(const RequestHandler& other) {
@@ -29,27 +44,6 @@ RequestHandler& RequestHandler::operator=(const RequestHandler& other) {
   server_ = other.server_;
   commands_ = other.commands_;
   return *this;
-}
-
-void RequestHandler::registerCommands() {
-  // commands_["CAP"] = new CommandCap(server_, "CAP");
-  commands_["PASS"] = new CommandPass(server_);
-  commands_["NICK"] = new CommandNick(server_);
-  commands_["USER"] = new CommandUser(server_);
-  // commands_["JOIN"] = new CommandJoin(server_, "JOIN");
-  // commands_["PART"] = new CommandPart(server_, "PART");
-  // commands_["PRIVMSG"] = new CommandPrivmsg(server_, "PRIVMSG");
-  // commands_["QUIT"] = new CommandQuit(server_, "QUIT");
-  commands_["PING"] = new CommandPing(server_);
-  // commands_["PONG"] = new CommandPong(server_, "PONG");
-}
-
-void RequestHandler::unregisterCommands() {
-  for (std::map<std::string, ACommand*>::iterator it = commands_.begin();
-       it != commands_.end(); ++it) {
-    delete it->second;
-  }
-  commands_.clear();
 }
 
 // Member functions
@@ -68,31 +62,18 @@ void RequestHandler::handleCommand(IRCMessage& msg) {
 ACommand* RequestHandler::getCommand(const std::string& commandName) {
   std::map<std::string, ACommand*>::iterator it = commands_.find(commandName);
   if (it != commands_.end()) return it->second;
-  return 0;
+  return NULL;
 }
 
 void RequestHandler::execCommand(IRCMessage& msg) {
   std::string commandName = msg.getCommand();
   ACommand* command = getCommand(commandName);
-  if (command) command->execute(msg);
-  // else
-  // TODO: コマンドがない場合のレスポンス送信が必要
-  // それ用のコマンド"NULL"みたいなの作る？
-}
-
-const std::map<Client*, std::string>& RequestHandler::broadCastRawMsg(
-    IRCMessage& msg) {
-  for (std::map<int, Client*>::const_iterator it =
-           server_->getClients().begin();
-       it != server_->getClients().end(); ++it) {
-    if (msg.isFromMe(it->second)) {
-      // 自分自身はスキップ
-      continue;
-    } else {
-      // 受信したデータを他のクライアントにそのまま送信
-      it->second->pushSendingMsg(msg.getRaw() + "\r\n");
-      server_->addSendQueue(it->second);
-    }
+  if (command) {
+    command->execute(msg);
+  } else {
+    commands_["BROADCAST"]->execute(msg);
+    // TODO ngircdのコマンドが見つからない場合のエラーメッセージ
+    // hoge
+    // 　:irc.example.net 421 nick1 hoge :Unknown command
   }
-  return msg.getResponses();
 }

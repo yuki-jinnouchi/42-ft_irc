@@ -92,6 +92,10 @@ IRCErrCode IRCMessage::getErrCode() const {
 }
 
 // Setters
+void IRCMessage::setTo(Client* to) {
+  to_ = to;
+}
+
 void IRCMessage::setRaw(const std::string& raw) {
   if (raw.size() > IRCServer::kMaxMsgSize) {
     raw_ = raw.substr(0, IRCServer::kMaxMsgSize - 5) + "[CUT]";

@@ -18,7 +18,7 @@ TEST(RequestHandler, broadCastRawMsg) {
   IRCMessage msg(clients[10], msgStr);
 
   RequestHandler requestHandler(&server);
-  requestHandler.broadCastRawMsg(msg);
+  requestHandler.handleCommand(msg);
 
   // 11, 12にそのままのメッセージが送信されていることを確認
   EXPECT_EQ(clients[11]->getSendingMsg(), msgStr + "\r\n");
