@@ -17,7 +17,7 @@ def connect_client(is_send_msg=True, is_hang=False):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SERVER_HOST, SERVER_PORT))
     if is_send_msg:
-        s.sendall(b"PING\r\n")
+        s.sendall(b"PING abc\r\n")
     if is_hang:
         # ハング状態をシミュレート　一定時間スリープ
         time.sleep(10)
@@ -25,7 +25,7 @@ def connect_client(is_send_msg=True, is_hang=False):
     if is_send_msg:
         try:
             data = s.recv(1024)
-            assert data == b"PONG\r\n", f"クライアントからの応答が不正: {data}"
+            assert data == b":irc.example.net PONG irc.example.net :abc\r\n", f"クライアントからの応答が不正: {data}"
         except Exception as e:
             pytest.fail(f"正常なクライアントの受信に失敗: {e}")
     return s
