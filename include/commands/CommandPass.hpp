@@ -9,11 +9,14 @@ class CommandPass : public ACommand {
   // Orthodox Canonical Form
   CommandPass(IRCServer* server);
   ~CommandPass();
-  // CommandPass(const CommandPass& other);
-  // CommandPass& operator=(const CommandPass& other);
 
   // Member functions
   void execute(IRCMessage& msg);
+
+ private:
+  CommandPass();
+  CommandPass(const CommandPass& other);
+  CommandPass& operator=(const CommandPass& other);
 };
 
 #endif  // __COMMAND_PASS_HPP__

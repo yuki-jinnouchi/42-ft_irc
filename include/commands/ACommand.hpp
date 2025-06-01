@@ -9,6 +9,11 @@
 #include "IRCServer.hpp"
 
 class ACommand {
+ private:
+  ACommand();
+  ACommand(const ACommand& other);
+  ACommand& operator=(const ACommand& other);
+
  protected:
   // Member variables
   IRCServer* server_;
@@ -24,11 +29,8 @@ class ACommand {
 
  public:
   // Orthodox Canonical Form
-  // ACommand();
   ACommand(IRCServer* server, std::string commandName);
   virtual ~ACommand();
-  // virtual ACommand(const ACommand& other);
-  // virtual ACommand& operator=(const ACommand& other);
 
   // Getters
   const std::string& getCommandName() const;

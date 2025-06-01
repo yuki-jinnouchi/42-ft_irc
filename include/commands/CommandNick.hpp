@@ -9,11 +9,14 @@ class CommandNick : public ACommand {
   // Orthodox Canonical Form
   CommandNick(IRCServer* server);
   ~CommandNick();
-  // CommandNick(const CommandNick& other);
-  // CommandNick& operator=(const CommandNick& other);
 
   // Member functions
   void execute(IRCMessage& msg);
+
+ private:
+  CommandNick();
+  CommandNick(const CommandNick& other);
+  CommandNick& operator=(const CommandNick& other);
 };
 
 #endif  // __COMMAND_NICK_HPP__

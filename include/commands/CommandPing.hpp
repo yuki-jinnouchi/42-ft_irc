@@ -12,11 +12,14 @@ class CommandPing : public ACommand {
   // Orthodox Canonical Form
   CommandPing(IRCServer* server);
   ~CommandPing();
-  // CommandPing(const CommandPing& other);
-  // CommandPing& operator=(const CommandPing& other);
 
   // Member functions
   void execute(IRCMessage& msg);
+
+ private:
+  CommandPing();
+  CommandPing(const CommandPing& other);
+  CommandPing& operator=(const CommandPing& other);
 };
 
 #endif  // __COMMAND_PING_HPP__

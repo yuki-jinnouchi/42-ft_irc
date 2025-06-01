@@ -9,11 +9,14 @@ class CommandBroadCast : public ACommand {
   // Orthodox Canonical Form
   CommandBroadCast(IRCServer* server);
   ~CommandBroadCast();
-  // CommandCap(const CommandCap& other);
-  // CommandCap& operator=(const CommandCap& other);
 
   // Member functions
   void execute(IRCMessage& msg);
+
+ private:
+  CommandBroadCast();
+  CommandBroadCast(const CommandBroadCast& other);
+  CommandBroadCast& operator=(const CommandBroadCast& other);
 };
 
 #endif  // __COMMAND_BROAD_CAST_HPP__
