@@ -32,9 +32,9 @@ void IRCSignal::setHandler() {
 #else
   trap_signal(SIGPIPE, SIG_IGN);  // SIGPIPEは無視
 #endif  // DEBUG
-  trap_signal(SIGTERM, shutdown_handler);
+  trap_signal(SIGINT, shutdown_handler);
 }
 
 bool IRCSignal::isShutdown() {
-  return (g_signal == SIGTERM);
+  return (g_signal == SIGINT);
 }
