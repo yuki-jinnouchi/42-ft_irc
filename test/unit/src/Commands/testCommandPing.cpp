@@ -3,6 +3,7 @@
 #include "IRCServer.hpp"
 #include "RequestHandler.hpp"
 
+// 通常
 TEST(CommandPing, nomal) {
   IRCServer server("6677", "pass123");
 
@@ -24,6 +25,7 @@ TEST(CommandPing, nomal) {
   EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
 }
 
+// 引数なし
 TEST(CommandPing, no_arg) {
   IRCServer server("6677", "pass123");
 
@@ -44,6 +46,7 @@ TEST(CommandPing, no_arg) {
   EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
 }
 
+// 返信が512文字を超える場合
 TEST(CommandPing, responce_over_512) {
   IRCServer server("6677", "pass123");
 
