@@ -9,6 +9,8 @@
 
 Socket::Socket(int fd) : fd_(fd) {
   DEBUG_MSG("Socket created fd: " << fd_);
+  // TODO: ホストを取得
+  host_ = "localhost";
 }
 
 Socket::~Socket() {
@@ -22,4 +24,8 @@ Socket::~Socket() {
 
 int Socket::getFd() const {
   return fd_;
+}
+
+const std::string& Socket::getHost() const {
+  return host_;
 }

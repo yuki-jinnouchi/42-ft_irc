@@ -62,6 +62,7 @@ class IRCMessage {
   std::string command_;
   IRCRplCode rpl_code_;
   IRCErrCode err_code_;
+  std::string body_;
   std::vector<std::string> params_;
 
   // Constructor
@@ -86,6 +87,7 @@ class IRCMessage {
   const std::vector<std::string>& getParams() const;
   IRCRplCode getRplCode() const;
   IRCErrCode getErrCode() const;
+  std::string getBody() const;
 
   // Setters
   void setTo(Client* to);
@@ -96,6 +98,7 @@ class IRCMessage {
   void setParams(const std::vector<std::string>& params);
   void setRplCode(IRCRplCode rplCode);
   void setErrCode(IRCErrCode errCode);
+  void setBody(const std::string& body);
 
   // Member functions
   // std::string toString() const;  // メッセージの文字列化

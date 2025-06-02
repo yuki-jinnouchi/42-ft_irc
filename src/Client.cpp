@@ -47,6 +47,11 @@ const std::string& Client::getReceivingMsg() const {
   return receiving_msg_;
 }
 
+std::string Client::getUserPrefix() const {
+  return nickName_ + "!~" + userName_ + "@" + socket_.getHost();
+  // :nick!~name@localhost
+}
+
 // Setters
 void Client::setNickName(const std::string& nick) {
   nickName_ = nick;

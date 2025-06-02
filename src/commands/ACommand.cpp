@@ -42,14 +42,22 @@ void ACommand::pushResponse(IRCMessage& reply_msg) {
 
   if (reply_msg.getErrCode() != ERR_NONE) {
     oss << ":" << server_->getServerName() << " " << reply_msg.getErrCode()
-        << " " << reply_msg.getTo()->getNickName() << " "
-        << generateErrorMsg(reply_msg);
+        << " " << reply_msg.getTo()->getNickName() << " ";
+    if (reply_msg.getBody().empty()) {
+      oss << generateErrorMsg(reply_msg);
+    } else {
+      oss << reply_msg.getBody();
+    }
     reply_msg.setRaw(oss.str());
   } else if (reply_msg.getRplCode() != RPL_NONE) {
     oss << ":" << server_->getServerName() << " " << std::setw(3)
         << std::setfill('0') << reply_msg.getRplCode() << " "
-        << reply_msg.getTo()->getNickName() << " "
-        << generateResponseMsg(reply_msg);
+        << reply_msg.getTo()->getNickName() << " ";
+    if (reply_msg.getBody().empty()) {
+      oss << generateResponseMsg(reply_msg);
+    } else {
+      oss << reply_msg.getBody();
+    }
     reply_msg.setRaw(oss.str());
   }
 
@@ -111,25 +119,42 @@ std::string ACommand::generateErrorMsg(IRCMessage& reply_msg) {
     // Error Codes
     // case ERR_NOSUCHNICK:  // 401
     //   // <nick> :No such nick/channel
-    //   return formatResponse(responseCode, "%s :No such nick/channel",
-    //   values);
+    //   if (reply_msg.getParam(0).empty()) {
+    //     throw std::invalid_argument("ERR_NOSUCHNICK");
+    //   }
+    //   oss << reply_msg.getParam(0) << " :No such nick/channel";
+    //   return oss.str();
     // case ERR_NOSUCHCHANNEL:  // 403
     //   // <channel> :No such channel
-    //   return formatResponse(responseCode, "%s :No such channel", values);
+    //   if (reply_msg.getParam(0).empty()) {
+    //     throw std::invalid_argument("ERR_NOSUCHCHANNEL");
+    //   }
+    //   oss << reply_msg.getParam(0) << " :No such channel";
+    //   return oss.str();
     // case ERR_CANNOTSENDTOCHAN:  // 404
     //   // <channel> :Cannot send to channel
-    //   return formatResponse(responseCode, "%s :Cannot send to channel",
-    //   values);
+    //   if (reply_msg.getParam(0).empty()) {
+    //     throw std::invalid_argument("ERR_CANNOTSENDTOCHAN");
+    //   }
+    //   oss << reply_msg.getParam(0) << " :Cannot send to channel";
+    //   return oss.str();
     // case ERR_TOOMANYCHANNELS:  // 405
     //   // <channel> :You have joined too many channels
-    //   return formatResponse(responseCode,
-    //                         "%s :You have joined too many channels", values);
+    //   if (reply_msg.getParam(0).empty()) {
+    //     throw std::invalid_argument("ERR_TOOMANYCHANNELS");
+    //   }
+    //   oss << reply_msg.getParam(0) << " :You have joined too many channels";
+    //   return oss.str();
     case ERR_NOORIGIN:  // 409
       // :No origin specified
       return ":No origin specified";
     // case ERR_UNKNOWNCOMMAND:  // 421
     //   // <command> :Unknown command
-    //   return formatResponse(responseCode, "%s :Unknown command", values);
+    //   if (reply_msg.getCommand().empty()) {
+    //     throw std::invalid_argument("ERR_TOOMANYCHANNELS");
+    //   }
+    //   oss << reply_msg.getCommand() << " :Unknown command";
+    //   return oss.str();
     case ERR_NONICKNAMEGIVEN:  // 431
       // :No nickname given
       return ":No nickname given";
@@ -140,10 +165,13 @@ std::string ACommand::generateErrorMsg(IRCMessage& reply_msg) {
       }
       oss << reply_msg.getParam(0) << " :Erroneous nickname";
       return oss.str();
-    // case ERR_NICKNAMEINUSE:  // 433
-    //   // <nick> :Nickname is already in use
-    //   return formatResponse(responseCode, "%s :Nickname is already in use",
-    //                         values);
+    case ERR_NICKNAMEINUSE:  // 433
+      // <nick> :Nickname is already in use
+      if (reply_msg.getParam(0).empty()) {
+        throw std::runtime_error("Nickname is empty in ERR_NICKNAMEINUSE");
+      }
+      oss << reply_msg.getParam(0) << " :Nickname already in use";
+      return oss.str();
     // case ERR_USERNOTINCHANNEL:  // 441
     //   // <nick> <channel> :They aren't on that channel
     //   return formatResponse(responseCode, "%s %s :They aren't on that

@@ -11,6 +11,7 @@ IRCMessage::IRCMessage(Client* from, const std::string& raw)
       command_(""),
       rpl_code_(RPL_NONE),
       err_code_(ERR_NONE),
+      body_(""),
       params_(std::vector<std::string>()) {}
 
 IRCMessage::IRCMessage(Client* from, Client* to)
@@ -21,6 +22,7 @@ IRCMessage::IRCMessage(Client* from, Client* to)
       command_(""),
       rpl_code_(RPL_NONE),
       err_code_(ERR_NONE),
+      body_(""),
       params_(std::vector<std::string>()) {}
 
 IRCMessage::~IRCMessage() {}
@@ -39,9 +41,10 @@ IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   responses_ = other.responses_;
   prefix_ = other.prefix_;
   command_ = other.command_;
-  params_ = other.params_;
   rpl_code_ = other.rpl_code_;
   err_code_ = other.err_code_;
+  body_ = other.body_;
+  params_ = other.params_;
   return *this;
 }
 
@@ -91,6 +94,10 @@ IRCErrCode IRCMessage::getErrCode() const {
   return err_code_;
 }
 
+std::string IRCMessage::getBody() const {
+  return body_;
+}
+
 // Setters
 void IRCMessage::setTo(Client* to) {
   to_ = to;
@@ -126,6 +133,10 @@ void IRCMessage::setRplCode(IRCRplCode rplCode) {
 
 void IRCMessage::setErrCode(IRCErrCode errCode) {
   err_code_ = errCode;
+}
+
+void IRCMessage::setBody(const std::string& body) {
+  body_ = body;
 }
 
 // Member functions

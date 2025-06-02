@@ -50,6 +50,7 @@ class Client {
   const std::string& getReceivingMsg() const;
   // bool getIsCapabilityNegotiating() const;
   bool getIsRegistered() const;
+  std::string getUserPrefix() const;
 
   // Setters
   void setNickName(const std::string& name);
