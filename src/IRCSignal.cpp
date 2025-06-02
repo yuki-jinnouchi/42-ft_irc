@@ -4,8 +4,15 @@
 
 #include "IRCLogger.hpp"
 
+volatile sig_atomic_t g_signal = 0;
+
 static void debug_handler(int sig) {
   DEBUG_MSG("signal: " << sig);
+}
+
+static void shutdown_handler(int sig) {
+  DEBUG_MSG("signal: " << sig);
+  g_signal = sig;
 }
 
 static void trap_signal(int sig, sighandler_t handler) {
@@ -25,4 +32,9 @@ void IRCSignal::setHandler() {
 #else
   trap_signal(SIGPIPE, SIG_IGN);  // SIGPIPEは無視
 #endif  // DEBUG
+  trap_signal(SIGTERM, shutdown_handler);
+}
+
+bool IRCSignal::isShutdown() {
+  return (g_signal == SIGTERM);
 }
