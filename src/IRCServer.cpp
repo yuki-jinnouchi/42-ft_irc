@@ -9,8 +9,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <sstream>
 
 #include "Client.hpp"
 #include "IRCLogger.hpp"
@@ -55,7 +53,7 @@ static bool isValidPassword(const char* password_str) {
 
 // Constructor & Destructor
 IRCServer::IRCServer(const char* port, const char* password)
-    : request_handler_(NULL), server_name_("irc.example.net") {
+    : request_handler_(this), server_name_("irc.example.net") {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -82,9 +80,6 @@ IRCServer::IRCServer(const char* port, const char* password)
 }
 
 IRCServer::~IRCServer() {
-  if (request_handler_ != NULL) {
-    delete request_handler_;
-  }
   // listenSockets_の全てのソケットを閉じる
   for (std::map<int, Socket*>::iterator it = listenSockets_.begin();
        it != listenSockets_.end(); ++it) {
@@ -320,7 +315,7 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    request_handler_->handleCommand(msg);
+    request_handler_.handleCommand(msg);
     sendResponses();
   }
   // receiving_msg_が510を超えていたら切断
@@ -345,7 +340,6 @@ void IRCServer::resendClientMessage(int clientFd) {
 }
 
 void IRCServer::run() {
-  request_handler_ = new RequestHandler(this);
   startListen();
   while (true) {
     io_event evlist[IOWrapper::kEpollMaxEvents];

@@ -9,10 +9,8 @@
 #include "Client.hpp"
 #include "IOWrapper.hpp"
 #include "IRCMessage.hpp"
-#include "IRCParser.hpp"
+#include "RequestHandler.hpp"
 #include "Socket.hpp"
-
-class RequestHandler;
 
 class IRCServer {
  private:
@@ -27,7 +25,7 @@ class IRCServer {
   // UserManager userManager_;
   // ChannelManager channelManager_;
   std::set<Client*> send_queue_;  // メッセージ送信待ちのクライアント
-  RequestHandler* request_handler_;
+  RequestHandler request_handler_;
   std::string server_name_;
 
   // Logger logger_;
