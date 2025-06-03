@@ -42,8 +42,12 @@ void ACommand::pushResponse(IRCMessage& reply_msg) {
 
   if (reply_msg.getResCode() != RES_NONE) {
     oss << ":" << server_->getServerName() << " " << std::setw(3)
-        << std::setfill('0') << reply_msg.getResCode() << " "
-        << reply_msg.getTo()->getNickName() << " ";
+        << std::setfill('0') << reply_msg.getResCode() << " ";
+    if (reply_msg.getTo()->getNickName().empty()) {
+      oss << "* ";
+    } else {
+      oss << reply_msg.getTo()->getNickName() << " ";
+    }
     if (reply_msg.getBody().empty()) {
       oss << generateResponseMsg(reply_msg);
     } else {
@@ -99,13 +103,13 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       //   values);
 
     // Error Codes
-    // case ERR_NOSUCHNICK:  // 401
-    //   // <nick> :No such nick/channel
-    //   if (reply_msg.getParam(0).empty()) {
-    //     throw std::invalid_argument("ERR_NOSUCHNICK");
-    //   }
-    //   oss << reply_msg.getParam(0) << " :No such nick/channel";
-    //   return oss.str();
+    case ERR_NOSUCHNICK:  // 401
+      // <nick> :No such nick/channel
+      if (reply_msg.getParam(0).empty()) {
+        throw std::invalid_argument("ERR_NOSUCHNICK");
+      }
+      oss << reply_msg.getParam(0) << " :No such nick/channel";
+      return oss.str();
     // case ERR_NOSUCHCHANNEL:  // 403
     //   // <channel> :No such channel
     //   if (reply_msg.getParam(0).empty()) {
@@ -130,6 +134,13 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     case ERR_NOORIGIN:  // 409
       // :No origin specified
       return ":No origin specified";
+    case ERR_NORECIPIENT:  // 411
+      // ":No recipient given (<command>)"
+      oss << ":No recipient given (" << getCommandName() << ")";
+      return oss.str();
+    case ERR_NOTEXTTOSEND:  // 412
+      // ":No text to send"
+      return ":No text to send";
     // case ERR_UNKNOWNCOMMAND:  // 421
     //   // <command> :Unknown command
     //   if (reply_msg.getCommand().empty()) {
@@ -167,10 +178,9 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     //   // <nick> <channel> :is already on channel
     //   return formatResponse(responseCode, "%s %s :is already on channel",
     //                         values);
-    // case ERR_NOTREGISTERED:  // 451
-    //   // :You have not registered
-    //   return formatResponse(responseCode, ":You have not registered",
-    //   values);
+    case ERR_NOTREGISTERED:  // 451
+      // :You have not registered
+      return ":You have not registered";
     case ERR_NEEDMOREPARAMS:  // 461
       // <command> :Not enough parameters
       oss << getCommandName() << " :Not enough parameters";

@@ -50,6 +50,7 @@ class IRCServer {
 
   // Getters
   const std::map<int, Client*>& getClients() const;
+  Client* getClient(std::string nick) const;
   const std::map<std::string, Channel*>& getChannels() const;
   Channel* getChannel(const std::string& name) const;
   const std::string& getPort() const;

@@ -121,6 +121,16 @@ const std::map<int, Client*>& IRCServer::getClients() const {
   return clients_;
 }
 
+Client* IRCServer::getClient(std::string nick) const {
+  for (std::map<int, Client*>::const_iterator it = clients_.begin();
+       it != clients_.end(); ++it) {
+    if (it->second->getNickName() == nick) {
+      return it->second;
+    }
+  }
+  return NULL;
+}
+
 const std::map<std::string, Channel*>& IRCServer::getChannels() const {
   return channels_;
 }
