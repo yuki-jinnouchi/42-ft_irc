@@ -22,7 +22,7 @@ void ACommand::registrate(IRCMessage& msg) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
   if (from->getIsRegistered()) {
-    reply.setErrCode(ERR_ALREADYREGISTRED);
+    reply.setResCode(ERR_ALREADYREGISTRED);
     pushResponse(reply);
   }
   if (from->getNickName().empty() || from->getUserName().empty() ||
@@ -33,25 +33,16 @@ void ACommand::registrate(IRCMessage& msg) {
     return;
   }
   from->setIsRegistered(true);
-  reply.setRplCode(RPL_WELCOME);
+  reply.setResCode(RPL_WELCOME);
   pushResponse(reply);
 }
 
 void ACommand::pushResponse(IRCMessage& reply_msg) {
   std::ostringstream oss;
 
-  if (reply_msg.getErrCode() != ERR_NONE) {
-    oss << ":" << server_->getServerName() << " " << reply_msg.getErrCode()
-        << " " << reply_msg.getTo()->getNickName() << " ";
-    if (reply_msg.getBody().empty()) {
-      oss << generateErrorMsg(reply_msg);
-    } else {
-      oss << reply_msg.getBody();
-    }
-    reply_msg.setRaw(oss.str());
-  } else if (reply_msg.getRplCode() != RPL_NONE) {
+  if (reply_msg.getResCode() != RES_NONE) {
     oss << ":" << server_->getServerName() << " " << std::setw(3)
-        << std::setfill('0') << reply_msg.getRplCode() << " "
+        << std::setfill('0') << reply_msg.getResCode() << " "
         << reply_msg.getTo()->getNickName() << " ";
     if (reply_msg.getBody().empty()) {
       oss << generateResponseMsg(reply_msg);
@@ -67,7 +58,7 @@ void ACommand::pushResponse(IRCMessage& reply_msg) {
 
 std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
   std::ostringstream oss;
-  switch (reply_msg.getRplCode()) {
+  switch (reply_msg.getResCode()) {
     // Connection Registration
     case RPL_WELCOME:  // 001
       // <nick> :Welcome to the <network> Network, <nick>!
@@ -107,15 +98,6 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       //   return formatResponse(responseCode, "%s :End of /NAMES list",
       //   values);
 
-    default:
-      return "";
-  }
-}
-
-std::string ACommand::generateErrorMsg(IRCMessage& reply_msg) {
-  std::ostringstream oss;
-  // std::vector<std::string> values;
-  switch (reply_msg.getErrCode()) {
     // Error Codes
     // case ERR_NOSUCHNICK:  // 401
     //   // <nick> :No such nick/channel

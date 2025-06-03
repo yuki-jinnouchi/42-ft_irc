@@ -13,6 +13,7 @@ class ACommand {
   ACommand();
   ACommand(const ACommand& other);
   ACommand& operator=(const ACommand& other);
+  std::string generateResponseMsg(IRCMessage& reply_msg);
 
  protected:
   // Member variables
@@ -21,8 +22,6 @@ class ACommand {
 
   // Member functions
   void pushResponse(IRCMessage& reply_msg);
-  std::string generateResponseMsg(IRCMessage& reply_msg);
-  std::string generateErrorMsg(IRCMessage& reply_msg);
 
   // Registration
   void registrate(IRCMessage& msg);

@@ -10,7 +10,9 @@
 #include "Client.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc1459#section-6
-enum IRCRplCode {
+enum IRCResponseCode {
+  RES_NONE = 0,
+
   // Connection Registration
   RPL_WELCOME = 1,
   RPL_YOURHOST = 2,
@@ -22,11 +24,8 @@ enum IRCRplCode {
   // Channel Operations
   RPL_TOPIC = 332,
   RPL_NAMREPLY = 353,
-  RPL_ENDOFNAMES = 366
-};
+  RPL_ENDOFNAMES = 366,
 
-enum IRCErrCode {
-  ERR_NONE = 0,
   // Error Codes
   ERR_NOSUCHNICK = 401,
   ERR_NOSUCHCHANNEL = 403,
@@ -60,8 +59,8 @@ class IRCMessage {
   std::map<Client*, std::string> responses_;  // 宛先client->送信メッセージのmap
   std::string prefix_;
   std::string command_;
-  IRCRplCode rpl_code_;
-  IRCErrCode err_code_;
+
+  IRCResponseCode res_code_;
   std::string body_;
   std::vector<std::string> params_;
 
@@ -85,8 +84,7 @@ class IRCMessage {
   const std::string& getCommand() const;
   const std::string& getParam(int index) const;
   const std::vector<std::string>& getParams() const;
-  IRCRplCode getRplCode() const;
-  IRCErrCode getErrCode() const;
+  IRCResponseCode getResCode() const;
   std::string getBody() const;
 
   // Setters
@@ -96,8 +94,7 @@ class IRCMessage {
   void setCommand(const std::string& command);
   void addParam(const std::string& param);
   void setParams(const std::vector<std::string>& params);
-  void setRplCode(IRCRplCode rplCode);
-  void setErrCode(IRCErrCode errCode);
+  void setResCode(IRCResponseCode res_code);
   void setBody(const std::string& body);
 
   // Member functions

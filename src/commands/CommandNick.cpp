@@ -13,20 +13,20 @@ CommandNick::~CommandNick() {}
 bool CommandNick::validateNickName(IRCMessage& msg, IRCMessage& reply) {
   // 引数なし
   if (msg.getParam(0).empty()) {
-    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    reply.setResCode(ERR_NEEDMOREPARAMS);
     pushResponse(reply);
     return false;
   }
   // 9文字以上
   if (msg.getParam(0).size() > Client::kMaxNickNameSize) {
-    reply.setErrCode(ERR_ERRONEUSNICKNAME);
+    reply.setResCode(ERR_ERRONEUSNICKNAME);
     reply.setBody(msg.getParam(0) + " :Nickname too long, max. 9 characters");
     pushResponse(reply);
     return false;
   }
   // 不正な文字列の場合
   if (!IRCParser::isValidNickName(msg.getParam(0))) {
-    reply.setErrCode(ERR_ERRONEUSNICKNAME);
+    reply.setResCode(ERR_ERRONEUSNICKNAME);
     pushResponse(reply);
     return false;
   }
@@ -36,7 +36,7 @@ bool CommandNick::validateNickName(IRCMessage& msg, IRCMessage& reply) {
       // 自分自身と同じ場合、何もしない
       return false;
     }
-    reply.setErrCode(ERR_NICKNAMEINUSE);
+    reply.setResCode(ERR_NICKNAMEINUSE);
     pushResponse(reply);
     return false;
   }
