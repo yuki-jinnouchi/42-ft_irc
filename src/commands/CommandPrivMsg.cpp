@@ -1,9 +1,5 @@
 #include "CommandPrivMsg.hpp"
 
-/*
-  @brief IRC command "NICK" handler.
-*/
-
 #include "IRCParser.hpp"
 
 CommandPrivMsg::CommandPrivMsg(IRCServer* server)

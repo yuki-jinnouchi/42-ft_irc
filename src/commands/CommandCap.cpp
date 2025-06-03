@@ -2,13 +2,6 @@
 
 #include "IRCLogger.hpp"
 
-/*
-  @brief IRC command "CAP" handler.
-  @details This class handles the "CAP" command in IRC, which is used for
-           capability negotiation between the client and server.
-  @url https://ircv3.net/specs/core/capability-negotiation-3.1.html
-*/
-
 CommandCap::CommandCap(IRCServer* server) : ACommand(server, "CAP") {}
 CommandCap::~CommandCap() {}
 

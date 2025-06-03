@@ -1,9 +1,5 @@
 #include "CommandNick.hpp"
 
-/*
-  @brief IRC command "NICK" handler.
-*/
-
 #include "IRCParser.hpp"
 
 CommandNick::CommandNick(IRCServer* server) : ACommand(server, "NICK") {}

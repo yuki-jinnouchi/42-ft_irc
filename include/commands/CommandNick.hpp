@@ -4,6 +4,10 @@
 
 #include "ACommand.hpp"
 
+/**
+  @brief IRC command "NICK" handler.
+*/
+
 class CommandNick : public ACommand {
  public:
   // Orthodox Canonical Form

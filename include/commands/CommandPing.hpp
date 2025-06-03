@@ -4,6 +4,10 @@
 
 #include "ACommand.hpp"
 
+/**
+  @brief IRC command "PING" handler.
+*/
+
 class CommandPing : public ACommand {
  public:
   // Orthodox Canonical Form
