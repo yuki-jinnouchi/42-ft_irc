@@ -17,12 +17,12 @@ void CommandPass::execute(IRCMessage& msg) {
   std::string password = msg.getParam(0);
   // NOTE: ignore hop count
   if (password.empty()) {
-    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    reply.setResCode(ERR_NEEDMOREPARAMS);
     pushResponse(reply);
     return;
   }
   if (from->getIsRegistered()) {
-    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    reply.setResCode(ERR_NEEDMOREPARAMS);
     pushResponse(reply);
     return;
   }

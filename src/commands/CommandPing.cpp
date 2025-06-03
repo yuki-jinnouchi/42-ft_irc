@@ -16,7 +16,7 @@ void CommandPing::execute(IRCMessage& msg) {
   //   return;
   // }
   if (msg.getParams().empty()) {
-    reply.setErrCode(ERR_NOORIGIN);
+    reply.setResCode(ERR_NOORIGIN);
     pushResponse(reply);
     return;
   }

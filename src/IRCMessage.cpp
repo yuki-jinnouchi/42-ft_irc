@@ -9,8 +9,7 @@ IRCMessage::IRCMessage(Client* from, const std::string& raw)
       raw_(raw),
       prefix_(""),
       command_(""),
-      rpl_code_(RPL_NONE),
-      err_code_(ERR_NONE),
+      res_code_(RES_NONE),
       body_(""),
       params_(std::vector<std::string>()) {}
 
@@ -20,8 +19,7 @@ IRCMessage::IRCMessage(Client* from, Client* to)
       raw_(""),
       prefix_(""),
       command_(""),
-      rpl_code_(RPL_NONE),
-      err_code_(ERR_NONE),
+      res_code_(RES_NONE),
       body_(""),
       params_(std::vector<std::string>()) {}
 
@@ -38,11 +36,9 @@ IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   from_ = other.from_;
   to_ = other.to_;
   raw_ = other.raw_;
-  responses_ = other.responses_;
   prefix_ = other.prefix_;
   command_ = other.command_;
-  rpl_code_ = other.rpl_code_;
-  err_code_ = other.err_code_;
+  res_code_ = other.res_code_;
   body_ = other.body_;
   params_ = other.params_;
   return *this;
@@ -59,10 +55,6 @@ Client* IRCMessage::getTo() const {
 
 const std::string& IRCMessage::getRaw() const {
   return raw_;
-}
-
-const std::map<Client*, std::string>& IRCMessage::getResponses() const {
-  return responses_;
 }
 
 const std::string& IRCMessage::getPrefix() const {
@@ -86,12 +78,8 @@ const std::vector<std::string>& IRCMessage::getParams() const {
   return params_;
 }
 
-IRCRplCode IRCMessage::getRplCode() const {
-  return rpl_code_;
-}
-
-IRCErrCode IRCMessage::getErrCode() const {
-  return err_code_;
+IRCResponseCode IRCMessage::getResCode() const {
+  return res_code_;
 }
 
 std::string IRCMessage::getBody() const {
@@ -127,12 +115,8 @@ void IRCMessage::setParams(const std::vector<std::string>& params) {
   params_ = params;
 }
 
-void IRCMessage::setRplCode(IRCRplCode rplCode) {
-  rpl_code_ = rplCode;
-}
-
-void IRCMessage::setErrCode(IRCErrCode errCode) {
-  err_code_ = errCode;
+void IRCMessage::setResCode(IRCResponseCode res_code) {
+  res_code_ = res_code;
 }
 
 void IRCMessage::setBody(const std::string& body) {

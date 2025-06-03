@@ -14,12 +14,12 @@ void CommandUser::execute(IRCMessage& msg) {
   reply.setParams(msg.getParams());
 
   if (msg.getParam(0).empty() || msg.getParam(3).empty()) {
-    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    reply.setResCode(ERR_NEEDMOREPARAMS);
     pushResponse(reply);
     return;
   }
   if (from->getIsRegistered()) {
-    reply.setErrCode(ERR_ALREADYREGISTRED);
+    reply.setResCode(ERR_ALREADYREGISTRED);
     pushResponse(reply);
     return;
   }
