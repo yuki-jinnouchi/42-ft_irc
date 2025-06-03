@@ -26,6 +26,8 @@ IRCLogger::IRCLogger() {
 IRCLogger::~IRCLogger() {
   std::cerr << log_;
   std::cerr.flush();
+  close(fd_);
+  log_.clear();
 }
 
 const std::string& IRCLogger::getLog() const {

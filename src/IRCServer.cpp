@@ -13,6 +13,7 @@
 #include "Client.hpp"
 #include "IRCLogger.hpp"
 #include "IRCMessage.hpp"
+#include "IRCSignal.hpp"
 #include "RequestHandler.hpp"
 #include "Utils.hpp"
 
@@ -54,8 +55,6 @@ static bool isValidPassword(const char* password_str) {
 // Constructor & Destructor
 IRCServer::IRCServer(const char* port, const char* password)
     : request_handler_(this), server_name_("irc.example.net") {
-  IOWrapper io_;
-
   if (!isValidPort(port)) {
     throw std::invalid_argument("invalid port number");
   }
@@ -87,6 +86,20 @@ IRCServer::~IRCServer() {
     delete it->second;
   }
   listenSockets_.clear();
+  // clients_の全てのクライアントを閉じる
+  for (std::map<int, Client*>::iterator it = clients_.begin();
+       it != clients_.end(); ++it) {
+    DEBUG_MSG("Shutdown IRC Server: client fd: " << it->first);
+    delete it->second;
+  }
+  clients_.clear();
+  // channels_の全てのチャンネルを閉じる
+  for (std::map<std::string, Channel*>::iterator it = channels_.begin();
+       it != channels_.end(); ++it) {
+    DEBUG_MSG("Shutdown IRC Server: channel name: " << it->first);
+    delete it->second;
+  }
+
   DEBUG_MSG("Server stopped.");
 }
 
@@ -342,6 +355,9 @@ void IRCServer::resendClientMessage(int clientFd) {
 void IRCServer::run() {
   startListen();
   while (true) {
+    if (IRCSignal::isShutdown()) {
+      break;
+    }
     io_event evlist[IOWrapper::kEpollMaxEvents];
     // TODO ログ書き出し
     io_.writeLog(-1);
