@@ -1,47 +1,77 @@
 #include "IRCMessage.hpp"
 
+#include "IRCServer.hpp"
+
 // Orthodox Cannonical Form
 IRCMessage::IRCMessage(Client* from, const std::string& raw)
     : from_(from),
+      to_(NULL),
       raw_(raw),
       prefix_(""),
       command_(""),
+      rpl_code_(RPL_NONE),
+      err_code_(ERR_NONE),
+      body_(""),
+      params_(std::vector<std::string>()) {}
+
+IRCMessage::IRCMessage(Client* from, Client* to)
+    : from_(from),
+      to_(to),
+      raw_(""),
+      prefix_(""),
+      command_(""),
+      rpl_code_(RPL_NONE),
+      err_code_(ERR_NONE),
+      body_(""),
       params_(std::vector<std::string>()) {}
 
 IRCMessage::~IRCMessage() {}
 
-IRCMessage::IRCMessage(const IRCMessage& other) { *this = other; }
+IRCMessage::IRCMessage(const IRCMessage& other) {
+  *this = other;
+}
 
 IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   if (this == &other) {
     return *this;
   }
   from_ = other.from_;
+  to_ = other.to_;
   raw_ = other.raw_;
   responses_ = other.responses_;
   prefix_ = other.prefix_;
   command_ = other.command_;
-  // isReply_ = other.isReply_;
+  rpl_code_ = other.rpl_code_;
+  err_code_ = other.err_code_;
+  body_ = other.body_;
   params_ = other.params_;
   return *this;
 }
 
 // Getters
-Client* IRCMessage::getFrom() const { return from_; }
+Client* IRCMessage::getFrom() const {
+  return from_;
+}
 
-const std::string& IRCMessage::getRaw() const { return raw_; }
+Client* IRCMessage::getTo() const {
+  return to_;
+}
+
+const std::string& IRCMessage::getRaw() const {
+  return raw_;
+}
 
 const std::map<Client*, std::string>& IRCMessage::getResponses() const {
   return responses_;
 }
 
-const std::string& IRCMessage::getPrefix() const { return prefix_; }
+const std::string& IRCMessage::getPrefix() const {
+  return prefix_;
+}
 
-const std::string& IRCMessage::getCommand() const { return command_; }
-
-// bool IRCMessage::getIsReply() const {
-//   return isReply_;
-// }
+const std::string& IRCMessage::getCommand() const {
+  return command_;
+}
 
 const std::string& IRCMessage::getParam(int index) const {
   static const std::string empty = "";
@@ -56,16 +86,38 @@ const std::vector<std::string>& IRCMessage::getParams() const {
   return params_;
 }
 
+IRCRplCode IRCMessage::getRplCode() const {
+  return rpl_code_;
+}
+
+IRCErrCode IRCMessage::getErrCode() const {
+  return err_code_;
+}
+
+std::string IRCMessage::getBody() const {
+  return body_;
+}
+
 // Setters
-void IRCMessage::setRaw(const std::string& raw) { raw_ = raw; }
+void IRCMessage::setTo(Client* to) {
+  to_ = to;
+}
 
-void IRCMessage::setPrefix(const std::string& prefix) { prefix_ = prefix; }
+void IRCMessage::setRaw(const std::string& raw) {
+  if (raw.size() > IRCServer::kMaxMsgSize) {
+    raw_ = raw.substr(0, IRCServer::kMaxMsgSize - 5) + "[CUT]";
+    return;
+  }
+  raw_ = raw;
+}
 
-void IRCMessage::setCommand(const std::string& command) { command_ = command; }
+void IRCMessage::setPrefix(const std::string& prefix) {
+  prefix_ = prefix;
+}
 
-// void IRCMessage::setIsReply(bool isReply) {
-//   isReply_ = isReply;
-// }
+void IRCMessage::setCommand(const std::string& command) {
+  command_ = command;
+}
 
 void IRCMessage::addParam(const std::string& param) {
   params_.push_back(param);
@@ -73,6 +125,18 @@ void IRCMessage::addParam(const std::string& param) {
 
 void IRCMessage::setParams(const std::vector<std::string>& params) {
   params_ = params;
+}
+
+void IRCMessage::setRplCode(IRCRplCode rplCode) {
+  rpl_code_ = rplCode;
+}
+
+void IRCMessage::setErrCode(IRCErrCode errCode) {
+  err_code_ = errCode;
+}
+
+void IRCMessage::setBody(const std::string& body) {
+  body_ = body;
 }
 
 // Member functions

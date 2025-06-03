@@ -13,39 +13,33 @@ bool IRCParser::parseRaw(IRCMessage& msg) {
 }
 
 bool IRCParser::extractPrefix(IRCMessage& msg, std::string::size_type& pos) {
-  if (msg.getRaw()[pos] != ':' || pos == std::string::npos)
-    return true;
+  if (msg.getRaw()[pos] != ':' || pos == std::string::npos) return true;
   std::string raw = msg.getRaw();
   std::string prefix;
   std::string::size_type end = raw.find_first_of(" ", pos);
   prefix = raw.substr(1, end - 1);
   pos = raw.find_first_not_of(" ", end);
-  if (!parsePrefix(prefix))
-    return false;
+  if (!parsePrefix(prefix)) return false;
   msg.setPrefix(prefix);
   return true;
 }
 
 bool IRCParser::extractCommand(IRCMessage& msg, std::string::size_type& pos) {
-  if (pos == std::string::npos)
-    return true;
+  if (pos == std::string::npos) return true;
   std::string raw = msg.getRaw();
   std::string command;
   pos = raw.find_first_not_of(" ", pos);
   std::string::size_type end = raw.find_first_of(" ", pos);
-  if (pos == std::string::npos)
-    return false;
+  if (pos == std::string::npos) return false;
   command = raw.substr(pos, end - pos);
   pos = raw.find_first_not_of(" ", end);
-  if (!validCommand(command))
-    return false;
+  if (!validCommand(command)) return false;
   msg.setCommand(command);
   return true;
 }
 
 bool IRCParser::extractParams(IRCMessage& msg, std::string::size_type& pos) {
-  if (pos == std::string::npos)
-    return true;
+  if (pos == std::string::npos) return true;
   std::string raw = msg.getRaw();
   std::string param;
   std::string::size_type end;
@@ -67,18 +61,47 @@ bool IRCParser::extractParams(IRCMessage& msg, std::string::size_type& pos) {
 }
 
 bool IRCParser::parsePrefix(const std::string& prefix) {
-  if (prefix.empty())
-    return false;
+  if (prefix.empty()) return false;
   // TODO: prefixの解析を追加
   return true;
 }
 
 bool IRCParser::validCommand(const std::string& command) {
-  if (command.empty())
-    return false;
-  if (command.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::string::npos)
+  if (command.empty()) return false;
+  if (command.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") ==
+      std::string::npos)
     return true;
-  if (command.find_first_not_of("0123456789") == std::string::npos && command.size() == 3)
+  if (command.find_first_not_of("0123456789") == std::string::npos &&
+      command.size() == 3)
     return true;
   return false;
+}
+
+bool IRCParser::isLetter(char c) {
+  return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+bool IRCParser::isNumber(char c) {
+  return ('0' <= c && c <= '9');
+}
+bool IRCParser::isSpecial(char c) {
+  return c == '-' || c == '[' || c == ']' || c == '\\' || c == '`' ||
+         c == '^' || c == '{' || c == '}';
+}
+bool IRCParser::isNonWhite(char c) {
+  return c != ' ' && c != '\0' && c != '\r' && c != '\n';
+}
+bool IRCParser::isValidNickName(const std::string& nick) {
+  if (nick.empty() || nick.size() > Client::kMaxNickNameSize) {
+    return false;
+  }
+  for (size_t i = 0; i < nick.size(); ++i) {
+    char c = nick[i];
+    if (i == 0 && !isLetter(c)) {
+      return false;
+    }
+    if (i > 0 && !isLetter(c) && !isNumber(c) && !isSpecial(c)) {
+      return false;
+    }
+  }
+  return true;
 }

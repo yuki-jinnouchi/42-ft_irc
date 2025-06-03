@@ -18,7 +18,8 @@ SRCS := src/main.cpp src/IRCServer.cpp src/Client.cpp src/Channel.cpp\
 		src/IRCSignal.cpp \
 		src/commands/ACommand.cpp src/commands/CommandCap.cpp \
 		src/commands/CommandNick.cpp src/commands/CommandPass.cpp \
-		src/commands/CommandUser.cpp src/commands/CommandPing.cpp
+		src/commands/CommandUser.cpp src/commands/CommandPing.cpp \
+		src/commands/CommandBroadCast.cpp
 OBJS = $(patsubst $(SRCS_ROOT_DIR)/%.cpp,$(OBJS_ROOT_DIR)/%.o,$(SRCS))
 
 #-----------------------------------------------
@@ -50,18 +51,18 @@ WHITE = \033[0;97m
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@printf "\r$(GREEN)[%2d/%2d]$(DEF_COLOR) All files compiled! Linking $(CYAN)$(NAME)$(DEF_COLOR)\033[K" \
-		"$$(find $(SRCS_ROOT_DIR) -type f | wc -l)" "$$(find $(SRCS_ROOT_DIR) -type f | wc -l)"
-	@$(CXX) $(CXXFLAGS) $^ -o $@
+	 @printf "\r$(GREEN)[%2d/%2d]$(DEF_COLOR) All files compiled! Linking $(CYAN)$(NAME)$(DEF_COLOR)\033[K\n" \
+	 	"$$(find $(SRCS_ROOT_DIR) -type f | wc -l)" "$$(find $(SRCS_ROOT_DIR) -type f | wc -l)"
+	$(CXX) $(CXXFLAGS) $^ -o $@
 	@echo "\n$(GREEN)<-------- $(NAME) linked. -------------------------->$(DEF_COLOR)"
 	@chmod 777 $(NAME)
 	@echo "$(GREEN)<-------- $(NAME) permission changed. -------------->$(DEF_COLOR)"
 	@echo "$(CYAN)######### $(NAME) compile finished! #################$(DEF_COLOR)"
 
 $(OBJS_ROOT_DIR)/%.o: $(SRCS_ROOT_DIR)/%.cpp | $(OBJS_DIR)
-	@printf "\r$(GREEN)[%2d/%2d]$(DEF_COLOR) Compiling objects: $(CYAN)%s$(DEF_COLOR)\033[K" \
+	@printf "\r$(GREEN)[%2d/%2d]$(DEF_COLOR) Compiling objects: $(CYAN)%s$(DEF_COLOR)\033[K\n" \
 		"$$(find $(OBJS_ROOT_DIR) -type f | wc -l)" "$$(find $(SRCS_ROOT_DIR) -type f | wc -l)" "$<"
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJS_DIR):
 	@mkdir -p $(OBJS_DIR)

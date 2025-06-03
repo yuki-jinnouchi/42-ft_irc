@@ -4,17 +4,25 @@
   @brief IRC command "PONG" handler.
 */
 
-CommandPing::CommandPing(IRCServer* server, std::string commandName)
-    : ACommand(server, commandName) {}
+CommandPing::CommandPing(IRCServer* server) : ACommand(server, "PING") {}
 
 CommandPing::~CommandPing() {}
 
 void CommandPing::execute(IRCMessage& msg) {
   Client* from = msg.getFrom();
-  std::vector<Client*> clients;
-  clients.push_back(from);
+  IRCMessage reply(from, from);
+  // TODO
   // if (!from->getIsRegistered()) {
   //   return;
   // }
-  addResponseText(from, "PONG");
+  if (msg.getParams().empty()) {
+    reply.setErrCode(ERR_NOORIGIN);
+    pushResponse(reply);
+    return;
+  }
+
+  reply.setRaw(":" + server_->getServerName() + " PONG " +
+               server_->getServerName() + " :" + msg.getParam(0));
+
+  pushResponse(reply);
 }

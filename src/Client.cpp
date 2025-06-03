@@ -10,7 +10,7 @@
 
 // Constructor & Destructor
 Client::Client(int socketFd)
-    : socket_(socketFd), nickName_(""), receiving_msg_("") {}
+    : socket_(socketFd), nickName_(""), receiving_msg_(""), sending_msg_("") {}
 
 Client::~Client() {}
 
@@ -45,6 +45,11 @@ bool Client::getIsRegistered() const {
 
 const std::string& Client::getReceivingMsg() const {
   return receiving_msg_;
+}
+
+std::string Client::getUserPrefix() const {
+  return nickName_ + "!~" + userName_ + "@" + socket_.getHost();
+  // :nick!~name@localhost
 }
 
 // Setters

@@ -9,40 +9,47 @@
   @url https://ircv3.net/specs/core/capability-negotiation-3.1.html
 */
 
+CommandCap::CommandCap(IRCServer* server) : ACommand(server, "CAP") {}
+CommandCap::~CommandCap() {}
+
 void CommandCap::execute(IRCMessage& msg) {
   std::vector<std::string> params = msg.getParams();
+  IRCMessage reply(msg.getFrom(), msg.getFrom());
 
   if (params.empty()) {
-    addResponseText(msg.getFrom(), "CAP * LS :multi-prefix");
+    commandCapList(reply);
   } else if (params[0] == "LS") {
-    commandCapList(msg);
+    commandCapList(reply);
   } else if (params[0] == "ACK") {
-    commandCapAck(msg);
+    commandCapAck(msg, reply);
   } else if (params[0] == "END") {
-    commandCapEnd(msg);
+    commandCapEnd(reply);
   }
 }
 
 // Handle the "CAP LS" command
-void CommandCap::commandCapList(IRCMessage& msg) {
-  addResponseText(msg.getFrom(), "CAP * LS :multi-prefix");
+void CommandCap::commandCapList(IRCMessage& reply) {
+  reply.setRaw("CAP * LS :multi-prefix");
+  pushResponse(reply);
 }
 
 // Handle the "CAP ACK" command
-void CommandCap::commandCapAck(IRCMessage& msg) {
+void CommandCap::commandCapAck(IRCMessage& msg, IRCMessage& reply) {
   std::vector<std::string> params = msg.getParams();
   if (params.size() < 2) {
-    addResponseText(msg.getFrom(), "CAP * ACK :No capabilities to acknowledge");
+    reply.setRaw("CAP * ACK :No capabilities to acknowledge");
+    pushResponse(reply);
     return;
   }
 
   // Acknowledge the requested capabilities
-  std::string response = "CAP * ACK :" + params[1];
-  addResponseText(msg.getFrom(), response);
+  reply.setRaw("CAP * ACK :" + params[1]);
+  pushResponse(reply);
 }
 
 // Handle the "CAP END" command
-void CommandCap::commandCapEnd(IRCMessage& msg) {
+void CommandCap::commandCapEnd(IRCMessage& reply) {
   // This command indicates the end of capability negotiation
-  addResponseText(msg.getFrom(), "CAP * END");
+  reply.setRaw("CAP * END");
+  pushResponse(reply);
 }

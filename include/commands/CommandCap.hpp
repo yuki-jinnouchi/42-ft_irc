@@ -7,16 +7,19 @@
 class CommandCap : public ACommand {
  public:
   // Orthodox Canonical Form
-  CommandCap(IRCServer* server, std::string commandName);
-  ~CommandCap() {}
-  // CommandCap(const CommandCap& other);
-  // CommandCap& operator=(const CommandCap& other);
+  CommandCap(IRCServer* server);
+  ~CommandCap();
 
   // Member functions
   void execute(IRCMessage& msg);
-  void commandCapList(IRCMessage& msg);
-  void commandCapAck(IRCMessage& msg);
-  void commandCapEnd(IRCMessage& msg);
+  void commandCapList(IRCMessage& reply);
+  void commandCapAck(IRCMessage& msg, IRCMessage& reply);
+  void commandCapEnd(IRCMessage& reply);
+
+ private:
+  CommandCap();
+  CommandCap(const CommandCap& other);
+  CommandCap& operator=(const CommandCap& other);
 };
 
 #endif  // __COMMAND_CAP_HPP__

@@ -9,8 +9,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <sstream>
 
 #include "Client.hpp"
 #include "IRCLogger.hpp"
@@ -55,7 +53,7 @@ static bool isValidPassword(const char* password_str) {
 
 // Constructor & Destructor
 IRCServer::IRCServer(const char* port, const char* password)
-    : request_handler_(new RequestHandler(this)) {
+    : request_handler_(this), server_name_("irc.example.net") {
   IOWrapper io_;
 
   if (!isValidPort(port)) {
@@ -82,7 +80,6 @@ IRCServer::IRCServer(const char* port, const char* password)
 }
 
 IRCServer::~IRCServer() {
-  delete request_handler_;
   // listenSockets_の全てのソケットを閉じる
   for (std::map<int, Socket*>::iterator it = listenSockets_.begin();
        it != listenSockets_.end(); ++it) {
@@ -129,6 +126,10 @@ const std::string& IRCServer::getPort() const {
 
 const std::string& IRCServer::getPassword() const {
   return password_;
+}
+
+const std::string& IRCServer::getServerName() const {
+  return server_name_;
 }
 
 // Setters
@@ -257,15 +258,13 @@ void IRCServer::acceptConnection(int listenSocketFd) {
 }
 
 void IRCServer::sendResponses() {
-  // NOTE: 実行時エラーを避けるために、send_queue_を一時的にコピー
-  std::set<Client*> temp_queue = send_queue_;
-  send_queue_.clear();
-  for (std::set<Client*>::const_iterator it = temp_queue.begin();
-       it != temp_queue.end(); ++it) {
+  for (std::set<Client*>::const_iterator it = send_queue_.begin();
+       it != send_queue_.end(); ++it) {
     if (!io_.sendMessage(*it)) {
       disconnectClient(*it);
     }
   }
+  send_queue_.clear();
 }
 
 void IRCServer::disconnectClient(Client* client) {
@@ -316,7 +315,7 @@ void IRCServer::handleClientMessage(int clientFd) {
       return;
     }
     IRCMessage msg(it_from->second, *it);
-    request_handler_->handleCommand(msg);
+    request_handler_.handleCommand(msg);
     sendResponses();
   }
   // receiving_msg_が510を超えていたら切断

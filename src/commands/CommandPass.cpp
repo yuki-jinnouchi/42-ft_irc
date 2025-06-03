@@ -6,23 +6,24 @@
            password authentication during the connection registration process.
 */
 
-CommandPass::CommandPass(IRCServer* server, std::string commandName)
-    : ACommand(server, commandName) {}
+CommandPass::CommandPass(IRCServer* server) : ACommand(server, "PASS") {}
 
 CommandPass::~CommandPass() {}
 
 void CommandPass::execute(IRCMessage& msg) {
   Client* from = msg.getFrom();
-  std::vector<Client*> clients;
-  clients.push_back(from);
+  IRCMessage reply(from, from);
+
   std::string password = msg.getParam(0);
   // NOTE: ignore hop count
   if (password.empty()) {
-    addResponseByCode(clients, ERR_NEEDMOREPARAMS);
+    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    pushResponse(reply);
     return;
   }
   if (from->getIsRegistered()) {
-    addResponseByCode(clients, ERR_ALREADYREGISTRED);
+    reply.setErrCode(ERR_NEEDMOREPARAMS);
+    pushResponse(reply);
     return;
   }
   from->setPassword(password);

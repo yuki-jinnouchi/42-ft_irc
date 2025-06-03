@@ -16,26 +16,21 @@ class RequestHandler {
   IRCServer* server_;
   std::map<std::string, ACommand*> commands_;
 
-  // Initialize/Delete Command List (commands_)
-  void registerCommands();
-  void unregisterCommands();
-
   // Member functions
   ACommand* getCommand(const std::string& commandName);
   void execCommand(IRCMessage& msg);
-  void sendWelcome(IRCMessage& msg);
 
- public:
-  // Orthodox Canonical Form
-  // RequestHandler();
-  RequestHandler(IRCServer* server);
-  ~RequestHandler();
+  RequestHandler();
   RequestHandler(const RequestHandler& other);
   RequestHandler& operator=(const RequestHandler& other);
 
+ public:
+  // Orthodox Canonical Form
+  RequestHandler(IRCServer* server);
+  ~RequestHandler();
+
   // Member functions
   void handleCommand(IRCMessage& msg);
-  const std::map<Client*, std::string>& broadCastRawMsg(IRCMessage& msg);
 };
 
 #endif  // __REQUEST_HANDLER_HPP__
