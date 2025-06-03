@@ -37,6 +37,17 @@ void ACommand::registrate(IRCMessage& msg) {
   pushResponse(reply);
 }
 
+bool ACommand::checkIsRegistered(IRCMessage& msg) {
+  Client* from = msg.getFrom();
+  IRCMessage reply(from, from);
+  if (!from->getIsRegistered()) {
+    reply.setResCode(ERR_NOTREGISTERED);
+    pushResponse(reply);
+    return false;
+  }
+  return true;
+}
+
 void ACommand::pushResponse(IRCMessage& reply_msg) {
   std::ostringstream oss;
 
@@ -110,13 +121,13 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       }
       oss << reply_msg.getParam(0) << " :No such nick/channel";
       return oss.str();
-    // case ERR_NOSUCHCHANNEL:  // 403
-    //   // <channel> :No such channel
-    //   if (reply_msg.getParam(0).empty()) {
-    //     throw std::invalid_argument("ERR_NOSUCHCHANNEL");
-    //   }
-    //   oss << reply_msg.getParam(0) << " :No such channel";
-    //   return oss.str();
+    case ERR_NOSUCHCHANNEL:  // 403
+      // <channel> :No such channel
+      if (reply_msg.getParam(0).empty()) {
+        throw std::invalid_argument("ERR_NOSUCHCHANNEL");
+      }
+      oss << reply_msg.getParam(0) << " :No such channel";
+      return oss.str();
     // case ERR_CANNOTSENDTOCHAN:  // 404
     //   // <channel> :Cannot send to channel
     //   if (reply_msg.getParam(0).empty()) {
@@ -174,13 +185,18 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     //   // <channel> :You're not on that channel
     //   return formatResponse(responseCode, "%s :You're not on that channel",
     //                         values);
-    // case ERR_USERONCHANNEL:  // 443
-    //   // <nick> <channel> :is already on channel
-    //   return formatResponse(responseCode, "%s %s :is already on channel",
-    //                         values);
+    case ERR_USERONCHANNEL:  // 443
+      // <nick> <channel> :is already on channel
+      if (reply_msg.getParam(0).empty() || reply_msg.getParam(1).empty()) {
+        throw std::runtime_error(
+            "Nick or channel is empty in ERR_USERONCHANNEL");
+      }
+      oss << reply_msg.getParam(1) << " :is already on channel";
+      return oss.str();
     case ERR_NOTREGISTERED:  // 451
       // :You have not registered
-      return ":You have not registered";
+      oss << ":You have not registered";
+      return oss.str();
     case ERR_NEEDMOREPARAMS:  // 461
       // <command> :Not enough parameters
       oss << getCommandName() << " :Not enough parameters";
