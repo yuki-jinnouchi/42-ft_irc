@@ -36,7 +36,6 @@ IRCMessage& IRCMessage::operator=(const IRCMessage& other) {
   from_ = other.from_;
   to_ = other.to_;
   raw_ = other.raw_;
-  responses_ = other.responses_;
   prefix_ = other.prefix_;
   command_ = other.command_;
   res_code_ = other.res_code_;
@@ -56,10 +55,6 @@ Client* IRCMessage::getTo() const {
 
 const std::string& IRCMessage::getRaw() const {
   return raw_;
-}
-
-const std::map<Client*, std::string>& IRCMessage::getResponses() const {
-  return responses_;
 }
 
 const std::string& IRCMessage::getPrefix() const {

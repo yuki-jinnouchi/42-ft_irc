@@ -56,7 +56,6 @@ class IRCMessage {
   Client* from_;
   Client* to_;
   std::string raw_;
-  std::map<Client*, std::string> responses_;  // 宛先client->送信メッセージのmap
   std::string prefix_;
   std::string command_;
 
@@ -79,7 +78,6 @@ class IRCMessage {
   Client* getFrom() const;
   Client* getTo() const;
   const std::string& getRaw() const;
-  const std::map<Client*, std::string>& getResponses() const;
   const std::string& getPrefix() const;
   const std::string& getCommand() const;
   const std::string& getParam(int index) const;
