@@ -22,7 +22,7 @@ RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
   commands_["JOIN"] = new CommandJoin(server_);
   // commands_["PART"] = new CommandPart(server_, "PART");
   // commands_["PART"] = new CommandPart(server_);
-  // commands_["TOPIC"] = new CommandTopic(server_);
+  commands_["TOPIC"] = new CommandTopic(server_);
   // commands_["MODE"] = new CommandMode(server_);
   commands_["PRIVMSG"] = new CommandPrivMsg(server_);
   commands_["PING"] = new CommandPing(server_);
