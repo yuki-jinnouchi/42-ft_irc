@@ -25,6 +25,7 @@ class ACommand {
 
   // Registration
   void registrate(IRCMessage& msg);
+  bool checkIsRegistered(IRCMessage& msg);
 
  public:
   // Orthodox Canonical Form

@@ -167,7 +167,8 @@ bool IRCServer::addClient(Client* client) {
 }
 
 bool IRCServer::addChannel(const std::string& name, Client* client) {
-  if (channels_.find(name) != channels_.end()) return false;
+  if (channels_.find(name) != channels_.end())
+    return false;
   Channel* channel = new Channel(name, client);
   channels_[name] = channel;
   return true;

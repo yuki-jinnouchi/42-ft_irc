@@ -77,11 +77,11 @@ bool Channel::addMember(Client* client) {
   if (member_.find(client) != member_.end()) {
     return true;
   }
-  if (!isInviteOnly_ && invited_.find(client) != invited_.end()) {
-    member_.insert(client);
-    return true;
+  if (isInviteOnly_ && invited_.find(client) != invited_.end()) {
+    return false;
   }
-  return false;
+  member_.insert(client);
+  return true;
 }
 
 bool Channel::addChanop(Client* client) {

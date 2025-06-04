@@ -14,6 +14,7 @@ Client::Client(int socketFd)
 
 Client::~Client() {}
 
+
 // Getters
 int Client::getFd() const {
   return socket_.getFd();
@@ -52,6 +53,15 @@ std::string Client::getUserPrefix() const {
   // :nick!~name@localhost
 }
 
+const std::map<std::string, Channel*>& Client::getJoinedChannels() const {
+  return joinedChannels_;
+}
+
+bool Client::isJoinedChannel(const std::string& channelName) const {
+  return joinedChannels_.find(channelName) != joinedChannels_.end();
+}
+
+
 // Setters
 void Client::setNickName(const std::string& nick) {
   nickName_ = nick;
@@ -73,9 +83,19 @@ void Client::setPassword(const std::string& password) {
 //   isCapabilityNegotiating_ = isCapabilityNegotiating;
 // }
 
+void Client::addJoinedChannel(Channel* channel) {
+  std::string channelName = channel->getName();
+  joinedChannels_[channelName] = channel;
+}
+
+void Client::removeJoinedChannel(const std::string& channelName) {
+  joinedChannels_.erase(channelName);
+}
+
 void Client::setIsRegistered(const bool isRegistered) {
   isRegistered_ = isRegistered;
 }
+
 
 // Member Functions
 std::string Client::popReceivingMsg() {
