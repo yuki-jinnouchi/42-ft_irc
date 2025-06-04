@@ -24,7 +24,7 @@ static void makeUserData(IRCServer &server, std::map<int, Client *> &clients) {
 }
 
 // 正常 (チャンネルが存在しない場合)
-TEST(CommandJoin, withNewChannel) {
+TEST(CommandJoin, withHashNewChannel) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
   makeUserData(server, clients);
@@ -33,6 +33,24 @@ TEST(CommandJoin, withNewChannel) {
   std::string channelName = "#channel";
   std::string msgStr = "JOIN " + channelName;
   std::string expected_reply = ":nick1!~user1@localhost JOIN #channel";
+
+  IRCMessage msg01(clients[10], msgStr);
+  requestHandler.handleCommand(msg01);
+
+  EXPECT_EQ(server.getChannel(channelName)->isMember(clients[10]), true);
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply + "\r\n");
+}
+
+// 正常 (チャンネルが存在しない場合)
+TEST(CommandJoin, withAndNewChannel) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+
+  std::string channelName = "&channel";
+  std::string msgStr = "JOIN " + channelName;
+  std::string expected_reply = ":nick1!~user1@localhost JOIN &channel";
 
   IRCMessage msg01(clients[10], msgStr);
   requestHandler.handleCommand(msg01);
