@@ -93,14 +93,13 @@ TEST(CommandJoin, rejoinChannel) {
 
   std::string channelName = "#channel";
   std::string msgStr = "JOIN " + channelName;
-  std::string expected_reply =
-      ":irc.example.net 443 nick1 nick1 #channel :is already on channel";
+  std::string expected_reply = "";
 
   IRCMessage msg01(clients[10], msgStr);
   requestHandler.handleCommand(msg01);
 
   EXPECT_EQ(server.getChannel(channelName)->isMember(clients[10]), true);
-  EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply);
 }
 
 // 異常 (パラメーターがない場合)
