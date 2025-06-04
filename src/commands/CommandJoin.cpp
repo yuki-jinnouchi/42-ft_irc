@@ -34,9 +34,9 @@ void CommandJoin::execute(IRCMessage& msg) {
     return;
   } else {
     if (channel->isMember(from)) {
-      reply.addParam(channelName);
-      reply.setResCode(ERR_USERONCHANNEL);
-      pushResponse(reply);
+      // reply.addParam(channelName);
+      // reply.setResCode(ERR_USERONCHANNEL);
+      // pushResponse(reply);
       return;
     }
     channel->addMember(from);
