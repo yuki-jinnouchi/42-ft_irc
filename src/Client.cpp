@@ -83,7 +83,8 @@ void Client::setPassword(const std::string& password) {
 //   isCapabilityNegotiating_ = isCapabilityNegotiating;
 // }
 
-void Client::addJoinedChannel(const std::string& channelName, Channel* channel) {
+void Client::addJoinedChannel(Channel* channel) {
+  std::string channelName = channel->getName();
   joinedChannels_[channelName] = channel;
 }
 
