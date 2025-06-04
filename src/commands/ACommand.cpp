@@ -187,16 +187,15 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     //                         values);
     case ERR_USERONCHANNEL:  // 443
       // <nick> <channel> :is already on channel
-      if (reply_msg.getParam(0).empty() || reply_msg.getParam(1).empty()) {
-        throw std::runtime_error(
-            "Nick or channel is empty in ERR_USERONCHANNEL");
+      if (reply_msg.getParam(0).empty()) {
+        throw std::runtime_error("channel is empty in ERR_USERONCHANNEL");
       }
-      oss << reply_msg.getParam(1) << " :is already on channel";
+      oss << reply_msg.getFrom()->getNickName() << " " << reply_msg.getParam(0)
+          << " :is already on channel";
       return oss.str();
     case ERR_NOTREGISTERED:  // 451
       // :You have not registered
-      oss << ":You have not registered";
-      return oss.str();
+      return ":You have not registered";
     case ERR_NEEDMOREPARAMS:  // 461
       // <command> :Not enough parameters
       oss << getCommandName() << " :Not enough parameters";

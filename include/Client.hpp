@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Channel.hpp"
 #include "Socket.hpp"
@@ -18,8 +19,7 @@ class Client {
   std::string userName_;
   std::string realName_;
   std::string password_;  // パスワード
-  // bool isRegistered_; // NICKとUSER登録済みか
-  // std::map<std::string, Channel*> joinedChannels_;
+  std::map<std::string, Channel*> joinedChannels_;
   std::vector<std::string> responses_;
   std::string receiving_msg_;  // 受信途中のメッセージ
   std::string sending_msg_;    // 送信途中のメッセージ
@@ -46,11 +46,12 @@ class Client {
   const std::string& getUserName() const;
   const std::string& getRealName() const;
   const std::string& getPassword() const;
-  // const bool& getIsRegistrated() const;
   const std::string& getReceivingMsg() const;
   // bool getIsCapabilityNegotiating() const;
   bool getIsRegistered() const;
   std::string getUserPrefix() const;
+  const std::map<std::string, Channel*>& getJoinedChannels() const;
+  bool isJoinedChannel(const std::string& channelName) const;
 
   // Setters
   void setNickName(const std::string& name);
@@ -59,6 +60,8 @@ class Client {
   void setPassword(const std::string& password);
   // void setIsCapabilityNegotiating(const bool isCapabilityNegotiating);
   void setIsRegistered(const bool isRegisterd);
+  void addJoinedChannel(const std::string& channelName, Channel* channel);
+  void removeJoinedChannel(const std::string& channelName);
 
   // Member functions
   std::string popReceivingMsg();

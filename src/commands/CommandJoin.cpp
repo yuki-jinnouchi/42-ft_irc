@@ -34,13 +34,13 @@ void CommandJoin::execute(IRCMessage& msg) {
     return;
   } else {
     if (channel->isMember(from)) {
-      reply.addParam(from->getNickName());
       reply.addParam(channelName);
       reply.setResCode(ERR_USERONCHANNEL);
       pushResponse(reply);
       return;
     }
     channel->addMember(from);
+    from->addJoinedChannel(channelName, channel);
     reply.setRaw(":" + from->getUserPrefix() + " JOIN " + channelName);
     pushResponse(reply);
   }
@@ -53,6 +53,7 @@ void CommandJoin::addClientToNewChannel(IRCMessage& msg) {
 
   server_->addChannel(channelName, from);
   Channel* channel = server_->getChannel(channelName);
+  from->addJoinedChannel(channelName, channel);
   channel->addMember(from);
   channel->addChanop(from);
   reply.setRaw(":" + from->getUserPrefix() + " JOIN " + channelName);

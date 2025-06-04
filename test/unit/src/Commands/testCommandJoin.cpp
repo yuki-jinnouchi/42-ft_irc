@@ -76,7 +76,7 @@ TEST(CommandJoin, rejoinChannel) {
   std::string channelName = "#channel";
   std::string msgStr = "JOIN " + channelName;
   std::string expected_reply =
-      ":irc.example.net 443 nick1 #channel :is already on channel";
+      ":irc.example.net 443 nick1 nick1 #channel :is already on channel";
 
   IRCMessage msg01(clients[10], msgStr);
   requestHandler.handleCommand(msg01);
