@@ -60,7 +60,7 @@ class Client {
   void setPassword(const std::string& password);
   // void setIsCapabilityNegotiating(const bool isCapabilityNegotiating);
   void setIsRegistered(const bool isRegisterd);
-  void addJoinedChannel(const std::string& channelName, Channel* channel);
+  void addJoinedChannel(Channel* channel);
   void removeJoinedChannel(const std::string& channelName);
 
   // Member functions
