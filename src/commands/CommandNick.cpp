@@ -39,6 +39,26 @@ bool CommandNick::validateNickName(IRCMessage& msg, IRCMessage& reply) {
   return true;
 }
 
+void CommandNick::announceNickChange(IRCMessage& msg) {
+  const std::map<std::string, Channel*>& channels =
+      msg.getFrom()->getJoinedChannels();
+
+  std::set<Client*> clients;
+  for (std::map<std::string, Channel*>::const_iterator it = channels.begin();
+       it != channels.end(); ++it) {
+    clients.insert(it->second->getMember().begin(),
+                   it->second->getMember().end());
+  }
+  for (std::set<Client*>::const_iterator it = clients.begin();
+       it != clients.end(); ++it) {
+    if (*it == msg.getFrom()) {
+      continue;  // 自分自身には通知しない
+    }
+    msg.setTo(*it);
+    pushResponse(msg);
+  }
+}
+
 void CommandNick::execute(IRCMessage& msg) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
@@ -51,13 +71,17 @@ void CommandNick::execute(IRCMessage& msg) {
   std::string prefix = from->getUserPrefix();
 
   from->setNickName(msg.getParam(0));
-  registrate(msg);
 
-  // TODO 未ログインの場合は返信しない
+  // 未ログインの場合
+  if (!from->getIsRegistered()) {
+    registrate(msg);
+    return;
+  }
 
   reply.setRaw(":" + prefix + " NICK :" + from->getNickName());
   pushResponse(reply);
 
-  // TODO : チャンネルに参加している他のユーザーに通知する
+  // チャンネルに参加している他のユーザーに通知する
+  announceNickChange(reply);
   return;
 }
