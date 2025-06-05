@@ -43,14 +43,14 @@ static void setRawPrivMsg(std::string& to_str, IRCMessage& reply) {
 
 void CommandPrivMsg::sendPrivMsg(std::string& to_str, IRCMessage& reply) {
   IRCMessage msg(reply.getFrom(), reply.getFrom());
-  msg.setParams(reply.getParams());
+  msg.addParam(to_str);
+  msg.addParam(reply.getParam(1));
   Channel* channel = server_->getChannel(to_str);
   Client* to = server_->getClient(to_str);
   // 存在しないニックネーム/チャンネル、または存在するが相手が未ログインの場合
   if ((channel == NULL && to == NULL) ||
       (to != NULL && !to->getIsRegistered())) {
     msg.setResCode(ERR_NOSUCHNICK);
-    msg.setParams({to_str});
     return pushResponse(msg);
   }
   if (to != NULL) {
