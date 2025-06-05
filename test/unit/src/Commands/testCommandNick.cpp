@@ -19,6 +19,11 @@ TEST(CommandNick, nomal) {
   EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);
   EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply + "\r\n");
   // TODO チャンネルの他のユーザーへの通知をテストする
+  EXPECT_EQ(clients[11]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[12]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[13]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[14]->getSendingMsg(), "");
+  EXPECT_EQ(clients[15]->getSendingMsg(), "");
 }
 
 // ニックネームが長過ぎる
