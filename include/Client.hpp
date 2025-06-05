@@ -2,9 +2,9 @@
 #ifndef __CLIENT_HPP__
 #define __CLIENT_HPP__
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include "Channel.hpp"
 #include "Socket.hpp"
@@ -20,7 +20,6 @@ class Client {
   std::string realName_;
   std::string password_;  // パスワード
   std::map<std::string, Channel*> joinedChannels_;
-  std::vector<std::string> responses_;
   std::string receiving_msg_;  // 受信途中のメッセージ
   std::string sending_msg_;    // 送信途中のメッセージ
   // bool isCapabilityNegotiating_;  // CAPABILITYネゴシエーション中か
