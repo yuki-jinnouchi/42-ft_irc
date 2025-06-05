@@ -12,7 +12,6 @@ ACommand::ACommand(IRCServer* server, std::string command_name)
 
 ACommand::~ACommand() {}
 
-
 // Getters
 const std::string& ACommand::getCommandName() const {
   return command_name_;
@@ -76,7 +75,7 @@ void ACommand::pushResponse(IRCMessage& reply_msg) {
       oss << reply_msg.getBody();
     }
     reply_msg.setRaw(oss.str());
-  // with command
+    // with command
   } else if (!reply_msg.getCommand().empty()) {
     oss << ":" << reply_msg.getFrom()->getUserPrefix() << " "
         << reply_msg.getCommand();
@@ -89,7 +88,6 @@ void ACommand::pushResponse(IRCMessage& reply_msg) {
   reply_msg.getTo()->pushSendingMsg(reply_msg.getRaw() + "\r\n");
   server_->addSendQueue(reply_msg.getTo());
 }
-
 
 std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
   std::ostringstream oss;
