@@ -85,7 +85,7 @@ fclean: clean
 re: fclean all
 
 .PHONY: unit_test
-unit_test: all
+unit_test:
 	cd test/unit \
 	&& cmake -S . -B build \
 	&& cmake --build build \
