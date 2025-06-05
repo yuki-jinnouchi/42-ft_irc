@@ -1,6 +1,5 @@
 #include "CommandPrivMsg.hpp"
 
-#include "IRCParser.hpp"
 #include "Utils.hpp"
 
 CommandPrivMsg::CommandPrivMsg(IRCServer* server)
