@@ -1,9 +1,5 @@
 #include "CommandUser.hpp"
 
-/*
-  @brief IRC command "USER" handler.
-*/
-
 CommandUser::CommandUser(IRCServer* server) : ACommand(server, "USER") {}
 
 CommandUser::~CommandUser() {}

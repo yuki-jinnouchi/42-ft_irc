@@ -1,7 +1,5 @@
 #include "CommandTopic.hpp"
 
-#include "IRCParser.hpp"
-
 CommandTopic::CommandTopic(IRCServer* server)
     : ACommand(server, "TOPIC") {}
 

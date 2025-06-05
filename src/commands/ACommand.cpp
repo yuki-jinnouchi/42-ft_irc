@@ -39,18 +39,28 @@ void ACommand::registrate(IRCMessage& msg) {
 
 bool ACommand::checkIsRegistered(IRCMessage& msg) {
   Client* from = msg.getFrom();
+  if (from->getIsRegistered()) return true;
   IRCMessage reply(from, from);
-  if (!from->getIsRegistered()) {
-    reply.setResCode(ERR_NOTREGISTERED);
-    pushResponse(reply);
-    return false;
-  }
-  return true;
+  reply.setResCode(ERR_NOTREGISTERED);
+  pushResponse(reply);
+  return false;
+}
+
+bool ACommand::checkParamNum(IRCMessage& msg, int min_params) {
+  Client* from = msg.getFrom();
+  int params_size = msg.getParams().size();
+  if (min_params <= params_size) return true;
+  IRCMessage reply(from, from);
+  reply.setResCode(ERR_NEEDMOREPARAMS);
+  reply.setCommand(msg.getCommand());
+  pushResponse(reply);
+  return false;
 }
 
 void ACommand::pushResponse(IRCMessage& reply_msg) {
   std::ostringstream oss;
 
+  // with response code
   if (reply_msg.getResCode() != RES_NONE) {
     oss << ":" << server_->getServerName() << " " << std::setw(3)
         << std::setfill('0') << reply_msg.getResCode() << " ";
@@ -63,6 +73,14 @@ void ACommand::pushResponse(IRCMessage& reply_msg) {
       oss << generateResponseMsg(reply_msg);
     } else {
       oss << reply_msg.getBody();
+    }
+    reply_msg.setRaw(oss.str());
+    // with command
+  } else if (!reply_msg.getCommand().empty()) {
+    oss << ":" << reply_msg.getFrom()->getUserPrefix() << " "
+        << reply_msg.getCommand();
+    for (size_t i = 0; i < reply_msg.getParams().size(); ++i) {
+      oss << " " << reply_msg.getParam(i);
     }
     reply_msg.setRaw(oss.str());
   }
@@ -83,36 +101,32 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
           << " :Welcome to the Internet Relay Network "
           << reply_msg.getTo()->getNickName() << "!";
       return oss.str();
-      // values.push_back("nick");
-      // values.push_back("network");
-      // values.push_back("nick");
-      // return formatResponse(responseCode, "%s :Welcome to %s, %s!", values);
-      // case RPL_YOURHOST:  // 002
-      //   // <nick> :Your host is <servername>, running version <version>
-      //   return formatResponse(responseCode,
-      //                         "%s :Your host is %s, running version %s",
-      //                         values);
-      // case RPL_CREATED:  // 003
-      //   // <nick> :This server was created <datetime>
-      //   return formatResponse(responseCode, "%s :This server was created %s",
-      //                         values);
-      // case RPL_MYINFO:  // 004
-      //   // <nick> <servername> <version> <available umodes> <available
-      //   cmodes> return formatResponse(responseCode, "%s %s %s :%s %s",
-      //   values);
+    // case RPL_YOURHOST:  // 002
+    //   // <nick> :Your host is <servername>, running version <version>
+    //   return formatResponse(responseCode,
+    //                         "%s :Your host is %s, running version %s",
+    //                         values);
+    // case RPL_CREATED:  // 003
+    //   // <nick> :This server was created <datetime>
+    //   return formatResponse(responseCode, "%s :This server was created %s",
+    //                         values);
+    // case RPL_MYINFO:  // 004
+    //   // <nick> <servername> <version> <available umodes> <available
+    //   cmodes> return formatResponse(responseCode, "%s %s %s :%s %s",
+    //   values);
 
       // Channel Operations
-      case RPL_TOPIC:  // 332
-        // <channel> :<topic>
-        oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
-        return oss.str();
-      // case RPL_NAMREPLY:  // 353
-      //   // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
-      //   return formatResponse(responseCode, "%s :%s", values);
-      // case RPL_ENDOFNAMES:  // 366
-      //   // <channel> :End of /NAMES list
-      //   return formatResponse(responseCode, "%s :End of /NAMES list",
-      //   values);
+    case RPL_TOPIC:  // 332
+      // <channel> :<topic>
+      oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
+      return oss.str();
+    // case RPL_NAMREPLY:  // 353
+    //   // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
+    //   return formatResponse(responseCode, "%s :%s", values);
+    // case RPL_ENDOFNAMES:  // 366
+    //   // <channel> :End of /NAMES list
+    //   return formatResponse(responseCode, "%s :End of /NAMES list",
+    //   values);
 
     // Error Codes
     case ERR_NOSUCHNICK:  // 401
@@ -141,8 +155,8 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     //   if (reply_msg.getParam(0).empty()) {
     //     throw std::invalid_argument("ERR_TOOMANYCHANNELS");
     //   }
-    //   oss << reply_msg.getParam(0) << " :You have joined too many channels";
-    //   return oss.str();
+    //   oss << reply_msg.getParam(0) << " :You have joined too many
+    //   channels"; return oss.str();
     case ERR_NOORIGIN:  // 409
       // :No origin specified
       return ":No origin specified";
@@ -202,34 +216,31 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       oss << getCommandName() << " :Not enough parameters";
       return oss.str();
     case ERR_ALREADYREGISTRED:  // 462
-      return ":You may not reregister";
       // :You may not reregister
-      // return formatResponse(responseCode, ":You may not reregister", values);
-      // case ERR_PASSWDMISMATCH:  // 464
-      //   // :Password incorrect
-      //   return formatResponse(responseCode, ":Password incorrect", values);
-      // case ERR_CHANNELISFULL:  // 471
-      //   // <channel> :Cannot join channel (+l)
-      //   return formatResponse(responseCode, "%s :Cannot join channel (+l)",
-      //                         values);
-      // case ERR_UNKNOWNMODE:  // 472
-      //   // <char> :is unknown mode char to me
-      //   return formatResponse(responseCode, "%s :is unknown mode char to me
-      //   ",
-      //                         values);
-      // case ERR_INVITEONLYCHAN:  // 473
-      //   // <channel> :Cannot join channel (+i)
-      //   return formatResponse(responseCode, "%s :Cannot join channel (+i)",
-      //                         values);
-      // case ERR_BADCHANNELKEY:  // 475
-      //   // <channel> :Cannot join channel (+k)
-      //   return formatResponse(responseCode, "%s :Cannot join channel (+k)",
-      //                         values);
-      case ERR_CHANOPRIVSNEEDED:  // 482
-        // <channel> :You're not channel operator
-        oss << reply_msg.getParam(0)
-            << " :You're not channel operator";
-        return oss.str();
+      return ":You may not reregister";
+    // case ERR_PASSWDMISMATCH:  // 464
+    //   // :Password incorrect
+    //   return formatResponse(responseCode, ":Password incorrect", values);
+    // case ERR_CHANNELISFULL:  // 471
+    //   // <channel> :Cannot join channel (+l)
+    //   return formatResponse(responseCode, "%s :Cannot join channel (+l)",
+    //                         values);
+    case ERR_UNKNOWNMODE:  // 472
+                           // <char> :is unknown mode char to me
+      oss << reply_msg.getParam(0) << " :is unknown mode char to me";
+      return oss.str();
+    // case ERR_INVITEONLYCHAN:  // 473
+    //   // <channel> :Cannot join channel (+i)
+    //   return formatResponse(responseCode, "%s :Cannot join channel (+i)",
+    //                         values);
+    // case ERR_BADCHANNELKEY:  // 475
+    //   // <channel> :Cannot join channel (+k)
+    //   return formatResponse(responseCode, "%s :Cannot join channel (+k)",
+    //                         values);
+    case ERR_CHANOPRIVSNEEDED:  // 482
+      // <channel> :You're not channel operator
+      oss << reply_msg.getParam(0) << " :You're not channel operator";
+      return oss.str();
     default:
       return "";
   }

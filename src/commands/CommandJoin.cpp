@@ -52,6 +52,7 @@ void CommandJoin::addClientToNewChannel(IRCMessage& msg) {
   std::string channelName = msg.getParam(0);
 
   server_->addChannel(channelName, from);
+  server_->getChannel(channelName)->addChanop(from);
   Channel* channel = server_->getChannel(channelName);
   from->addJoinedChannel(channel);
   channel->addMember(from);
