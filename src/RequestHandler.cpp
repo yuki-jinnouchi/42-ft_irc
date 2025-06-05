@@ -5,6 +5,7 @@
 #include "CommandNick.hpp"
 #include "CommandPass.hpp"
 #include "CommandPing.hpp"
+#include "CommandMode.hpp"
 #include "CommandPrivMsg.hpp"
 #include "CommandUser.hpp"
 #include "CommandJoin.hpp"
@@ -20,11 +21,10 @@ RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
   commands_["NICK"] = new CommandNick(server_);
   commands_["USER"] = new CommandUser(server_);
   commands_["JOIN"] = new CommandJoin(server_);
-  // commands_["PART"] = new CommandPart(server_, "PART");
-  // commands_["PART"] = new CommandPart(server_);
   commands_["TOPIC"] = new CommandTopic(server_);
-  // commands_["MODE"] = new CommandMode(server_);
+  commands_["MODE"] = new CommandMode(server_);
   commands_["PRIVMSG"] = new CommandPrivMsg(server_);
+  // commands_["PART"] = new CommandPart(server_);
   commands_["PING"] = new CommandPing(server_);
   commands_["BROADCAST"] = new CommandBroadCast(server_);
 }
@@ -49,6 +49,7 @@ RequestHandler& RequestHandler::operator=(const RequestHandler& other) {
   commands_ = other.commands_;
   return *this;
 }
+
 
 // Member functions
 void RequestHandler::handleCommand(IRCMessage& msg) {

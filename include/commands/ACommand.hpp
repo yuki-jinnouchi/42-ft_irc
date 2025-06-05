@@ -10,6 +10,7 @@
 
 class ACommand {
  private:
+  // Orthodox Canonical Form
   ACommand();
   ACommand(const ACommand& other);
   ACommand& operator=(const ACommand& other);
@@ -25,7 +26,10 @@ class ACommand {
 
   // Registration
   void registrate(IRCMessage& msg);
+
+  // validation
   bool checkIsRegistered(IRCMessage& msg);
+  bool checkParamNum(IRCMessage& msg, int min_params);
 
  public:
   // Orthodox Canonical Form

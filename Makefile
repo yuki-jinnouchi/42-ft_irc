@@ -20,7 +20,7 @@ SRCS := src/main.cpp src/IRCServer.cpp src/Client.cpp src/Channel.cpp\
 		src/commands/CommandNick.cpp src/commands/CommandPass.cpp \
 		src/commands/CommandUser.cpp src/commands/CommandPing.cpp \
 		src/commands/CommandJoin.cpp src/commands/CommandTopic.cpp \
-		src/commands/CommandPrivMsg.cpp \
+		src/commands/CommandMode.cpp src/commands/CommandPrivMsg.cpp \
 		src/commands/CommandBroadCast.cpp
 OBJS = $(patsubst $(SRCS_ROOT_DIR)/%.cpp,$(OBJS_ROOT_DIR)/%.o,$(SRCS))
 
@@ -85,7 +85,7 @@ fclean: clean
 re: fclean all
 
 .PHONY: unit_test
-unit_test:
+unit_test: all
 	cd test/unit \
 	&& cmake -S . -B build \
 	&& cmake --build build \
