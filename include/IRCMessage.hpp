@@ -88,6 +88,7 @@ class IRCMessage {
   std::string getBody() const;
 
   // Setters
+  void setFrom(Client* from);
   void setTo(Client* to);
   void setRaw(const std::string& raw);
   void setPrefix(const std::string& prefix);
