@@ -4,6 +4,12 @@
 
 #include "ACommand.hpp"
 
+/**
+  @brief IRC command "PASS" handler.
+  @details This class handles the "PASS" command in IRC, which is used for
+           password authentication during the connection registration process.
+*/
+
 class CommandPass : public ACommand {
  public:
   // Orthodox Canonical Form

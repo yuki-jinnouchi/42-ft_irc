@@ -1,9 +1,5 @@
 #include "CommandPing.hpp"
 
-/*
-  @brief IRC command "PONG" handler.
-*/
-
 CommandPing::CommandPing(IRCServer* server) : ACommand(server, "PING") {}
 
 CommandPing::~CommandPing() {}

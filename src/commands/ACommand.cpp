@@ -102,9 +102,10 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       //   values);
 
       // Channel Operations
-      // case RPL_TOPIC:  // 332
-      //   // <channel> :<topic>
-      //   return formatResponse(responseCode, "%s :%s", values);
+      case RPL_TOPIC:  // 332
+        // <channel> :<topic>
+        oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
+        return oss.str();
       // case RPL_NAMREPLY:  // 353
       //   // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
       //   return formatResponse(responseCode, "%s :%s", values);
@@ -224,11 +225,11 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       //   // <channel> :Cannot join channel (+k)
       //   return formatResponse(responseCode, "%s :Cannot join channel (+k)",
       //                         values);
-      // case ERR_CHANOPRIVSNEEDED:  // 482
-      //   // <channel> :You're not channel operator
-      //   return formatResponse(responseCode, "%s :You're not channel
-      //   operator",
-      //                         values);
+      case ERR_CHANOPRIVSNEEDED:  // 482
+        // <channel> :You're not channel operator
+        oss << reply_msg.getParam(0)
+            << " :You're not channel operator";
+        return oss.str();
     default:
       return "";
   }

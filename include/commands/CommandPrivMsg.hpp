@@ -4,6 +4,10 @@
 
 #include "ACommand.hpp"
 
+/**
+  @brief IRC command "PRIVMSG" handler.
+*/
+
 class CommandPrivMsg : public ACommand {
  public:
   // Orthodox Canonical Form
