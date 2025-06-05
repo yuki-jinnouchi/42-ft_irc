@@ -26,6 +26,23 @@ TEST(CommandNick, nomal) {
   EXPECT_EQ(clients[15]->getSendingMsg(), "");
 }
 
+// 通常(未ログインの場合、返信しない)
+TEST(CommandNick, nomal2) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "NICK a23456789";
+  std::string expected = "a23456789";
+
+  IRCMessage msg(clients[14], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_EQ(server.getClients().at(14)->getNickName(), expected);
+  EXPECT_EQ(clients[10]->getSendingMsg(), "");
+}
+
 // ニックネームが長過ぎる
 TEST(CommandNick, too_long) {
   IRCServer server("6677", "pass123");
