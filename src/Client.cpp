@@ -10,10 +10,16 @@
 
 // Constructor & Destructor
 Client::Client(int socketFd)
-    : socket_(socketFd), nickName_(""), receiving_msg_(""), sending_msg_("") {}
+    : socket_(socketFd),
+      nickName_(""),
+      userName_(""),
+      realName_(""),
+      password_(""),
+      receiving_msg_(""),
+      sending_msg_(""),
+      isRegistered_(false) {}
 
 Client::~Client() {}
-
 
 // Getters
 int Client::getFd() const {
@@ -61,7 +67,6 @@ bool Client::isJoinedChannel(const std::string& channelName) const {
   return joinedChannels_.find(channelName) != joinedChannels_.end();
 }
 
-
 // Setters
 void Client::setNickName(const std::string& nick) {
   nickName_ = nick;
@@ -95,7 +100,6 @@ void Client::removeJoinedChannel(const std::string& channelName) {
 void Client::setIsRegistered(const bool isRegistered) {
   isRegistered_ = isRegistered;
 }
-
 
 // Member Functions
 std::string Client::popReceivingMsg() {

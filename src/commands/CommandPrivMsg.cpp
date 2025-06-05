@@ -1,6 +1,7 @@
 #include "CommandPrivMsg.hpp"
 
 #include "IRCParser.hpp"
+#include "Utils.hpp"
 
 CommandPrivMsg::CommandPrivMsg(IRCServer* server)
     : ACommand(server, "PRIVMSG") {}
@@ -35,6 +36,46 @@ bool CommandPrivMsg::validatePrivMsg(IRCMessage& msg, IRCMessage& reply) {
   return true;
 }
 
+static void setRawPrivMsg(std::string& to_str, IRCMessage& reply) {
+  reply.setRaw(":" + reply.getFrom()->getUserPrefix() + " PRIVMSG " + to_str +
+               " :" + reply.getParam(1));
+}
+
+void CommandPrivMsg::sendPrivMsg(std::string& to_str, IRCMessage& reply) {
+  IRCMessage msg(reply.getFrom(), reply.getFrom());
+  msg.addParam(to_str);
+  msg.addParam(reply.getParam(1));
+  Channel* channel = server_->getChannel(to_str);
+  Client* to = server_->getClient(to_str);
+  // 存在しないニックネーム/チャンネル、または存在するが相手が未ログインの場合
+  if ((channel == NULL && to == NULL) ||
+      (to != NULL && !to->getIsRegistered())) {
+    msg.setResCode(ERR_NOSUCHNICK);
+    return pushResponse(msg);
+  }
+  if (to != NULL) {
+    // ニックネームの場合
+    msg.setTo(to);
+    setRawPrivMsg(to_str, msg);
+    return pushResponse(msg);
+  }
+
+  // チャンネルの場合
+  // TODO 外部送信不可チャンネルの場合は送信不可
+  // チャンネルに所属していなくてもメッセージは送信可能
+  for (std::set<Client*>::const_iterator it = channel->getMember().begin();
+       it != channel->getMember().end(); ++it) {
+    if (*it == msg.getFrom()) {
+      // 自分には送信しない
+      continue;
+    }
+    msg.setTo(*it);
+    setRawPrivMsg(to_str, msg);
+    pushResponse(msg);
+  }
+  return;
+}
+
 void CommandPrivMsg::execute(IRCMessage& msg) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
@@ -43,22 +84,10 @@ void CommandPrivMsg::execute(IRCMessage& msg) {
   if (!validatePrivMsg(msg, reply)) {
     return;
   }
-  Channel* channel = server_->getChannel(msg.getParam(0));
-  Client* to = server_->getClient(msg.getParam(0));
-  // 存在しないニックネーム/チャンネル、存在するが相手が未ログインの場合
-  if ((channel == NULL && to == NULL) ||
-      (to != NULL && !to->getIsRegistered())) {
-    reply.setResCode(ERR_NOSUCHNICK);
-    return pushResponse(reply);
+  std::vector<std::string> to_list = Utils::split(msg.getParam(0), ",");
+  for (std::vector<std::string>::iterator it = to_list.begin();
+       it != to_list.end(); ++it) {
+    sendPrivMsg(*it, reply);
   }
-  if (to != NULL) {
-    // 存在するニックネームの場合
-    reply.setTo(to);
-    reply.setRaw(":" + from->getUserPrefix() + " PRIVMSG " + to->getNickName() +
-                 " :" + msg.getParam(1));
-    return pushResponse(reply);
-  }
-
-  // TODO チャンネルに送信する場合
   return;
 }

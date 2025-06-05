@@ -87,6 +87,10 @@ std::string IRCMessage::getBody() const {
 }
 
 // Setters
+void IRCMessage::setFrom(Client* from) {
+  from_ = from;
+}
+
 void IRCMessage::setTo(Client* to) {
   to_ = to;
 }

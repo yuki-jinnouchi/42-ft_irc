@@ -104,7 +104,7 @@ ngircd:
 
 .PHONY: server
 server: all
-	$(NAME) 6677 pass123
+	valgrind --leak-check=full --error-exitcode=1 --trace-children=yes --track-fds=yes -q $(NAME) 6677 pass123
 
 .PHONY: client
 client: all
@@ -115,6 +115,10 @@ client: all
 .PHONY: nc
 nc: all
 	nc -C -4 127.0.0.1 6677
+
+.PHONY: ng
+ng: all
+	nc -C -4 127.0.0.1 6667
 
 .PHONY: ncv6
 ncv6: all
