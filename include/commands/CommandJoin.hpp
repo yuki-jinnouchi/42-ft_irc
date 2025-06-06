@@ -63,7 +63,7 @@ class CommandJoin : public ACommand {
   void addClientToNewChannel(IRCMessage& msg);
   void addClientToExistingChannel(IRCMessage& msg);
   void sendResponceToFrom(IRCMessage& msg);
-  void sendResponseToOthers(IRCMessage& msg);
+  void sendResponseToChannel(IRCMessage& msg);
 
 
 };
