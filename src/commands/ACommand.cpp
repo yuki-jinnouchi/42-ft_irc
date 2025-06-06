@@ -52,7 +52,6 @@ bool ACommand::checkParamNum(IRCMessage& msg, int min_params) {
   if (min_params <= params_size) return true;
   IRCMessage reply(from, from);
   reply.setResCode(ERR_NEEDMOREPARAMS);
-  reply.setCommand(msg.getCommand());
   pushResponse(reply);
   return false;
 }
@@ -185,30 +184,38 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     case ERR_ERRONEUSNICKNAME:  // 432
       // <nick> :Erroneous nickname
       if (reply_msg.getParam(0).empty()) {
-        throw std::runtime_error("Nickname is empty in ERR_ERRONEUSNICKNAME");
+        throw std::invalid_argument(
+            "Nickname is empty in ERR_ERRONEUSNICKNAME");
       }
       oss << reply_msg.getParam(0) << " :Erroneous nickname";
       return oss.str();
     case ERR_NICKNAMEINUSE:  // 433
       // <nick> :Nickname is already in use
       if (reply_msg.getParam(0).empty()) {
-        throw std::runtime_error("Nickname is empty in ERR_NICKNAMEINUSE");
+        throw std::invalid_argument("Nickname is empty in ERR_NICKNAMEINUSE");
       }
       oss << reply_msg.getParam(0) << " :Nickname already in use";
       return oss.str();
-    // case ERR_USERNOTINCHANNEL:  // 441
-    //   // <nick> <channel> :They aren't on that channel
-    //   return formatResponse(responseCode, "%s %s :They aren't on that
-    //   channel",
-    //                         values);
-    // case ERR_NOTONCHANNEL:  // 442
-    //   // <channel> :You're not on that channel
-    //   return formatResponse(responseCode, "%s :You're not on that channel",
-    //                         values);
+    case ERR_USERNOTINCHANNEL:  // 441
+      // <nick> <channel> :They aren't on that channel
+      if (reply_msg.getParam(0).empty() || reply_msg.getParam(1).empty()) {
+        throw std::invalid_argument(
+            "channel or nickname is empty in ERR_USERNOTINCHANNEL");
+      }
+      oss << reply_msg.getParam(0) << " " << reply_msg.getParam(1)
+          << " :They aren't on that channel";
+      return oss.str();
+    case ERR_NOTONCHANNEL:  // 442
+      // <channel> :You're not on that channel
+      if (reply_msg.getParam(0).empty()) {
+        throw std::invalid_argument("channel is empty in ERR_NOTONCHANNEL");
+      }
+      oss << reply_msg.getParam(0) << " :You're not on that channel";
+      return oss.str();
     case ERR_USERONCHANNEL:  // 443
       // <nick> <channel> :is already on channel
       if (reply_msg.getParam(0).empty()) {
-        throw std::runtime_error("channel is empty in ERR_USERONCHANNEL");
+        throw std::invalid_argument("channel is empty in ERR_USERONCHANNEL");
       }
       oss << reply_msg.getFrom()->getNickName() << " " << reply_msg.getParam(0)
           << " :is already on channel";
@@ -247,6 +254,7 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       oss << reply_msg.getParam(0) << " :You're not channel operator";
       return oss.str();
     default:
-      return "";
+      ERROR_MSG("Unknown response code: " << reply_msg.getResCode());
+      throw std::invalid_argument("Unknown response code");
   }
 }

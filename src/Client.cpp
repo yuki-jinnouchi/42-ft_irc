@@ -88,11 +88,19 @@ void Client::setPassword(const std::string& password) {
 //   isCapabilityNegotiating_ = isCapabilityNegotiating;
 // }
 
+// Channel::member_と整合性をとるため
+// bool Channel::addMember(Client* client)を呼ぶと、
+// 内部でaddJoinedChannelも読んでいるため
+// 個別にこの関数を呼ぶ必要はない
 void Client::addJoinedChannel(Channel* channel) {
   std::string channelName = channel->getName();
   joinedChannels_[channelName] = channel;
 }
 
+// Channel::member_と整合性をとるため
+// bool Channel::removeMember(Client* client)を呼ぶと、
+// 内部でremoveJoinedChannelも読んでいるため
+// 個別にこの関数を呼ぶ必要はない
 void Client::removeJoinedChannel(const std::string& channelName) {
   joinedChannels_.erase(channelName);
 }

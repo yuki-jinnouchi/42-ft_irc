@@ -22,6 +22,7 @@ SRCS := src/main.cpp src/IRCServer.cpp src/Client.cpp src/Channel.cpp\
 		src/commands/CommandJoin.cpp src/commands/CommandTopic.cpp \
 		src/commands/CommandMode.cpp src/commands/CommandInvite.cpp \
 		src/commands/CommandPrivMsg.cpp \
+		src/commands/CommandKick.cpp \
 		src/commands/CommandBroadCast.cpp
 OBJS = $(patsubst $(SRCS_ROOT_DIR)/%.cpp,$(OBJS_ROOT_DIR)/%.o,$(SRCS))
 

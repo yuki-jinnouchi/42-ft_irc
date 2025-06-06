@@ -18,7 +18,6 @@ Channel::Channel(const std::string& name, Client* client)
   chanop_.insert(client);
 }
 
-
 // Getters
 const std::string& Channel::getName() const {
   return name_;
@@ -77,7 +76,6 @@ bool Channel::isInvited(Client* client) const {
   return false;
 }
 
-
 // Setters
 bool Channel::setTopic(const std::string& topic) {
   topic_ = topic;
@@ -115,6 +113,7 @@ bool Channel::addMember(Client* client) {
     return false;
   }
   member_.insert(client);
+  client->addJoinedChannel(this);
   return true;
 }
 
@@ -135,10 +134,11 @@ bool Channel::addInvited(Client* client) {
 
 bool Channel::removeMember(Client* client) {
   if (member_.find(client) == member_.end()) {
-    member_.erase(client);
-    return true;
+    return false;
   }
-  return false;
+  member_.erase(client);
+  client->removeJoinedChannel(name_);
+  return true;
 }
 
 bool Channel::removeChanop(Client* client) {

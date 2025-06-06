@@ -40,7 +40,6 @@ void CommandJoin::execute(IRCMessage& msg) {
       return;
     }
     channel->addMember(from);
-    from->addJoinedChannel(channel);
     reply.setRaw(":" + from->getUserPrefix() + " JOIN " + channelName);
     pushResponse(reply);
   }
