@@ -57,6 +57,7 @@ bool ACommand::checkParamNum(IRCMessage& msg, int min_params) {
   return false;
 }
 
+// Response handling
 void ACommand::pushResponse(IRCMessage& reply_msg) {
   std::ostringstream oss;
 
@@ -101,32 +102,36 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
           << " :Welcome to the Internet Relay Network "
           << reply_msg.getTo()->getNickName() << "!";
       return oss.str();
-    // case RPL_YOURHOST:  // 002
-    //   // <nick> :Your host is <servername>, running version <version>
-    //   return formatResponse(responseCode,
-    //                         "%s :Your host is %s, running version %s",
-    //                         values);
-    // case RPL_CREATED:  // 003
-    //   // <nick> :This server was created <datetime>
-    //   return formatResponse(responseCode, "%s :This server was created %s",
-    //                         values);
-    // case RPL_MYINFO:  // 004
-    //   // <nick> <servername> <version> <available umodes> <available
-    //   cmodes> return formatResponse(responseCode, "%s %s %s :%s %s",
-    //   values);
+      // case RPL_YOURHOST:  // 002
+      //   // <nick> :Your host is <servername>, running version <version>
+      //   return formatResponse(responseCode,
+      //                         "%s :Your host is %s, running version %s",
+      //                         values);
+      // case RPL_CREATED:  // 003
+      //   // <nick> :This server was created <datetime>
+      //   return formatResponse(responseCode, "%s :This server was created %s",
+      //                         values);
+      // case RPL_MYINFO:  // 004
+      //   // <nick> <servername> <version> <available umodes> <available
+      //   cmodes> return formatResponse(responseCode, "%s %s %s :%s %s",
+      //   values);
 
       // Channel Operations
     case RPL_TOPIC:  // 332
       // <channel> :<topic>
       oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
       return oss.str();
-    // case RPL_NAMREPLY:  // 353
-    //   // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
-    //   return formatResponse(responseCode, "%s :%s", values);
-    // case RPL_ENDOFNAMES:  // 366
-    //   // <channel> :End of /NAMES list
-    //   return formatResponse(responseCode, "%s :End of /NAMES list",
-    //   values);
+    case RPL_INVITING:  // 341
+      // "<channel> <nick>"
+      oss << reply_msg.getParam(0) << " " << reply_msg.getParam(1);
+      return oss.str();
+      // case RPL_NAMREPLY:  // 353
+      //   // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
+      //   return formatResponse(responseCode, "%s :%s", values);
+      // case RPL_ENDOFNAMES:  // 366
+      //   // <channel> :End of /NAMES list
+      //   return formatResponse(responseCode, "%s :End of /NAMES list",
+      //   values);
 
     // Error Codes
     case ERR_NOSUCHNICK:  // 401

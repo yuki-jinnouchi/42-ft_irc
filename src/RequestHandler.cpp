@@ -9,6 +9,7 @@
 #include "CommandPrivMsg.hpp"
 #include "CommandUser.hpp"
 #include "CommandJoin.hpp"
+#include "CommandInvite.hpp"
 #include "CommandTopic.hpp"
 #include "IRCLogger.hpp"
 #include "IRCParser.hpp"
@@ -21,6 +22,8 @@ RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
   commands_["NICK"] = new CommandNick(server_);
   commands_["USER"] = new CommandUser(server_);
   commands_["JOIN"] = new CommandJoin(server_);
+  commands_["INVITE"] = new CommandInvite(server_);
+  // commands_["PART"] = new CommandPart(server_);
   commands_["TOPIC"] = new CommandTopic(server_);
   commands_["MODE"] = new CommandMode(server_);
   commands_["PRIVMSG"] = new CommandPrivMsg(server_);
