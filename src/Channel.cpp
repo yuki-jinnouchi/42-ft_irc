@@ -106,12 +106,8 @@ bool Channel::setTopicRestricted(bool isTopicRestricted) {
 }
 
 bool Channel::addMember(Client* client) {
-  if (member_.find(client) != member_.end()) {
-    return true;
-  }
-  if (isInviteOnly_ && invited_.find(client) != invited_.end()) {
-    return false;
-  }
+  if (member_.find(client) != member_.end()) return true;
+  if (isInviteOnly_ && invited_.find(client) == invited_.end()) return false;
   member_.insert(client);
   client->addJoinedChannel(this);
   return true;
