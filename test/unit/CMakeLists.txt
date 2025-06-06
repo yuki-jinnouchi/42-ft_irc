@@ -20,6 +20,9 @@ enable_testing()
 
 # ft_irc関連のソースをgoogleTestに追加 ############################################################################################
 file(GLOB_RECURSE LIB_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ../../src/*.cpp)
+# テスト用ライブラリを追加
+file(GLOB_RECURSE TEST_DATA_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ./lib/*.cpp)
+list(APPEND LIB_SRCS ${TEST_DATA_SRCS})
 
 # main.cを除外
 list(REMOVE_ITEM LIB_SRCS ../../src/main.cpp)
@@ -30,6 +33,7 @@ target_compile_definitions(libftirc PRIVATE UNIT_TEST)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -DUNIT_TEST=1")
 include_directories(
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include/commands"
   # "${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/googletest-src/googletest/include"

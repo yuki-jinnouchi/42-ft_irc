@@ -1,52 +1,54 @@
 #include <gtest/gtest.h>
 
-#include "IRCServer.hpp"
-#include "RequestHandler.hpp"
-
-static void makeUserData(IRCServer &server, std::map<int, Client *> &clients) {
-  clients[10] = new Client(10);
-  clients[10]->setNickName("nick1");
-  clients[10]->setUserName("user1");
-
-  clients[11] = new Client(11);
-  clients[11]->setNickName("nick2");
-  clients[11]->setUserName("user2");
-
-  clients[12] = new Client(12);
-  clients[12]->setNickName("nick3");
-  clients[12]->setUserName("user3");
-
-  server.addClient(clients[10]);
-  server.addClient(clients[11]);
-  server.addClient(clients[12]);
-  // TODO 他のユーザーをチャンネルに参加させる
-}
+#include "TestDataGenerator.hpp"
 
 // 通常
 TEST(CommandNick, nomal) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK a23456789";
   std::string expected = "a23456789";
   std::string expected_reply = ":nick1!~user1@localhost NICK :a23456789";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   EXPECT_EQ(server.getClients().at(10)->getNickName(), expected);
   EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply + "\r\n");
   // TODO チャンネルの他のユーザーへの通知をテストする
+  EXPECT_EQ(clients[11]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[12]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[13]->getSendingMsg(), expected_reply + "\r\n");
+  EXPECT_EQ(clients[14]->getSendingMsg(), "");
+  EXPECT_EQ(clients[15]->getSendingMsg(), "");
+}
+
+// 通常(未ログインの場合、返信しない)
+TEST(CommandNick, nomal2) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "NICK a23456789";
+  std::string expected = "a23456789";
+
+  IRCMessage msg(clients[14], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_EQ(server.getClients().at(14)->getNickName(), expected);
+  EXPECT_EQ(clients[10]->getSendingMsg(), "");
 }
 
 // ニックネームが長過ぎる
 TEST(CommandNick, too_long) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK a234567890";
   std::string expected = "nick1";
@@ -55,8 +57,6 @@ TEST(CommandNick, too_long) {
       "characters";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
@@ -72,15 +72,14 @@ TEST(CommandNick, too_long) {
 TEST(CommandNick, same_nickname) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK nick1";
   std::string expected = "nick1";
   std::string expected_reply = "";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
@@ -96,7 +95,8 @@ TEST(CommandNick, same_nickname) {
 TEST(CommandNick, no_args) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK ";
   std::string expected = "nick1";
@@ -104,8 +104,6 @@ TEST(CommandNick, no_args) {
       ":irc.example.net 461 nick1 NICK :Not enough parameters";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
@@ -121,7 +119,8 @@ TEST(CommandNick, no_args) {
 TEST(CommandNick, dup_nickname) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK nick2";
   std::string expected = "nick1";
@@ -129,8 +128,6 @@ TEST(CommandNick, dup_nickname) {
       ":irc.example.net 433 nick1 nick2 :Nickname already in use";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
@@ -146,7 +143,8 @@ TEST(CommandNick, dup_nickname) {
 TEST(CommandNick, invalid_nickname1) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK 1nick";
   std::string expected = "nick1";
@@ -154,8 +152,6 @@ TEST(CommandNick, invalid_nickname1) {
       ":irc.example.net 432 nick1 1nick :Erroneous nickname";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
@@ -171,7 +167,8 @@ TEST(CommandNick, invalid_nickname1) {
 TEST(CommandNick, invalid_nickname2) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK nick@";
   std::string expected = "nick1";
@@ -179,8 +176,6 @@ TEST(CommandNick, invalid_nickname2) {
       ":irc.example.net 432 nick1 nick@ :Erroneous nickname";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
@@ -196,7 +191,8 @@ TEST(CommandNick, invalid_nickname2) {
 TEST(CommandNick, invalid_nickname3) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
-  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "NICK #ch";
   std::string expected = "nick1";
@@ -204,8 +200,6 @@ TEST(CommandNick, invalid_nickname3) {
       ":irc.example.net 432 nick1 #ch :Erroneous nickname";
 
   IRCMessage msg(clients[10], msgStr);
-
-  RequestHandler requestHandler(&server);
   requestHandler.handleCommand(msg);
 
   // ニックネームは変更されない
