@@ -104,12 +104,4 @@ KICK #ch2 nick3 bye
 
 // 自分自身はKICKできる？ 可能
 // operatorをKICKできる？　可能
-
-
-           ERR_NEEDMOREPARAMS 461
-        ERR_NOSUCHCHANNEL 403
-           ERR_BADCHANMASK
-          ERR_CHANOPRIVSNEEDED 482
-           ERR_NOTONCHANNEL 442
-
 */
