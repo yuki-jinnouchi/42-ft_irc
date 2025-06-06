@@ -51,6 +51,7 @@ bool ACommand::checkParamNum(IRCMessage& msg, int min_params) {
   int params_size = msg.getParams().size();
   if (min_params <= params_size) return true;
   IRCMessage reply(from, from);
+  reply.setCommand(msg.getCommand());
   reply.setResCode(ERR_NEEDMOREPARAMS);
   pushResponse(reply);
   return false;
@@ -217,7 +218,7 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       if (reply_msg.getParam(0).empty()) {
         throw std::invalid_argument("channel is empty in ERR_USERONCHANNEL");
       }
-      oss << reply_msg.getFrom()->getNickName() << " " << reply_msg.getParam(0)
+      oss << reply_msg.getParam(0) << " " << reply_msg.getParam(1)
           << " :is already on channel";
       return oss.str();
     case ERR_NOTREGISTERED:  // 451
