@@ -15,7 +15,7 @@ TEST(CommandKick, nomal1) {
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
 
-  // メンバーが見つからない
+  // KICKされていることを確認
   std::set<Client *> member = server.getChannel("#ch3")->getMember();
   EXPECT_EQ(member.find(clients[11]), member.end());
 
@@ -40,7 +40,7 @@ TEST(CommandKick, nomal2) {
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
 
-  // メンバーが見つからない
+  // KICKされていることを確認
   std::set<Client *> member = server.getChannel("#ch3")->getMember();
   EXPECT_EQ(member.find(clients[11]), member.end());
 
@@ -65,6 +65,9 @@ TEST(CommandKick, not_registered) {
   IRCMessage msg(clients[15], msgStr);
   requestHandler.handleCommand(msg);
 
+  // KICKされていないことを確認
+  std::set<Client *> member = server.getChannel("#ch3")->getMember();
+  EXPECT_NE(member.find(clients[11]), member.end());
   // エラーメッセージ
   EXPECT_EQ(clients[15]->getSendingMsg(), expected + "\r\n");
   // 何も送信されない
@@ -109,6 +112,9 @@ TEST(CommandKick, arg1) {
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
 
+  // KICKされない
+  std::set<Client *> member = server.getChannel("#ch3")->getMember();
+  EXPECT_NE(member.find(clients[11]), member.end());
   // エラーメッセージ
   EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
   // 何も送信されない
@@ -130,6 +136,9 @@ TEST(CommandKick, arg4) {
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
 
+  // KICKされていないことを
+  std::set<Client *> member = server.getChannel("#ch3")->getMember();
+  EXPECT_NE(member.find(clients[11]), member.end());
   // エラーメッセージ
   EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
   // 何も送信されない
@@ -173,6 +182,9 @@ TEST(CommandKick, I_am_not_member) {
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
 
+  // KICKされていないことを確認
+  std::set<Client *> member = server.getChannel("#ch4")->getMember();
+  EXPECT_NE(member.find(clients[11]), member.end());
   // エラーメッセージ
   EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
   // 何も送信されない
@@ -194,6 +206,9 @@ TEST(CommandKick, no_operator) {
   IRCMessage msg(clients[11], msgStr);
   requestHandler.handleCommand(msg);
 
+  // KICKされていないことを確認
+  std::set<Client *> member = server.getChannel("#ch3")->getMember();
+  EXPECT_NE(member.find(clients[11]), member.end());
   // エラーメッセージ
   EXPECT_EQ(clients[11]->getSendingMsg(), expected + "\r\n");
   // 何も送信されない
@@ -259,10 +274,20 @@ TEST(CommandKick, nomal_multip1) {
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
 
-  // メンバーが見つからない
-  std::set<Client *> member = server.getChannel("#ch3")->getMember();
-  EXPECT_EQ(member.find(clients[11]), member.end());
+  // #ch2からKICKされている
+  std::set<Client *> member2 = server.getChannel("#ch2")->getMember();
+  EXPECT_EQ(member2.find(clients[11]), member2.end());
+  // #ch3からKICKされている
+  std::set<Client *> member3 = server.getChannel("#ch3")->getMember();
+  EXPECT_EQ(member3.find(clients[11]), member3.end());
+  EXPECT_EQ(member3.find(clients[12]), member3.end());
+  // #ch4はKICKされていないことを確認
+  std::set<Client *> member4 = server.getChannel("#ch4")->getMember();
+  EXPECT_NE(member4.find(clients[11]), member4.end());
+  EXPECT_NE(member4.find(clients[12]), member4.end());
+  EXPECT_NE(member4.find(clients[13]), member4.end());
 
+  // 実行者の通知
   EXPECT_EQ(
       clients[10]->getSendingMsg(),
       ":nick1!~user1@localhost KICK #ch2 nick2 :bye bye\r\n"
