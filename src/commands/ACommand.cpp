@@ -124,13 +124,14 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       // "<channel> <nick>"
       oss << reply_msg.getParam(0) << " " << reply_msg.getParam(1);
       return oss.str();
-      // case RPL_NAMREPLY:  // 353
-      //   // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
-      //   return formatResponse(responseCode, "%s :%s", values);
-      // case RPL_ENDOFNAMES:  // 366
-      //   // <channel> :End of /NAMES list
-      //   return formatResponse(responseCode, "%s :End of /NAMES list",
-      //   values);
+    case RPL_NAMREPLY:  // 353
+      // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
+      oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
+      return oss.str();
+    case RPL_ENDOFNAMES:  // 366
+      // <channel> :End of /NAMES list
+      oss << reply_msg.getParam(0) << " :End of /NAMES list";
+      return oss.str();
 
     // Error Codes
     case ERR_NOSUCHNICK:  // 401
