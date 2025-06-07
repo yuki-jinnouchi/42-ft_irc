@@ -167,8 +167,7 @@ bool IRCServer::addClient(Client* client) {
 }
 
 bool IRCServer::addChannel(const std::string& name, Client* client) {
-  if (channels_.find(name) != channels_.end())
-    return false;
+  if (channels_.find(name) != channels_.end()) return false;
   Channel* channel = new Channel(name, client);
   channels_[name] = channel;
   return true;
@@ -187,15 +186,15 @@ bool IRCServer::ifChannleExists(const std::string& name) const {
 //   return false;
 // }
 
-// bool IRCServer::removeChannel(const std::string& name) {
-//   std::map<std::string, Channel*>::iterator it = channels_.find(name);
-//   if (it != channels_.end()) {
-//     delete it->second;
-//     channels_.erase(it);
-//     return true;
-//   }
-//   return false;
-// }
+bool IRCServer::removeChannel(const std::string& name) {
+  std::map<std::string, Channel*>::iterator it = channels_.find(name);
+  if (it != channels_.end()) {
+    delete it->second;
+    channels_.erase(it);
+    return true;
+  }
+  return false;
+}
 
 void IRCServer::addSendQueue(Client* client) {
   send_queue_.insert(client);
