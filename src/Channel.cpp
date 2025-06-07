@@ -114,8 +114,7 @@ bool Channel::addMember(Client* client) {
 }
 
 bool Channel::addChanop(Client* client) {
-  if (member_.find(client) == member_.end())
-    return false;
+  if (member_.find(client) == member_.end()) return false;
   chanop_.insert(client);
   return true;
 }
@@ -126,23 +125,20 @@ bool Channel::addInvited(Client* client) {
 }
 
 bool Channel::removeMember(Client* client) {
-  if (member_.find(client) == member_.end())
-    return false;
+  if (member_.find(client) == member_.end()) return false;
   member_.erase(client);
   client->removeJoinedChannel(name_);
   return true;
 }
 
 bool Channel::removeChanop(Client* client) {
-  if (chanop_.find(client) == chanop_.end())
-    return false;
+  if (chanop_.find(client) == chanop_.end()) return false;
   chanop_.erase(client);
   return true;
 }
 
 bool Channel::removeInvited(Client* client) {
-  if (invited_.find(client) == invited_.end())
-    return false;
+  if (invited_.find(client) == invited_.end()) return false;
   invited_.erase(client);
   return true;
 }

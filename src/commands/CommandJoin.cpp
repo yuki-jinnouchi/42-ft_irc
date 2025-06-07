@@ -22,8 +22,7 @@ void CommandJoin::execute(IRCMessage& msg) {
   // Check if the channel is full
   int userLimit = channel->getUserLimit();
   if (userLimit > 0 &&
-      channel->getMember().size() >=
-          static_cast<size_t>(userLimit)) {
+      channel->getMember().size() >= static_cast<size_t>(userLimit)) {
     reply.addParam(channelName);
     reply.setResCode(ERR_CHANNELISFULL);
     pushResponse(reply);
@@ -43,12 +42,9 @@ void CommandJoin::execute(IRCMessage& msg) {
 }
 
 bool CommandJoin::validJoin(IRCMessage& msg) {
-  if (!checkIsRegistered(msg)) {
-    return false;
-  }
-  if (!checkParamNum(msg, 1)) {
-    return false;
-  }
+  if (!checkIsRegistered(msg)) return false;
+  if (!checkParamNum(msg, 1)) return false;
+
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
   if (2 < msg.getParams().size()) {
@@ -80,7 +76,6 @@ void CommandJoin::addClientToNewChannel(IRCMessage& msg) {
   reply.setRaw(":" + from->getUserPrefix() + " JOIN " + channelName);
   pushResponse(reply);
   sendResponceToFrom(msg);
-
 }
 
 void CommandJoin::sendResponseToChannel(IRCMessage& msg) {

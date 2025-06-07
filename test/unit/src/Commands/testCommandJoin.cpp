@@ -243,13 +243,13 @@ TEST(CommandJoin, inviteOnlyChannel_invited) {
   std::string channelName = "#channel";
   std::string msgStr = "JOIN " + channelName;
   std::string expected_reply =
-  ":nick1!~user1@localhost JOIN #channel"
-  "\r\n"
-  ":irc.example.net 332 nick1 #channel :"
-  "\r\n"
-  ":irc.example.net 353 nick1 #channel :nick1 nick2"
-  "\r\n"
-  ":irc.example.net 366 nick1 #channel :End of /NAMES list";
+      ":nick1!~user1@localhost JOIN #channel"
+      "\r\n"
+      ":irc.example.net 332 nick1 #channel :"
+      "\r\n"
+      ":irc.example.net 353 nick1 #channel :nick1 nick2"
+      "\r\n"
+      ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
   server.addChannel(channelName, clients[11]);
   Channel *channel = server.getChannel(channelName);
@@ -321,8 +321,9 @@ TEST(CommandJoin, inviteOnlyChannel_rejoin) {
   EXPECT_EQ(server.getChannel(channelName)->getMember().size(), 2);
 
   clients[10]->consumeSendingMsg(100000);  // Clear sending message
-  channel->removeMember(clients[10]);  // Remove client from channel
-  std::string expected_reply02 = ":irc.example.net 473 nick1 #channel :Cannot join channel (+i)";
+  channel->removeMember(clients[10]);      // Remove client from channel
+  std::string expected_reply02 =
+      ":irc.example.net 473 nick1 #channel :Cannot join channel (+i)";
 
   requestHandler.handleCommand(msg);
 
