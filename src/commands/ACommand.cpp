@@ -46,9 +46,9 @@ bool ACommand::checkIsRegistered(IRCMessage& msg) {
   return false;
 }
 
-bool ACommand::checkParamNum(IRCMessage& msg, int min_params) {
+bool ACommand::checkParamNum(IRCMessage& msg, size_t min_params) {
   Client* from = msg.getFrom();
-  int params_size = static_cast<int>(msg.getParams().size());
+  size_t params_size = msg.getParams().size();
   if (min_params <= params_size) return true;
   IRCMessage reply(from, from);
   reply.setResCode(ERR_NEEDMOREPARAMS);

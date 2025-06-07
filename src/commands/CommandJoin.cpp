@@ -37,6 +37,7 @@ void CommandJoin::execute(IRCMessage& msg) {
     return;
   }
   channel->addMember(from);
+  channel->removeInvited(from);
   sendResponseToChannel(msg);
   sendResponceToFrom(msg);
 }

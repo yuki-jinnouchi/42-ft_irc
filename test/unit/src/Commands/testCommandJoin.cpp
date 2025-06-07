@@ -288,3 +288,45 @@ TEST(CommandJoin, fullChannel) {
   EXPECT_EQ(server.getChannel(channelName)->getMember().size(), 1);
   EXPECT_EQ(server.getChannel(channelName)->getUserLimit(), 1);
 }
+
+// 異常 (チャンネルが招待制で、再度参加しようとする場合)
+TEST(CommandJoin, inviteOnlyChannel_rejoin) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+
+  std::string channelName = "#channel";
+  std::string msgStr = "JOIN " + channelName;
+  std::string expected_reply01 =
+      ":nick1!~user1@localhost JOIN #channel"
+      "\r\n"
+      ":irc.example.net 332 nick1 #channel :"
+      "\r\n"
+      ":irc.example.net 353 nick1 #channel :nick1 nick2"
+      "\r\n"
+      ":irc.example.net 366 nick1 #channel :End of /NAMES list";
+
+  server.addChannel(channelName, clients[11]);
+  Channel *channel = server.getChannel(channelName);
+  channel->setInviteOnly(true);
+  channel->addInvited(clients[10]);
+
+  IRCMessage msg(clients[10], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_TRUE(server.getChannel(channelName)->isMember(clients[10]));
+  EXPECT_FALSE(server.getChannel(channelName)->isInvited(clients[10]));
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply01 + "\r\n");
+  EXPECT_EQ(server.getChannel(channelName)->getMember().size(), 2);
+
+  clients[10]->consumeSendingMsg(100000);  // Clear sending message
+  channel->removeMember(clients[10]);  // Remove client from channel
+  std::string expected_reply02 = ":irc.example.net 473 nick1 #channel :Cannot join channel (+i)";
+
+  requestHandler.handleCommand(msg);
+
+  EXPECT_FALSE(server.getChannel(channelName)->isMember(clients[10]));
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply02 + "\r\n");
+  EXPECT_EQ(server.getChannel(channelName)->getMember().size(), 1);
+}
