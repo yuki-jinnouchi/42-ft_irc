@@ -37,7 +37,6 @@ bool CommandInvite::validateInvite(IRCMessage& msg) {
   if (!checkParamNum(msg, 2)) return false;
   if (msg.getParams().size() > 2) {
     reply.setResCode(ERR_NEEDMOREPARAMS);
-    reply.addParam(msg.getCommand());
     pushResponse(reply);
     return false;
   }

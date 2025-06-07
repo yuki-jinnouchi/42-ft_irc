@@ -51,7 +51,6 @@ bool ACommand::checkParamNum(IRCMessage& msg, int min_params) {
   int params_size = msg.getParams().size();
   if (min_params <= params_size) return true;
   IRCMessage reply(from, from);
-  reply.setCommand(msg.getCommand());
   reply.setResCode(ERR_NEEDMOREPARAMS);
   pushResponse(reply);
   return false;
