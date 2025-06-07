@@ -106,25 +106,17 @@ bool Channel::setTopicRestricted(bool isTopicRestricted) {
 }
 
 bool Channel::addMember(Client* client) {
-  if (member_.find(client) != member_.end()) {
-    return true;
-  }
-  if (isInviteOnly_ && invited_.find(client) != invited_.end()) {
-    return false;
-  }
+  if (member_.find(client) != member_.end()) return true;
+  if (isInviteOnly_ && invited_.find(client) == invited_.end()) return false;
   member_.insert(client);
   client->addJoinedChannel(this);
   return true;
 }
 
 bool Channel::addChanop(Client* client) {
-  if (member_.find(client) == member_.end()) {
-    return false;
-  }
-  if (chanop_.find(client) != chanop_.end()) {
-    return true;
-  }
-  return false;
+  if (member_.find(client) == member_.end()) return false;
+  chanop_.insert(client);
+  return true;
 }
 
 bool Channel::addInvited(Client* client) {
@@ -133,26 +125,20 @@ bool Channel::addInvited(Client* client) {
 }
 
 bool Channel::removeMember(Client* client) {
-  if (member_.find(client) == member_.end()) {
-    return false;
-  }
+  if (member_.find(client) == member_.end()) return false;
   member_.erase(client);
   client->removeJoinedChannel(name_);
   return true;
 }
 
 bool Channel::removeChanop(Client* client) {
-  if (chanop_.find(client) == chanop_.end()) {
-    chanop_.erase(client);
-    return true;
-  }
-  return false;
+  if (chanop_.find(client) == chanop_.end()) return false;
+  chanop_.erase(client);
+  return true;
 }
 
 bool Channel::removeInvited(Client* client) {
-  if (invited_.find(client) == invited_.end()) {
-    invited_.erase(client);
-    return true;
-  }
-  return false;
+  if (invited_.find(client) == invited_.end()) return false;
+  invited_.erase(client);
+  return true;
 }

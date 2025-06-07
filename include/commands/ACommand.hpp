@@ -29,7 +29,7 @@ class ACommand {
 
   // validation
   bool checkIsRegistered(IRCMessage& msg);
-  bool checkParamNum(IRCMessage& msg, int min_params);
+  bool checkParamNum(IRCMessage& msg, size_t min_params);
 
  public:
   // Orthodox Canonical Form
