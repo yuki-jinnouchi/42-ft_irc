@@ -56,6 +56,16 @@ bool ACommand::checkParamNum(IRCMessage& msg, size_t min_params) {
   return false;
 }
 
+bool ACommand::checkParamNum(IRCMessage& msg, size_t min, size_t max) {
+  Client* from = msg.getFrom();
+  size_t params_size = msg.getParams().size();
+  if (min <= params_size && params_size <= max) return true;
+  IRCMessage reply(from, from);
+  reply.setResCode(ERR_NEEDMOREPARAMS);
+  pushResponse(reply);
+  return false;
+}
+
 // Response handling
 void ACommand::pushResponse(IRCMessage& reply_msg) {
   std::ostringstream oss;
@@ -172,13 +182,10 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     case ERR_NOTEXTTOSEND:  // 412
       // ":No text to send"
       return ":No text to send";
-    // case ERR_UNKNOWNCOMMAND:  // 421
-    //   // <command> :Unknown command
-    //   if (reply_msg.getCommand().empty()) {
-    //     throw std::invalid_argument("ERR_TOOMANYCHANNELS");
-    //   }
-    //   oss << reply_msg.getCommand() << " :Unknown command";
-    //   return oss.str();
+    case ERR_UNKNOWNCOMMAND:  // 421
+      // <command> :Unknown command
+      oss << reply_msg.getParam(0) << " :Unknown command";
+      return oss.str();
     case ERR_NONICKNAMEGIVEN:  // 431
       // :No nickname given
       return ":No nickname given";

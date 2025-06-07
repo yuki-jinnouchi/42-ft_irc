@@ -7,6 +7,8 @@
 #include "CommandKick.hpp"
 #include "CommandMode.hpp"
 #include "CommandNick.hpp"
+#include "CommandNull.hpp"
+#include "CommandPart.hpp"
 #include "CommandPass.hpp"
 #include "CommandPing.hpp"
 #include "CommandPrivMsg.hpp"
@@ -24,14 +26,14 @@ RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
   commands_["USER"] = new CommandUser(server_);
   commands_["JOIN"] = new CommandJoin(server_);
   commands_["INVITE"] = new CommandInvite(server_);
-  // commands_["PART"] = new CommandPart(server_);
   commands_["TOPIC"] = new CommandTopic(server_);
   commands_["MODE"] = new CommandMode(server_);
   commands_["PRIVMSG"] = new CommandPrivMsg(server_);
+  commands_["PART"] = new CommandPart(server_);
   commands_["KICK"] = new CommandKick(server_);
-  // commands_["PART"] = new CommandPart(server_);
   commands_["PING"] = new CommandPing(server_);
   commands_["BROADCAST"] = new CommandBroadCast(server_);
+  commands_["NULL"] = new CommandNull(server_);
 }
 
 RequestHandler::~RequestHandler() {
@@ -47,9 +49,7 @@ RequestHandler::RequestHandler(const RequestHandler& other) {
 }
 
 RequestHandler& RequestHandler::operator=(const RequestHandler& other) {
-  if (this == &other) {
-    return *this;
-  }
+  if (this == &other) return *this;
   server_ = other.server_;
   commands_ = other.commands_;
   return *this;
@@ -77,12 +77,9 @@ ACommand* RequestHandler::getCommand(const std::string& commandName) {
 void RequestHandler::execCommand(IRCMessage& msg) {
   std::string commandName = msg.getCommand();
   ACommand* command = getCommand(commandName);
-  if (command) {
+  if (command)
     command->execute(msg);
-  } else {
-    commands_["BROADCAST"]->execute(msg);
-    // TODO ngircdのコマンドが見つからない場合のエラーメッセージ
-    // hoge
-    // 　:irc.example.net 421 nick1 hoge :Unknown command
-  }
+  else
+    commands_["NULL"]->execute(msg);
+  // commands_["BROADCAST"]->execute(msg);
 }
