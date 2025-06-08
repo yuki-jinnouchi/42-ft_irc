@@ -71,6 +71,9 @@ bool IRCParser::validCommand(const std::string& command) {
   if (command.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") ==
       std::string::npos)
     return true;
+  if (command.find_first_not_of("abcdefghijklmnopqrstuvwxyz") ==
+      std::string::npos)
+    return true;
   if (command.find_first_not_of("0123456789") == std::string::npos &&
       command.size() == 3)
     return true;

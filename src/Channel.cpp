@@ -127,6 +127,7 @@ bool Channel::addInvited(Client* client) {
 bool Channel::removeMember(Client* client) {
   if (member_.find(client) == member_.end()) return false;
   member_.erase(client);
+  chanop_.erase(client);
   client->removeJoinedChannel(name_);
   return true;
 }
