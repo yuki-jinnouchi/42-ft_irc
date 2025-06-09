@@ -31,12 +31,16 @@ CXX = c++
 
 INCL_FLAGS = $(foreach d, $(INCL_DIR), -I$d)
 W3_FLAGS = -Wall -Wextra -Werror
-OTHER_FLAGS = -O0 -g -std=c++98 -pedantic-errors -DDEBUG
+
+OTHER_FLAGS := -O2 -std=c++98 -pedantic-errors
+ifdef DEBUG
+	OTHER_FLAGS := -O0 -g -std=c++98 -pedantic-errors -DDEBUG
+endif
+
+
+
 CXXFLAGS = $(INCL_FLAGS) $(W3_FLAGS) $(OTHER_FLAGS)
 
-ifdef PROD_FLG
-		CXXFLAGS := -I./include -Wall -Wextra -Werror -O2 -std=c++98 -pedantic-errors
-endif
 
 #===============================================
 # Colors

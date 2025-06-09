@@ -6,9 +6,11 @@
 
 volatile sig_atomic_t g_signal = 0;
 
+#ifdef DEBUG
 static void debug_handler(int sig) {
   DEBUG_MSG("signal: " << sig);
 }
+#endif
 
 static void shutdown_handler(int sig) {
   DEBUG_MSG("signal: " << sig);
