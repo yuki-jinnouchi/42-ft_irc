@@ -253,10 +253,10 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       // <channel> :Cannot join channel (+i)
       oss << reply_msg.getParam(0) << " :Cannot join channel (+i)";
       return oss.str();
-    // case ERR_BADCHANNELKEY:  // 475
-    //   // <channel> :Cannot join channel (+k)
-    //   return formatResponse(responseCode, "%s :Cannot join channel (+k)",
-    //                         values);
+    case ERR_BADCHANNELKEY:  // 475
+      // <channel> :Cannot join channel (+k)
+      oss << reply_msg.getParam(0) << " :Cannot join channel (+k)";
+      return oss.str();
     case ERR_CHANOPRIVSNEEDED:  // 482
       // <channel> :You're not channel operator
       oss << reply_msg.getParam(0) << " :You're not channel operator";

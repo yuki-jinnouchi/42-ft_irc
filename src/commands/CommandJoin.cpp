@@ -1,5 +1,7 @@
 #include "CommandJoin.hpp"
 
+#include "Utils.hpp"
+
 CommandJoin::CommandJoin(IRCServer* server) : ACommand(server, "JOIN") {}
 
 CommandJoin::~CommandJoin() {}
@@ -10,35 +12,21 @@ void CommandJoin::execute(IRCMessage& msg) {
 
   if (!validJoin(msg)) return;
 
-  std::string channelName = msg.getParam(0);
-  Channel* channel = server_->getChannel(channelName);
-  // If channel does not exist, create a new one
-  if (!channel) {
-    addClientToNewChannel(msg);
-    return;
+  std::string channelsParam = msg.getParam(0);
+  std::string keysParam = msg.getParam(1);
+
+  std::vector<std::string> channels = Utils::split(channelsParam, ",");
+  std::vector<std::string> keys = Utils::split(keysParam, ",");
+  size_t i;
+  for (i = 0; i < channels.size(); i++) {
+    std::string channelName = channels[i];
+    std::string key;
+    if (i < keys.size())
+      key = keys[i];
+    else
+      key = "";
+    joinOneChannel(msg, channelName, key);
   }
-  // If already a member of the channel, just ignore
-  if (channel->isMember(from)) return;
-  // Check if the channel is full
-  int userLimit = channel->getUserLimit();
-  if (userLimit > 0 &&
-      channel->getMember().size() >= static_cast<size_t>(userLimit)) {
-    reply.addParam(channelName);
-    reply.setResCode(ERR_CHANNELISFULL);
-    pushResponse(reply);
-    return;
-  }
-  // Check if the channel is invite-only and if invited
-  if (channel->getIsInviteOnly() && !channel->isInvited(from)) {
-    reply.addParam(channelName);
-    reply.setResCode(ERR_INVITEONLYCHAN);
-    pushResponse(reply);
-    return;
-  }
-  channel->addMember(from);
-  channel->removeInvited(from);
-  sendResponseToChannel(msg);
-  sendResponceToFrom(msg);
 }
 
 bool CommandJoin::validJoin(IRCMessage& msg) {
@@ -62,17 +50,57 @@ bool CommandJoin::validJoin(IRCMessage& msg) {
   return true;
 }
 
-void CommandJoin::addClientToNewChannel(IRCMessage& msg) {
+void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName, std::string key) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
-  std::string channelName = msg.getParam(0);
+
+  Channel* channel = server_->getChannel(channelName);
+  // If channel does not exist, create a new one
+  if (!channel) {
+    addClientToNewChannel(msg, channelName, key);
+    return;
+  }
+  // If already a member of the channel, just ignore
+  if (channel->isMember(from)) return;
+  // Check if the channel has key and if it matches
+  if (!channel->getKey().empty() && channel->getKey() == key) {
+    reply.addParam(channelName);
+    reply.setResCode(ERR_BADCHANNELKEY);
+    pushResponse(reply);
+    return;
+  }
+  // Check if the channel is invite-only and if invited
+  if (channel->getIsInviteOnly() && !channel->isInvited(from)) {
+    reply.addParam(channelName);
+    reply.setResCode(ERR_INVITEONLYCHAN);
+    pushResponse(reply);
+    return;
+  }
+  // Check if the channel is full
+  int userLimit = channel->getUserLimit();
+  if (userLimit > 0 &&
+      channel->getMember().size() >= static_cast<size_t>(userLimit)) {
+    reply.addParam(channelName);
+    reply.setResCode(ERR_CHANNELISFULL);
+    pushResponse(reply);
+    return;
+  }
+  channel->addMember(from);
+  channel->removeInvited(from);
+  sendResponseToChannel(msg);
+  sendResponceToFrom(msg);
+}
+
+void CommandJoin::addClientToNewChannel(IRCMessage& msg, std::string channelName, std::string key) {
+  Client* from = msg.getFrom();
+  IRCMessage reply(from, from);
 
   server_->addChannel(channelName, from);
-  server_->getChannel(channelName)->addChanop(from);
   Channel* channel = server_->getChannel(channelName);
   from->addJoinedChannel(channel);
   channel->addMember(from);
   channel->addChanop(from);
+  channel->setKey(key);
   reply.setRaw(":" + from->getUserPrefix() + " JOIN " + channelName);
   pushResponse(reply);
   sendResponceToFrom(msg);

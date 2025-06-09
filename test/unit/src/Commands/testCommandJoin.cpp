@@ -211,6 +211,33 @@ TEST(CommandJoin, abnormalChannelName) {
   EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply + "\r\n");
 }
 
+// 正常 (チャンネルにKeyが設定されている場合)
+TEST(CommandJoin, channelWithKey) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+
+  std::string channelName1 = "#ch1";
+  std::string msgStr1 = "JOIN " + channelName1 + " key1";
+  std::string expected_reply1 =
+      ":nick1!~user1@localhost JOIN #ch1"
+      "\r\n"
+      ":irc.example.net 332 nick1 #ch1 :"
+      "\r\n"
+      ":irc.example.net 353 nick1 #ch1 :nick1"
+      "\r\n"
+      ":irc.example.net 366 nick1 #ch1 :End of /NAMES list";
+
+  IRCMessage msg01(clients[10], msgStr1);
+  requestHandler.handleCommand(msg01);
+  EXPECT_EQ(server.getChannel(channelName1)->isMember(clients[10]), true);
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply1 + "\r\n");
+  EXPECT_TRUE(server.getChannel(channelName1)->isMember(clients[10]));
+  EXPECT_TRUE(server.getChannel(channelName1)->isChanop(clients[10]));
+  EXPECT_EQ(server.getChannel(channelName1)->getKey(), "key1");
+}
+
 // 異常 (チャンネルが招待制限されている場合)
 TEST(CommandJoin, inviteOnlyChannel_notInvited) {
   IRCServer server("6677", "pass123");
@@ -247,7 +274,7 @@ TEST(CommandJoin, inviteOnlyChannel_invited) {
       "\r\n"
       ":irc.example.net 332 nick1 #channel :"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick1 nick2"
+      ":irc.example.net 353 nick1 #channel :nick2 nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
@@ -303,7 +330,7 @@ TEST(CommandJoin, inviteOnlyChannel_rejoin) {
       "\r\n"
       ":irc.example.net 332 nick1 #channel :"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick1 nick2"
+      ":irc.example.net 353 nick1 #channel :nick2 nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
