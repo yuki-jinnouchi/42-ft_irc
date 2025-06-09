@@ -291,7 +291,18 @@ void IRCServer::sendResponses() {
 }
 
 void IRCServer::disconnectClient(Client* client) {
+  if (client == NULL) {
+    return;
+  }
   int fd = client->getFd();
+
+  // チャンネルからクライアントを削除
+  for (std::map<std::string, Channel*>::iterator it = channels_.begin();
+       it != channels_.end(); ++it) {
+    it->second->removeMember(client);
+  }
+  // 送信待ちリストから削除
+  send_queue_.erase(client);
   // 監視対象から除外
   io_.remove_monitoring(fd);
   // クライアントセッションを削除
