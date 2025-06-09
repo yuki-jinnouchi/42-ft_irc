@@ -29,8 +29,8 @@ class ACommand {
 
   // validation
   bool checkIsRegistered(IRCMessage& msg);
-  bool checkParamNum(IRCMessage& msg, size_t min_params);
-  bool checkParamNum(IRCMessage& msg, size_t min, size_t max);
+  bool checkParamNum(const IRCMessage& msg, size_t min_params);
+  bool checkParamNum(const IRCMessage& msg, size_t min, size_t max);
 
  public:
   // Orthodox Canonical Form
