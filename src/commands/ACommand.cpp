@@ -46,7 +46,7 @@ bool ACommand::checkIsRegistered(IRCMessage& msg) {
   return false;
 }
 
-bool ACommand::checkParamNum(IRCMessage& msg, size_t min_params) {
+bool ACommand::checkParamNum(const IRCMessage& msg, size_t min_params) {
   Client* from = msg.getFrom();
   size_t params_size = msg.getParams().size();
   if (min_params <= params_size) return true;
@@ -56,7 +56,7 @@ bool ACommand::checkParamNum(IRCMessage& msg, size_t min_params) {
   return false;
 }
 
-bool ACommand::checkParamNum(IRCMessage& msg, size_t min, size_t max) {
+bool ACommand::checkParamNum(const IRCMessage& msg, size_t min, size_t max) {
   Client* from = msg.getFrom();
   size_t params_size = msg.getParams().size();
   if (min <= params_size && params_size <= max) return true;
