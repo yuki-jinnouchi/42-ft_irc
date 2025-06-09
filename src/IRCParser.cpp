@@ -66,25 +66,17 @@ bool IRCParser::parsePrefix(const std::string& prefix) {
   return true;
 }
 
-// <command>  ::= <letter> { <letter> } | <number> <number> <number>
 bool IRCParser::validCommand(const std::string& command) {
   if (command.empty()) return false;
-  bool all_digits = true;
-  bool all_letters = true;
-  for (size_t i = 0; i < command.size(); ++i) {
-    if (!isLetter(command[i])) {
-      all_letters = false;
-    }
-    if (!isNumber(command[i])) {
-      all_digits = false;
-    }
-  }
-  if (all_letters && command.size() > 0) {
-    return true;  // All letters
-  }
-  if (all_digits && command.size() == 3) {
-    return true;  // All digits and exactly 3 characters
-  }
+  if (command.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") ==
+      std::string::npos)
+    return true;
+  if (command.find_first_not_of("abcdefghijklmnopqrstuvwxyz") ==
+      std::string::npos)
+    return true;
+  if (command.find_first_not_of("0123456789") == std::string::npos &&
+      command.size() == 3)
+    return true;
   return false;
 }
 
