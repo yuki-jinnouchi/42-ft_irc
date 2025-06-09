@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+
 #include <iostream>
 
 std::vector<std::string> Utils::split(const std::string& str,
@@ -25,4 +26,18 @@ bool Utils::endsWith(const std::string& str, const std::string& suffix) {
   }
   return str.compare(str.length() - suffix.length(), suffix.length(), suffix) ==
          0;
+}
+
+std::string Utils::toUpper(const std::string& str) {
+  std::string upperStr = str;
+  for (size_t i = 0; i < upperStr.length(); ++i) {
+    if (!std::isalpha(upperStr[i])) {
+      continue;
+    }
+    if (!std::islower(upperStr[i])) {
+      continue;
+    }
+    upperStr[i] = std::toupper(upperStr[i]);
+  }
+  return upperStr;
 }

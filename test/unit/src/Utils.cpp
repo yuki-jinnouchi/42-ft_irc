@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+
 #include <gtest/gtest.h>
 
 TEST(UtilsTest, split) {
@@ -72,5 +73,28 @@ TEST(UtilsTest, endsWith) {
   {
     bool ret = Utils::endsWith("hello\r\nworld\n", "\r\n");
     EXPECT_FALSE(ret);
+  }
+}
+
+TEST(UtilsTest, toUpper) {
+  {
+    std::string str = "abcdef";
+    std::string ret = Utils::toUpper(str);
+    EXPECT_EQ("ABCDEF", ret);
+  }
+  {
+    std::string str = "ABCDEF";
+    std::string ret = Utils::toUpper(str);
+    EXPECT_EQ("ABCDEF", ret);
+  }
+  {
+    std::string str = "aBcDeF";
+    std::string ret = Utils::toUpper(str);
+    EXPECT_EQ("ABCDEF", ret);
+  }
+  {
+    std::string str = "あいうaBcD🍣🍺";
+    std::string ret = Utils::toUpper(str);
+    EXPECT_EQ("あいうABCD🍣🍺", ret);
   }
 }

@@ -17,6 +17,7 @@
 #include "IRCLogger.hpp"
 #include "IRCParser.hpp"
 #include "IRCServer.hpp"
+#include "Utils.hpp"
 
 // Orthodox Cannonical Form
 RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
@@ -69,17 +70,18 @@ void RequestHandler::handleCommand(IRCMessage& msg) {
 }
 
 ACommand* RequestHandler::getCommand(const std::string& commandName) {
-  std::map<std::string, ACommand*>::iterator it = commands_.find(commandName);
+  // commandNameを全て大文字に変換
+  std::string upperCommandName = Utils::toUpper(commandName);
+  std::map<std::string, ACommand*>::iterator it =
+      commands_.find(upperCommandName);
   if (it != commands_.end()) return it->second;
   return NULL;
 }
 
 void RequestHandler::execCommand(IRCMessage& msg) {
-  std::string commandName = msg.getCommand();
-  ACommand* command = getCommand(commandName);
+  ACommand* command = getCommand(msg.getCommand());
   if (command)
     command->execute(msg);
   else
     commands_["NULL"]->execute(msg);
-  // commands_["BROADCAST"]->execute(msg);
 }
