@@ -50,10 +50,27 @@ bool CommandJoin::validJoin(IRCMessage& msg) {
   return true;
 }
 
+bool CommandJoin::validChannnelName(std::string channelName) {
+  // Check if the channel name starts with # or &
+  if (channelName.empty() || (channelName[0] != '#' && channelName[0] != '&'))
+    return false;
+  // Check if the channel name is too long
+  size_t length = channelName.length();
+  if (1 < length && length > Channel::kMaxChannelNameSize)
+    return false;
+  return true;
+}
+
 void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName, std::string key) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
 
+  if (!validChannnelName(channelName)) {
+    reply.addParam(channelName);
+    reply.setResCode(ERR_NOSUCHCHANNEL);
+    pushResponse(reply);
+    return;
+  }
   Channel* channel = server_->getChannel(channelName);
   // If channel does not exist, create a new one
   if (!channel) {
@@ -95,6 +112,12 @@ void CommandJoin::addClientToNewChannel(IRCMessage& msg, std::string channelName
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
 
+  if (!validChannnelName(channelName)) {
+    reply.addParam(channelName);
+    reply.setResCode(ERR_NOSUCHCHANNEL);
+    pushResponse(reply);
+    return;
+  }
   server_->addChannel(channelName, from);
   Channel* channel = server_->getChannel(channelName);
   from->addJoinedChannel(channel);

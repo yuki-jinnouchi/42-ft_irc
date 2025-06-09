@@ -240,7 +240,7 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       return ":You may not reregister";
     // case ERR_PASSWDMISMATCH:  // 464
     //   // :Password incorrect
-    //   return formatResponse(responseCode, ":Password incorrect", values);
+    //   return ;
     case ERR_CHANNELISFULL:  // 471
       // <channel> :Cannot join channel (+l)
       oss << reply_msg.getParam(0) << " :Cannot join channel (+l)";
@@ -256,6 +256,10 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
     case ERR_BADCHANNELKEY:  // 475
       // <channel> :Cannot join channel (+k)
       oss << reply_msg.getParam(0) << " :Cannot join channel (+k)";
+      return oss.str();
+    case ERR_BADCHANMASK:  // 476
+      // <channel> :Bad Channel Mask
+      oss << reply_msg.getParam(0) << " :Bad Channel Mask";
       return oss.str();
     case ERR_CHANOPRIVSNEEDED:  // 482
       // <channel> :You're not channel operator
