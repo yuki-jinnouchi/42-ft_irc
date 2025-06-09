@@ -10,7 +10,7 @@ class Utils {
   static std::vector<std::string> split(const std::string& str,
                                         const std::string& delimiter);
   static bool endsWith(const std::string& str, const std::string& suffix);
-  // static bool startWith(const std::string& str, const std::string& prefix);
+  static std::string toUpper(const std::string& str);
 
  private:
   Utils();
