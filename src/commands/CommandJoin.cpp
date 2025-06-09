@@ -151,10 +151,12 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg) {
   std::set<Client*> members = channel->getMember();
 
   // Reply RPL_TOPIC
-  IRCMessage topicReply(from, from);
-  topicReply.setResCode(RPL_TOPIC);
-  topicReply.addParam(channelName);
-  pushResponse(topicReply);
+  if (!channel->getTopic().empty()) {
+    IRCMessage topicReply(from, from);
+    topicReply.setResCode(RPL_TOPIC);
+    topicReply.addParam(channelName);
+    pushResponse(topicReply);
+  }
 
   // Reply RPL_NAMREPLY
   IRCMessage nameReply(from, from);

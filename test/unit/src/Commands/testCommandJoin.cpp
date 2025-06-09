@@ -35,8 +35,6 @@ TEST(CommandJoin, normalJoin) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 332 nick1 #channel :"
-      "\r\n"
       ":irc.example.net 353 nick1 #channel :nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
@@ -61,8 +59,6 @@ TEST(CommandJoin, withAndNewChannel) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN &channel"
       "\r\n"
-      ":irc.example.net 332 nick1 &channel :"
-      "\r\n"
       ":irc.example.net 353 nick1 &channel :nick1"
       "\r\n"
       ":irc.example.net 366 nick1 &channel :End of /NAMES list";
@@ -86,15 +82,11 @@ TEST(CommandJoin, withExistingChannel) {
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 332 nick1 #channel :"
-      "\r\n"
       ":irc.example.net 353 nick1 #channel :nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
   std::string expected_reply02 =
       ":nick2!~user2@localhost JOIN #channel"
-      "\r\n"
-      ":irc.example.net 332 nick2 #channel :"
       "\r\n"
       ":irc.example.net 353 nick2 #channel :nick1 nick2"
       "\r\n"
@@ -131,8 +123,6 @@ TEST(CommandJoin, rejoinChannel) {
 
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
-      "\r\n"
-      ":irc.example.net 332 nick1 #channel :"
       "\r\n"
       ":irc.example.net 353 nick1 #channel :nick1"
       "\r\n"
@@ -223,8 +213,6 @@ TEST(CommandJoin, channelWithKey) {
   std::string expected_reply1 =
       ":nick1!~user1@localhost JOIN #ch1"
       "\r\n"
-      ":irc.example.net 332 nick1 #ch1 :"
-      "\r\n"
       ":irc.example.net 353 nick1 #ch1 :nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #ch1 :End of /NAMES list";
@@ -271,8 +259,6 @@ TEST(CommandJoin, inviteOnlyChannel_invited) {
   std::string msgStr = "JOIN " + channelName;
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel"
-      "\r\n"
-      ":irc.example.net 332 nick1 #channel :"
       "\r\n"
       ":irc.example.net 353 nick1 #channel :nick2 nick1"
       "\r\n"
@@ -328,8 +314,6 @@ TEST(CommandJoin, inviteOnlyChannel_rejoin) {
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 332 nick1 #channel :"
-      "\r\n"
       ":irc.example.net 353 nick1 #channel :nick2 nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
@@ -357,4 +341,47 @@ TEST(CommandJoin, inviteOnlyChannel_rejoin) {
   EXPECT_FALSE(server.getChannel(channelName)->isMember(clients[10]));
   EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply02 + "\r\n");
   EXPECT_EQ(server.getChannel(channelName)->getMember().size(), 1);
+}
+
+// 正常（トピックのあるチャンネルに参加）
+TEST(CommandJoin, joinChannelWithTopic) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  makeUserData(server, clients);
+  RequestHandler requestHandler(&server);
+
+  std::string channelName = "#channel";
+  std::string topic = "This is a topic";
+
+  IRCMessage msg01(clients[10], "JOIN " + channelName);
+  requestHandler.handleCommand(msg01);
+
+  server.getChannel(channelName)->setTopic(topic);
+
+  IRCMessage msg02(clients[10], "TOPIC " + channelName + " :" + topic);
+  requestHandler.handleCommand(msg02);
+
+  clients[10]->consumeSendingMsg(100000);
+  clients[11]->consumeSendingMsg(100000);
+
+  IRCMessage msg03(clients[11], "JOIN " + channelName);
+  requestHandler.handleCommand(msg03);
+
+  std::string msgStr = "JOIN " + channelName;
+  std::string expected_reply =
+      ":nick2!~user2@localhost JOIN #channel"
+      "\r\n"
+      ":irc.example.net 332 nick1 #channel :This is a topic"
+      "\r\n"
+      ":irc.example.net 353 nick1 #channel :nick1 nick2"
+      "\r\n"
+      ":irc.example.net 366 nick1 #channel :End of /NAMES list";
+
+  IRCMessage msg(clients[10], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_TRUE(server.getChannel(channelName)->isMember(clients[10]));
+  EXPECT_TRUE(server.getChannel(channelName)->isMember(clients[11]));
+  EXPECT_EQ(server.getChannel(channelName)->getTopic(), topic);
+  EXPECT_EQ(server.getChannel(channelName)->getMember().size(), 2);
 }
