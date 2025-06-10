@@ -15,6 +15,7 @@ enum IRCResponseCode {
   // Response Codes
   RPL_NONE = 300,
   // Channel Operations
+  RPL_NOTOPIC = 331,
   RPL_TOPIC = 332,
   RPL_INVITING = 341,
   RPL_NAMREPLY = 353,
