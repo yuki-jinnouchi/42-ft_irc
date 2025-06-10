@@ -60,11 +60,11 @@ class CommandJoin : public ACommand {
 
   // Member functions
   bool validJoin(IRCMessage& msg);
-  void addClientToNewChannel(IRCMessage& msg);
-  void addClientToExistingChannel(IRCMessage& msg);
-  void sendResponceToFrom(IRCMessage& msg);
-  void sendResponseToChannel(IRCMessage& msg);
-
+  bool validChannnelName(std::string channelName);
+  void joinOneChannel(IRCMessage& msg, std::string channelName, std::string key);
+  void addClientToNewChannel(IRCMessage& msg, std::string channelName, std::string key);
+  void sendResponceToFrom(IRCMessage& msg, std::string channelName);
+  void sendResponseToChannel(IRCMessage& msg, std::string channelName);
 
 };
 

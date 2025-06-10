@@ -40,7 +40,7 @@ class IRCMessage {
   const std::string& getRaw() const;
   const std::string& getPrefix() const;
   const std::string& getCommand() const;
-  const std::string& getParam(int index) const;
+  const std::string& getParam(size_t index) const;
   const std::vector<std::string>& getParams() const;
   IRCResponseCode getResCode() const;
   std::string getBody() const;

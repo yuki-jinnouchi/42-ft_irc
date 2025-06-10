@@ -65,12 +65,12 @@ const std::string& IRCMessage::getCommand() const {
   return command_;
 }
 
-const std::string& IRCMessage::getParam(int index) const {
+const std::string& IRCMessage::getParam(size_t index) const {
   static const std::string empty = "";
-  if (params_.empty())  // paramsが空の場合のガード
+  if (params_.empty())
     return empty;
-  if (index < 0 || index >= static_cast<int>(params_.size()))
-    return empty;  // TODO: 例外を投げるか、エラーメッセージを返すなど
+  if (params_.size() <= index)
+    return empty;
   return params_[index];
 }
 

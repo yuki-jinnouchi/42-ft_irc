@@ -79,6 +79,8 @@ class Channel {
   bool removeMember(Client* client);
   bool removeChanop(Client* client);
   bool removeInvited(Client* client);
+
+  static const int kMaxChannelNameSize = 50;  // RFC 2811
 };
 
 #endif
