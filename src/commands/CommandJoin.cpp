@@ -40,13 +40,6 @@ bool CommandJoin::validJoin(IRCMessage& msg) {
     pushResponse(reply);
     return false;
   }
-  std::string channelName = msg.getParam(0);
-  if (channelName[0] != '#' && channelName[0] != '&') {
-    reply.addParam(channelName);
-    reply.setResCode(ERR_NOSUCHCHANNEL);
-    pushResponse(reply);
-    return false;
-  }
   return true;
 }
 
@@ -56,12 +49,12 @@ bool CommandJoin::validChannnelName(std::string channelName) {
     return false;
   // Check if the channel name is too long
   size_t length = channelName.length();
-  if (1 < length && length > Channel::kMaxChannelNameSize)
-    return false;
+  if (1 < length && length > Channel::kMaxChannelNameSize) return false;
   return true;
 }
 
-void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName, std::string key) {
+void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName,
+                                 std::string key) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
 
@@ -80,7 +73,7 @@ void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName, std::
   // If already a member of the channel, just ignore
   if (channel->isMember(from)) return;
   // Check if the channel has key and if it matches
-  if (!channel->getKey().empty() && channel->getKey() == key) {
+  if (!channel->getKey().empty() && channel->getKey() != key) {
     reply.addParam(channelName);
     reply.setResCode(ERR_BADCHANNELKEY);
     pushResponse(reply);
@@ -94,9 +87,8 @@ void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName, std::
     return;
   }
   // Check if the channel is full
-  int userLimit = channel->getUserLimit();
-  if (userLimit > 0 &&
-      channel->getMember().size() >= static_cast<size_t>(userLimit)) {
+  size_t userLimit = static_cast<size_t>(channel->getUserLimit());
+  if (userLimit > 0 && channel->getMember().size() >= userLimit) {
     reply.addParam(channelName);
     reply.setResCode(ERR_CHANNELISFULL);
     pushResponse(reply);
@@ -104,11 +96,13 @@ void CommandJoin::joinOneChannel(IRCMessage& msg, std::string channelName, std::
   }
   channel->addMember(from);
   channel->removeInvited(from);
-  sendResponseToChannel(msg);
-  sendResponceToFrom(msg);
+  sendResponseToChannel(msg, channelName);
+  sendResponceToFrom(msg, channelName);
 }
 
-void CommandJoin::addClientToNewChannel(IRCMessage& msg, std::string channelName, std::string key) {
+void CommandJoin::addClientToNewChannel(IRCMessage& msg,
+                                        std::string channelName,
+                                        std::string key) {
   Client* from = msg.getFrom();
   IRCMessage reply(from, from);
 
@@ -126,11 +120,10 @@ void CommandJoin::addClientToNewChannel(IRCMessage& msg, std::string channelName
   channel->setKey(key);
   reply.setRaw(":" + from->getUserPrefix() + " JOIN " + channelName);
   pushResponse(reply);
-  sendResponceToFrom(msg);
+  sendResponceToFrom(msg, channelName);
 }
 
-void CommandJoin::sendResponseToChannel(IRCMessage& msg) {
-  std::string channelName = msg.getParam(0);
+void CommandJoin::sendResponseToChannel(IRCMessage& msg, std::string channelName) {
   Channel* channel = server_->getChannel(channelName);
   Client* from = msg.getFrom();
   std::set<Client*> members = channel->getMember();
@@ -144,9 +137,8 @@ void CommandJoin::sendResponseToChannel(IRCMessage& msg) {
   }
 }
 
-void CommandJoin::sendResponceToFrom(IRCMessage& msg) {
+void CommandJoin::sendResponceToFrom(IRCMessage& msg, std::string channelName) {
   Client* from = msg.getFrom();
-  std::string channelName = msg.getParam(0);
   Channel* channel = server_->getChannel(channelName);
   std::set<Client*> members = channel->getMember();
 
@@ -164,7 +156,7 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg) {
   nameReply.addParam(channelName);
   std::string nameList = "";
   for (std::set<Client*>::iterator it = members.begin(); it != members.end();
-       ++it) {
+       it++) {
     if (!nameList.empty()) nameList += " ";
     nameList += (*it)->getNickName();
   }

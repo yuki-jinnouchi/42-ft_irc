@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+
 #include <iostream>
 
 std::vector<std::string> Utils::split(const std::string& str,
