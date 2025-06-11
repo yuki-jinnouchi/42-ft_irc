@@ -171,6 +171,7 @@ bool CommandMode::minusT(Channel* channel, Client* from) {
 
 bool CommandMode::plusK(Channel* channel, Client* from,
                         const std::string& key) {
+  if (key.empty()) return false;
   if (channel->getKey() == key) return false;
   channel->setKey(key);
   std::set<Client*> members = channel->getMember();
