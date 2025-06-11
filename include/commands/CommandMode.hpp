@@ -65,6 +65,7 @@ class CommandMode : public ACommand {
 
   // Member functions
   bool validateMode(IRCMessage& msg);
+   bool validClient(IRCMessage& msg, Client* client);
   bool plusI(Channel* channel, Client* from);
   bool minusI(Channel* channel, Client* from);
   bool plusT(Channel* channel, Client* from);
