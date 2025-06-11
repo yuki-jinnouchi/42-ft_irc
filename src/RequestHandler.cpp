@@ -1,7 +1,6 @@
 #include "RequestHandler.hpp"
 
 #include "ACommand.hpp"
-#include "CommandBroadCast.hpp"
 #include "CommandInvite.hpp"
 #include "CommandJoin.hpp"
 #include "CommandKick.hpp"
@@ -20,7 +19,6 @@
 
 // Orthodox Cannonical Form
 RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
-  // commands_["CAP"] = new CommandCap(server_, "CAP");
   commands_["PASS"] = new CommandPass(server_);
   commands_["NICK"] = new CommandNick(server_);
   commands_["USER"] = new CommandUser(server_);
@@ -32,7 +30,6 @@ RequestHandler::RequestHandler(IRCServer* server) : server_(server) {
   commands_["PART"] = new CommandPart(server_);
   commands_["KICK"] = new CommandKick(server_);
   commands_["PING"] = new CommandPing(server_);
-  commands_["BROADCAST"] = new CommandBroadCast(server_);
   commands_["NULL"] = new CommandNull(server_);
 }
 
@@ -81,5 +78,4 @@ void RequestHandler::execCommand(IRCMessage& msg) {
     command->execute(msg);
   else
     commands_["NULL"]->execute(msg);
-  // commands_["BROADCAST"]->execute(msg);
 }
