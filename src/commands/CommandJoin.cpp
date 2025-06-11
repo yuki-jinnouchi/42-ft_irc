@@ -140,6 +140,7 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg, std::string channelName) {
     IRCMessage topicReply(from, from);
     topicReply.setResCode(RPL_TOPIC);
     topicReply.addParam(channelName);
+    topicReply.addParam(channel->getTopic());
     pushResponse(topicReply);
   }
 
@@ -153,8 +154,6 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg, std::string channelName) {
     if (!nameList.empty()) nameList += " ";
     if (channel->isChanop(*it))
       nameList += "@";
-    else if (channel->isMember(*it))
-      nameList += "+";
     nameList += (*it)->getNickName();
   }
   nameReply.addParam(nameList);
