@@ -43,7 +43,7 @@ bool CommandInvite::validateInvite(IRCMessage& msg) {
 
   Client* client = server_->getClient(msg.getParam(0));
   Channel* channel = server_->getChannel(msg.getParam(1));
-  if (!client) {
+  if (!client || !client->getIsRegistered()) {
     reply.setResCode(ERR_NOSUCHNICK);
     reply.addParam(msg.getParam(0));
     pushResponse(reply);

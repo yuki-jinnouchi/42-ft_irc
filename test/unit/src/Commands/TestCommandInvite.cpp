@@ -31,7 +31,8 @@ TEST(CommandInvite, invite_no_parameters) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE";
-  std::string expected = ":irc.example.net 461 nick1 INVITE :Not enough parameters";
+  std::string expected =
+      ":irc.example.net 461 nick1 INVITE :Not enough parameters";
 
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
@@ -47,7 +48,8 @@ TEST(CommandInvite, invite_missing_channel_parameter) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE nick2";
-  std::string expected = ":irc.example.net 461 nick1 INVITE :Not enough parameters";
+  std::string expected =
+      ":irc.example.net 461 nick1 INVITE :Not enough parameters";
 
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
@@ -63,7 +65,8 @@ TEST(CommandInvite, invite_too_many_parameters) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE nick2 #ch1 extra_param";
-  std::string expected = ":irc.example.net 461 nick1 INVITE :Not enough parameters";
+  std::string expected =
+      ":irc.example.net 461 nick1 INVITE :Not enough parameters";
 
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
@@ -80,7 +83,8 @@ TEST(CommandInvite, invite_noexist_user) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE noexist #ch1";
-  std::string expected = ":irc.example.net 401 nick1 noexist :No such nick/channel";
+  std::string expected =
+      ":irc.example.net 401 nick1 noexist :No such nick/channel";
 
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
@@ -114,7 +118,8 @@ TEST(CommandInvite, invite_not_on_channel) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE nick2 #ch5";
-  std::string expected = ":irc.example.net 442 nick1 #ch5 :You're not on that channel";
+  std::string expected =
+      ":irc.example.net 442 nick1 #ch5 :You're not on that channel";
 
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
@@ -130,7 +135,8 @@ TEST(CommandInvite, invite_user_already_on_channel) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE nick2 #ch2";
-  std::string expected = ":irc.example.net 443 nick1 nick2 #ch2 :is already on channel";
+  std::string expected =
+      ":irc.example.net 443 nick1 nick2 #ch2 :is already on channel";
 
   IRCMessage msg(clients[10], msgStr);
   requestHandler.handleCommand(msg);
@@ -146,7 +152,8 @@ TEST(CommandInvite, invite_without_operator_privileges) {
   TestDataGenerator::makeUserData(server, clients, requestHandler);
 
   std::string msgStr = "INVITE nick3 #ch2";
-  std::string expected = ":irc.example.net 482 nick2 #ch2 :You're not channel operator";
+  std::string expected =
+      ":irc.example.net 482 nick2 #ch2 :You're not channel operator";
 
   IRCMessage msg(clients[11], msgStr);
   requestHandler.handleCommand(msg);
@@ -178,4 +185,22 @@ TEST(CommandInvite, invite_same_user_twice) {
   EXPECT_EQ(clients[10]->getSendingMsg(), expected_10 + "");
   EXPECT_EQ(clients[11]->getSendingMsg(), expected_11 + "");
   EXPECT_TRUE(server.getChannel("#ch1")->isInvited(clients[11]));
+}
+
+// 異常（招待するユーザーが未ログイン）
+TEST(CommandInvite, not_registered_user) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "INVITE nick5 #ch1";
+  std::string expected =
+      ":irc.example.net 401 nick1 nick5 :No such nick/channel";
+
+  IRCMessage msg(clients[10], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
+  EXPECT_TRUE(server.getChannel("#ch1")->getInvited().empty());
 }
