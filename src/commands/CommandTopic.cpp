@@ -1,59 +1,82 @@
 #include "CommandTopic.hpp"
 
-CommandTopic::CommandTopic(IRCServer* server)
-    : ACommand(server, "TOPIC") {}
+CommandTopic::CommandTopic(IRCServer* server) : ACommand(server, "TOPIC") {}
 
 CommandTopic::~CommandTopic() {}
 
-bool CommandTopic::validateTopic(IRCMessage& msg, IRCMessage& reply) {
-  // 引数なし
-  if (msg.getParam(0).empty()) {
-    reply.setResCode(ERR_NORECIPIENT);
-    pushResponse(reply);
+bool CommandTopic::validateTopic(IRCMessage& msg) {
+  // ログインチェック
+  if (!checkIsRegistered(msg)) {
     return false;
   }
-  // 引数が1つより多い
-  if (msg.getParams().size() > 2) {
-    reply.setResCode(ERR_NEEDMOREPARAMS);
-    pushResponse(reply);
+  // パラメータの数をチェック
+  if (!checkParamNum(msg, 1, 2)) {
     return false;
   }
   return true;
 }
 
-void CommandTopic::execute(IRCMessage& msg) {
-  Client* from = msg.getFrom();
-  IRCMessage reply(from, from);
-  reply.setParams(msg.getParams());
-  std::string channel_name = msg.getParam(0);
-  std::string topic = msg.getParam(1);
+Channel* CommandTopic::getAndValidateChannel(IRCMessage& msg) {
+  IRCMessage reply(msg.getFrom(), msg.getFrom());
+  reply.addParam(msg.getParam(0));
 
-  if (!validateTopic(msg, reply)) {
-    return;
-  }
-  Channel* channel = server_->getChannel(channel_name);
+  Channel* channel = server_->getChannel(msg.getParam(0));
   if (!channel) {
     reply.setResCode(ERR_NOSUCHCHANNEL);
-    reply.addParam(channel_name);
     pushResponse(reply);
+    return NULL;
+  }
+  if (!channel->isMember(msg.getFrom())) {
+    reply.setResCode(ERR_NOTONCHANNEL);
+    pushResponse(reply);
+    return NULL;
+  }
+  return channel;
+}
+
+void CommandTopic::execute(IRCMessage& msg) {
+  if (!validateTopic(msg)) {
     return;
   }
+
+  std::string topic = msg.getParam(1);
+
+  Channel* channel = getAndValidateChannel(msg);
+  if (channel == NULL) {
+    return;
+  }
+
+  IRCMessage reply(msg.getFrom(), msg.getFrom());
+  reply.addParam(channel->getName());
   if (topic.empty()) {
-    // トピックが空の場合、現在のトピックを取得
-    reply.setResCode(RPL_TOPIC);
-    reply.addParam(channel->getTopic());
+    if (channel->getTopic().empty()) {
+      // トピックがない場合
+      reply.setResCode(RPL_NOTOPIC);
+    } else {
+      // 現在のトピックを返す
+      reply.setResCode(RPL_TOPIC);
+      reply.addParam(channel->getTopic());
+    }
     pushResponse(reply);
     return;
   }
-  // トピックを設定
-  if (!channel->isChanop(from)) {
+
+  // TODO チャンネルがtモード、かつ権限がない場合　
+  if (channel->getIsTopicRestricted() && !channel->isChanop(msg.getFrom())) {
     reply.setResCode(ERR_CHANOPRIVSNEEDED);
-    reply.addParam(channel_name);
     pushResponse(reply);
     return;
   }
+
+  // トピックを設定
   channel->setTopic(topic);
-  reply.setResCode(RPL_TOPIC);
-  reply.addParam(channel->getTopic());
-  pushResponse(reply);
+
+  // 全てのユーザーにトピックの変更を通知
+  reply.setCommand("TOPIC");
+  reply.addParam(":" + channel->getTopic());
+  for (std::set<Client*>::const_iterator it = channel->getMember().begin();
+       it != channel->getMember().end(); ++it) {
+    reply.setTo(*it);
+    pushResponse(reply);
+  }
 }

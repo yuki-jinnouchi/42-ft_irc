@@ -38,7 +38,43 @@ class CommandTopic : public ACommand {
   CommandTopic(const CommandTopic& other);
   CommandTopic& operator=(const CommandTopic& other);
 
-  bool validateTopic(IRCMessage& msg, IRCMessage& reply);
+  bool validateTopic(IRCMessage& msg);
+  Channel* getAndValidateChannel(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_TOPIC_HPP__
+
+/*
+// チャンネルに参加している人は誰でもトピックを取得・設定できる
+// 管理者権限不要（Tモード以外）
+
+// ログインしていない場合
+// 引数不足、過剰
+
+// トピックがない場合
+topic #ch1
+:irc.example.net 331 nick1 #ch1 :No topic is set
+
+// トピックがある場合
+topic #ch1
+:irc.example.net 332 nick1 #ch1 :this is a topic
+:irc.example.net 333 nick1 #ch1 nick1 1749534889
+
+// トピックを設定する
+topic #ch1 :this is a topic
+:nick1!~a@localhost TOPIC #ch1 :this is a topic
+
+// チャンネルがない場合
+topic #ch2
+:irc.example.net 403 nick1 #ch2 :No such channel
+
+// チャンネルに参加していない場合、取得・設定できない
+topic #ch3 :no ope
+:irc.example.net 442 nick1 #ch3 :You are not on that channel
+topic #ch3
+:irc.example.net 442 nick1 #ch3 :You are not on that channel
+
+// チャンネルがtモード、かつ権限がない場合
+topic #ch1 :a bb cc
+:irc.example.net 482 nick2 #ch1 :You are not channel operator
+*/

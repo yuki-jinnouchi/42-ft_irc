@@ -126,6 +126,13 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       //   values);
 
       // Channel Operations
+    case RPL_NOTOPIC:
+      // "<channel> :No topic is set"
+      if (reply_msg.getParam(0).empty()) {
+        throw std::invalid_argument("RPL_NOTOPIC: channel is empty");
+      }
+      oss << reply_msg.getParam(0) << " :No topic is set";
+      return oss.str();
     case RPL_TOPIC:  // 332
       // <channel> :<topic>
       oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
