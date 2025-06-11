@@ -15,14 +15,14 @@ IOWrapper::IOWrapper() {
   epfd_ = epoll_create1(EPOLL_CLOEXEC);
   if (epfd_ == -1) {
     ERROR_MSG("epoll_create failed");
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("epoll_create failed");
   }
 }
 
 IOWrapper::~IOWrapper() {
   if (close(epfd_) == -1) {
     ERROR_MSG("close epfd failed.");
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("close epfd failed");
   }
 }
 
