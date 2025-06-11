@@ -20,7 +20,7 @@ void CommandMode::execute(IRCMessage& msg) {
   char mode_direction = mode[0];
   std::string mode_flags = mode.substr(1);
   reply.setCommand("MODE");
-  int param_count = 3;
+  int param_count = 2;
   for (std::string::iterator it = mode_flags.begin(); it != mode_flags.end();
        ++it) {
     char flag = *it;
@@ -38,9 +38,11 @@ void CommandMode::execute(IRCMessage& msg) {
       minusK(channel, from);
     } else if (mode_direction == '+' && flag == 'o') {
       Client* client = server_->getClient(msg.getParam(param_count++));
+      if (!validClient(msg, client)) continue;
       plusO(channel, from, client);
     } else if (mode_direction == '-' && flag == 'o') {
       Client* client = server_->getClient(msg.getParam(param_count++));
+      if (!validClient(msg, client)) continue;
       minusO(channel, from, client);
     } else if (mode_direction == '+' && flag == 'l') {
       std::string str_limit = msg.getParam(param_count++);
@@ -80,6 +82,23 @@ bool CommandMode::validateMode(IRCMessage& msg) {
   if (!channel->isChanop(from) && !channel->isMember(from)) {
     reply.setResCode(ERR_CHANOPRIVSNEEDED);
     reply.addParam(channel->getName());
+    return false;
+  }
+  return true;
+}
+
+bool CommandMode::validClient(IRCMessage& msg, Client* client) {
+  Client* from = msg.getFrom();
+  IRCMessage reply(from, from);
+  if (!client) {
+    reply.setResCode(ERR_NOSUCHNICK);
+    reply.addParam(msg.getParam(0));
+    pushResponse(reply);
+    return false;
+  }
+  if (!client->getIsRegistered()) {
+    reply.setResCode(ERR_NOTREGISTERED);
+    pushResponse(reply);
     return false;
   }
   return true;
@@ -184,6 +203,14 @@ bool CommandMode::minusK(Channel* channel, Client* from) {
 }
 
 bool CommandMode::plusO(Channel* channel, Client* from, Client* client) {
+  if (!channel->isMember(client)) {
+    IRCMessage reply(from, from);
+    reply.setResCode(ERR_USERNOTINCHANNEL);
+    reply.addParam(client->getNickName());
+    reply.addParam(channel->getName());
+    pushResponse(reply);
+    return false;
+  }
   if (channel->isChanop(client)) return false;
   channel->addChanop(client);
   std::set<Client*> members = channel->getMember();
@@ -200,6 +227,14 @@ bool CommandMode::plusO(Channel* channel, Client* from, Client* client) {
 }
 
 bool CommandMode::minusO(Channel* channel, Client* from, Client* client) {
+  if (!channel->isMember(client)) {
+    IRCMessage reply(from, from);
+    reply.setResCode(ERR_USERNOTINCHANNEL);
+    reply.addParam(client->getNickName());
+    reply.addParam(channel->getName());
+    pushResponse(reply);
+    return false;
+  }
   if (!channel->isChanop(client)) return false;
   channel->removeChanop(client);
   std::set<Client*> members = channel->getMember();
