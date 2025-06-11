@@ -16,14 +16,13 @@ SRCS := src/main.cpp src/IRCServer.cpp src/Client.cpp src/Channel.cpp\
 		src/RequestHandler.cpp src/IRCMessage.cpp src/Socket.cpp \
 		src/IRCParser.cpp src/Utils.cpp src/IOWrapper.cpp src/IRCLogger.cpp \
 		src/IRCSignal.cpp \
-		src/commands/ACommand.cpp src/commands/CommandCap.cpp \
+		src/commands/ACommand.cpp \
 		src/commands/CommandNick.cpp src/commands/CommandPass.cpp \
 		src/commands/CommandUser.cpp src/commands/CommandPing.cpp \
 		src/commands/CommandJoin.cpp src/commands/CommandTopic.cpp \
 		src/commands/CommandMode.cpp src/commands/CommandInvite.cpp \
 		src/commands/CommandPart.cpp src/commands/CommandPrivMsg.cpp \
-		src/commands/CommandKick.cpp \
-		src/commands/CommandNull.cpp src/commands/CommandBroadCast.cpp
+		src/commands/CommandKick.cpp src/commands/CommandNull.cpp
 OBJS = $(patsubst $(SRCS_ROOT_DIR)/%.cpp,$(OBJS_ROOT_DIR)/%.o,$(SRCS))
 
 #-----------------------------------------------
