@@ -35,7 +35,7 @@ TEST(CommandJoin, normalJoin) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick1"
+      ":irc.example.net 353 nick1 = #channel :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
   IRCMessage msg(clients[10], msgStr);
@@ -59,7 +59,7 @@ TEST(CommandJoin, withAndNewChannel) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN &channel"
       "\r\n"
-      ":irc.example.net 353 nick1 &channel :nick1"
+      ":irc.example.net 353 nick1 = &channel :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 &channel :End of /NAMES list";
 
@@ -82,13 +82,13 @@ TEST(CommandJoin, withExistingChannel) {
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick1"
+      ":irc.example.net 353 nick1 = #channel :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
   std::string expected_reply02 =
       ":nick2!~user2@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick2 #channel :nick1 nick2"
+      ":irc.example.net 353 nick2 = #channel :@nick1 +nick2"
       "\r\n"
       ":irc.example.net 366 nick2 #channel :End of /NAMES list";
 
@@ -121,13 +121,13 @@ TEST(CommandJoin, joinMultipleChannels) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel1"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel1 :nick1"
+      ":irc.example.net 353 nick1 = #channel1 :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel1 :End of /NAMES list"
       "\r\n"
       ":nick1!~user1@localhost JOIN #channel2"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel2 :nick1"
+      ":irc.example.net 353 nick1 = #channel2 :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel2 :End of /NAMES list";
 
@@ -154,13 +154,13 @@ TEST(CommandJoin, joinMultipleChannelsWithKeys) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel1"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel1 :nick1 nick2"
+      ":irc.example.net 353 nick1 = #channel1 :+nick1 @nick2"
       "\r\n"
       ":irc.example.net 366 nick1 #channel1 :End of /NAMES list"
       "\r\n"
       ":nick1!~user1@localhost JOIN #channel2"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel2 :nick1 nick2"
+      ":irc.example.net 353 nick1 = #channel2 :+nick1 @nick2"
       "\r\n"
       ":irc.example.net 366 nick1 #channel2 :End of /NAMES list";
 
@@ -196,7 +196,7 @@ TEST(CommandJoin, rejoinChannel) {
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick1"
+      ":irc.example.net 353 nick1 = #channel :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
@@ -285,7 +285,7 @@ TEST(CommandJoin, channelWithKey) {
   std::string expected_reply1 =
       ":nick1!~user1@localhost JOIN #ch1"
       "\r\n"
-      ":irc.example.net 353 nick1 #ch1 :nick1"
+      ":irc.example.net 353 nick1 = #ch1 :@nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #ch1 :End of /NAMES list";
 
@@ -332,7 +332,7 @@ TEST(CommandJoin, inviteOnlyChannel_invited) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick2 nick1"
+      ":irc.example.net 353 nick1 = #channel :@nick2 +nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
@@ -386,7 +386,7 @@ TEST(CommandJoin, inviteOnlyChannel_rejoin) {
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick2 nick1"
+      ":irc.example.net 353 nick1 = #channel :@nick2 +nick1"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
@@ -445,7 +445,7 @@ TEST(CommandJoin, joinChannelWithTopic) {
       "\r\n"
       ":irc.example.net 332 nick1 #channel :This is a topic"
       "\r\n"
-      ":irc.example.net 353 nick1 #channel :nick1 nick2"
+      ":irc.example.net 353 nick1 = #channel :@nick1 +nick2"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 

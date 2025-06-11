@@ -136,7 +136,7 @@ std::string ACommand::generateResponseMsg(IRCMessage& reply_msg) {
       return oss.str();
     case RPL_NAMREPLY:  // 353
       // <channel> :[[@|+]<nick> [[@|+]<nick> [...]]]
-      oss << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
+      oss << "= " << reply_msg.getParam(0) << " :" << reply_msg.getParam(1);
       return oss.str();
     case RPL_ENDOFNAMES:  // 366
       // <channel> :End of /NAMES list
