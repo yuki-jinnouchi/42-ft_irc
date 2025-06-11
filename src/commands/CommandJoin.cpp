@@ -32,7 +32,6 @@ void CommandJoin::execute(IRCMessage& msg) {
 bool CommandJoin::validJoin(IRCMessage& msg) {
   if (!checkIsRegistered(msg)) return false;
   if (!checkParamNum(msg, 1, 2)) return false;
-  Client* from = msg.getFrom();
   return true;
 }
 
