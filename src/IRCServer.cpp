@@ -212,7 +212,7 @@ void IRCServer::startListen() {
   int ret = getaddrinfo(NULL, port_.c_str(), &hints, &res);
   if (ret != 0) {
     ERROR_MSG("getaddrinfo: " << gai_strerror(ret));
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("getaddrinfo failed");
   }
   for (ai = res; ai != NULL; ai = ai->ai_next) {
     int sockfd =
@@ -259,7 +259,7 @@ void IRCServer::startListen() {
   freeaddrinfo(res);  // アドレス情報の解放
   if (listenSockets_.empty()) {
     ERROR_MSG("socket/bind/listen failed");
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("socket/bind/listen failed");
   }
 }
 
@@ -411,7 +411,7 @@ void IRCServer::run() {
 
         if (close(evlist[j].data.fd) == -1) {
           ERROR_MSG("close failed");
-          std::exit(EXIT_FAILURE);
+          throw std::runtime_error("close failed");
         }
         listenSockets_.erase(evlist[j].data.fd);
       }
