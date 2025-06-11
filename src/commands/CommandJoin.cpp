@@ -31,15 +31,7 @@ void CommandJoin::execute(IRCMessage& msg) {
 
 bool CommandJoin::validJoin(IRCMessage& msg) {
   if (!checkIsRegistered(msg)) return false;
-  if (!checkParamNum(msg, 1)) return false;
-
-  Client* from = msg.getFrom();
-  IRCMessage reply(from, from);
-  if (2 < msg.getParams().size()) {
-    reply.setResCode(ERR_NEEDMOREPARAMS);
-    pushResponse(reply);
-    return false;
-  }
+  if (!checkParamNum(msg, 1, 2)) return false;
   return true;
 }
 
@@ -123,7 +115,8 @@ void CommandJoin::addClientToNewChannel(IRCMessage& msg,
   sendResponceToFrom(msg, channelName);
 }
 
-void CommandJoin::sendResponseToChannel(IRCMessage& msg, std::string channelName) {
+void CommandJoin::sendResponseToChannel(IRCMessage& msg,
+                                        std::string channelName) {
   Channel* channel = server_->getChannel(channelName);
   Client* from = msg.getFrom();
   std::set<Client*> members = channel->getMember();
@@ -158,6 +151,10 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg, std::string channelName) {
   for (std::set<Client*>::iterator it = members.begin(); it != members.end();
        it++) {
     if (!nameList.empty()) nameList += " ";
+    if (channel->isChanop(*it))
+      nameList += "@";
+    else if (channel->isMember(*it))
+      nameList += "+";
     nameList += (*it)->getNickName();
   }
   nameReply.addParam(nameList);
