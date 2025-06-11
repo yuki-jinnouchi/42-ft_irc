@@ -235,6 +235,46 @@ TEST(CommandPrivMsg, not_exist) {
   EXPECT_EQ(clients[11]->getSendingMsg(), "");
 }
 
+// 送信元が未ログイン
+TEST(CommandPrivMsg, not_registered_sender) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "PRIVMSG nick1 hello";
+  std::string expected = ":irc.example.net 451 nick5 :You have not registered";
+  // TODO
+
+  IRCMessage msg(clients[14], msgStr);
+  requestHandler.handleCommand(msg);
+
+  // 送信者(エラーメッセージ)
+  EXPECT_EQ(clients[14]->getSendingMsg(), expected + "\r\n");
+  // 受信者(何も受け取らない)
+  EXPECT_EQ(clients[10]->getSendingMsg(), "");
+}
+
+// 受信者先が未ログイン
+TEST(CommandPrivMsg, not_registered_reciver) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "PRIVMSG nick5 hello";
+  std::string expected =
+      ":irc.example.net 401 nick1 nick5 :No such nick/channel";
+
+  IRCMessage msg(clients[10], msgStr);
+  requestHandler.handleCommand(msg);
+
+  // 送信者(エラーメッセージ)
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
+  // 受信者(何も受け取らない)
+  EXPECT_EQ(clients[11]->getSendingMsg(), "");
+}
+
 //=============================================================
 
 // 通常（複数ニックネーム、複数チャンネル）
