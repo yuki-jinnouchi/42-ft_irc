@@ -144,12 +144,17 @@ TEST(CommandInvite, invite_user_already_on_channel) {
   EXPECT_EQ(clients[10]->getSendingMsg(), expected + "\r\n");
 }
 
-// 異常（招待するためのオペレーター権限がない）
-TEST(CommandInvite, invite_without_operator_privileges) {
+// 異常（MODE Iかつ招待するためのオペレーター権限がない）
+TEST(CommandInvite, invite_without_operator_privileges_mode_i) {
   IRCServer server("6677", "pass123");
   std::map<int, Client *> clients;
   RequestHandler requestHandler(&server);
   TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  TestDataGenerator::callCommand(requestHandler, clients[10], "mode #ch2 +i");
+
+  clients[10]->consumeSendingMsg(100000);  // 送信メッセージをクリア
+  clients[11]->consumeSendingMsg(100000);  // 送信メッセージをクリア
 
   std::string msgStr = "INVITE nick3 #ch2";
   std::string expected =
@@ -159,6 +164,50 @@ TEST(CommandInvite, invite_without_operator_privileges) {
   requestHandler.handleCommand(msg);
 
   EXPECT_EQ(clients[11]->getSendingMsg(), expected + "\r\n");
+  EXPECT_FALSE(server.getChannel("#ch2")->isInvited(clients[12]));
+}
+
+// 正常（MODE Iかつ招待するためのオペレーター権限がある）
+TEST(CommandInvite, invite_with_operator_privileges_mode_i) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  TestDataGenerator::callCommand(requestHandler, clients[10], "mode #ch2 +i");
+
+  clients[10]->consumeSendingMsg(100000);  // 送信メッセージをクリア
+  clients[11]->consumeSendingMsg(100000);  // 送信メッセージをクリア
+
+  std::string msgStr = "INVITE nick3 #ch2";
+  std::string expected_10 = ":irc.example.net 341 nick1 nick3 #ch2";
+  std::string expected_12 = ":nick1!~user1@localhost INVITE nick3 #ch2";
+
+  IRCMessage msg(clients[10], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected_10 + "\r\n");
+  EXPECT_EQ(clients[12]->getSendingMsg(), expected_12 + "\r\n");
+  EXPECT_TRUE(server.getChannel("#ch2")->isInvited(clients[12]));
+}
+
+// 正常（MODE Iではない、かつオペレーター権限がない）
+TEST(CommandInvite, invite_without_operator_privileges_not_mode_i) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "INVITE nick3 #ch2";
+  std::string expected_11 = ":irc.example.net 341 nick2 nick3 #ch2";
+  std::string expected_12 = ":nick2!~user2@localhost INVITE nick3 #ch2";
+
+  IRCMessage msg(clients[11], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_EQ(clients[11]->getSendingMsg(), expected_11 + "\r\n");
+  EXPECT_EQ(clients[12]->getSendingMsg(), expected_12 + "\r\n");
+  EXPECT_TRUE(server.getChannel("#ch2")->isInvited(clients[12]));
 }
 
 // 異常（同じユーザーを複数回招待した場合、無視）

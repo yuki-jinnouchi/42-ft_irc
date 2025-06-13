@@ -117,6 +117,12 @@ client: all
 	read NICK; \
 	irssi --connect=127.0.0.1 --port=6677 --nick=$$NICK --password=pass123
 
+.PHONY: clientng
+clientng: all
+	@printf "Please enter a nickname: "; \
+	read NICK; \
+	irssi --connect=127.0.0.1 --port=6667 --nick=$$NICK
+
 .PHONY: nc
 nc: all
 	nc -C -4 127.0.0.1 6677

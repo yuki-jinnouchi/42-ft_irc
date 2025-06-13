@@ -61,7 +61,7 @@ bool CommandInvite::validateInvite(IRCMessage& msg) {
     pushResponse(reply);
     return false;
   }
-  if (!channel->isChanop(from)) {
+  if (channel->getIsInviteOnly() && !channel->isChanop(from)) {
     reply.setResCode(ERR_CHANOPRIVSNEEDED);
     reply.addParam(channel->getName());
     pushResponse(reply);
