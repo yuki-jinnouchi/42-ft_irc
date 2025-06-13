@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include "TestDataGenerator.hpp"
+
 TEST(IRCServerTest, valid_construnctor) {
   {
     const char* port = "6667";
@@ -86,4 +88,27 @@ TEST(IRCServerTest, invalid_password) {
       EXPECT_STREQ(e.what(), "invalid password");
     }
   }
+}
+
+TEST(IRCServerTest, disconnect) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client*> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  // クライアントを切断
+  server.disconnectClient(clients[10]);
+  server.disconnectClient(clients[11]);
+  server.disconnectClient(clients[12]);
+
+  // クライアントが削除されている
+  EXPECT_EQ(server.getClients().find(10), server.getClients().end());
+  EXPECT_EQ(server.getClients().find(11), server.getClients().end());
+  EXPECT_EQ(server.getClients().find(12), server.getClients().end());
+
+  // 誰もいなくなったチャンネルが削除されている
+  EXPECT_TRUE(server.getChannel("#ch1") != NULL);
+  EXPECT_TRUE(server.getChannel("#ch2") == NULL);
+  EXPECT_TRUE(server.getChannel("#ch3") == NULL);
+  EXPECT_TRUE(server.getChannel("#ch4") != NULL);
 }

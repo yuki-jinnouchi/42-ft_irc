@@ -300,11 +300,25 @@ void IRCServer::disconnectClient(Client* client) {
   }
   int fd = client->getFd();
 
-  // チャンネルからクライアントを削除
+  // チャンネル一覧取得
+  std::vector<Channel*> chs;
   for (std::map<std::string, Channel*>::iterator it = channels_.begin();
        it != channels_.end(); ++it) {
-    it->second->removeMember(client);
+    if (it->second->isMember(client)) {
+      chs.push_back(it->second);
+    }
   }
+
+  // チャンネルからクライアントを削除
+  for (std::vector<Channel*>::iterator it = chs.begin(); it != chs.end();
+       ++it) {
+    (*it)->removeMember(client);
+    // チャンネルに誰もいなくなった場合、チャンネルを削除
+    if ((*it)->getMember().empty()) {
+      removeChannel((*it)->getName());
+    }
+  }
+
   // 送信待ちリストから削除
   send_queue_.erase(client);
   // 監視対象から除外
