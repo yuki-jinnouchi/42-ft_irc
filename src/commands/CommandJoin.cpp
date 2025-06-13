@@ -1,5 +1,6 @@
 #include "CommandJoin.hpp"
 
+#include "CommandPart.hpp"
 #include "Utils.hpp"
 
 CommandJoin::CommandJoin(IRCServer* server) : ACommand(server, "JOIN") {}
@@ -11,6 +12,9 @@ void CommandJoin::execute(IRCMessage& msg) {
   IRCMessage reply(from, from);
 
   if (!validJoin(msg)) return;
+
+  // join 0の場合、すべてのチャンネルから退出
+  if (join0(msg)) return;
 
   std::string channelsParam = msg.getParam(0);
   std::string keysParam = msg.getParam(1);
@@ -152,8 +156,7 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg, std::string channelName) {
   for (std::set<Client*>::iterator it = members.begin(); it != members.end();
        it++) {
     if (!nameList.empty()) nameList += " ";
-    if (channel->isChanop(*it))
-      nameList += "@";
+    if (channel->isChanop(*it)) nameList += "@";
     nameList += (*it)->getNickName();
   }
   nameReply.addParam(nameList);
@@ -164,4 +167,26 @@ void CommandJoin::sendResponceToFrom(IRCMessage& msg, std::string channelName) {
   endOfNamesReply.setResCode(RPL_ENDOFNAMES);
   endOfNamesReply.addParam(channelName);
   pushResponse(endOfNamesReply);
+}
+
+bool CommandJoin::join0(IRCMessage& msg) {
+  if (msg.getParams().size() != 1 || msg.getParam(0) != "0") {
+    return false;
+  }
+
+  Client* from = msg.getFrom();
+
+  std::vector<std::string> channels;
+  for (std::map<std::string, Channel*>::const_iterator it =
+           from->getJoinedChannels().begin();
+       it != from->getJoinedChannels().end(); ++it) {
+    channels.push_back(it->first);
+  }
+
+  for (std::vector<std::string>::iterator it = channels.begin();
+       it != channels.end(); ++it) {
+    IRCMessage part_msg(from, "PART " + *it);
+    server_->getRequestHandler().handleCommand(part_msg);
+  }
+  return true;
 }

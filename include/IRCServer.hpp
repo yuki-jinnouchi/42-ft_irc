@@ -57,6 +57,7 @@ class IRCServer {
   const std::string& getPort() const;
   const std::string& getPassword() const;
   const std::string& getServerName() const;
+  RequestHandler& getRequestHandler();
 
   // Setters
   bool addClient(Client* client);

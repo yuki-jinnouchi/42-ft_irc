@@ -53,7 +53,7 @@ class CommandJoin : public ACommand {
   // Member functions
   void execute(IRCMessage& msg);
 
-  private:
+ private:
   CommandJoin();
   CommandJoin(const CommandJoin& other);
   CommandJoin& operator=(const CommandJoin& other);
@@ -61,11 +61,14 @@ class CommandJoin : public ACommand {
   // Member functions
   bool validJoin(IRCMessage& msg);
   bool validChannnelName(std::string channelName);
-  void joinOneChannel(IRCMessage& msg, std::string channelName, std::string key);
-  void addClientToNewChannel(IRCMessage& msg, std::string channelName, std::string key);
+  void joinOneChannel(IRCMessage& msg, std::string channelName,
+                      std::string key);
+  void addClientToNewChannel(IRCMessage& msg, std::string channelName,
+                             std::string key);
   void sendResponceToFrom(IRCMessage& msg, std::string channelName);
   void sendResponseToChannel(IRCMessage& msg, std::string channelName);
 
+  bool join0(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_JOIN_HPP__

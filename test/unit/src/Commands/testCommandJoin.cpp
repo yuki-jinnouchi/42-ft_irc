@@ -2,6 +2,7 @@
 
 #include "IRCServer.hpp"
 #include "RequestHandler.hpp"
+#include "TestDataGenerator.hpp"
 
 static void makeUserData(IRCServer &server, std::map<int, Client *> &clients) {
   clients[10] = new Client(10);
@@ -149,7 +150,8 @@ TEST(CommandJoin, joinMultipleChannelsWithKeys) {
   std::string channelName1 = "#channel1";
   std::string channelName2 = "#channel2";
   std::string msgStr01 = "JOIN " + channelName1 + "," + channelName2;
-  std::string msgStr02 = "JOIN " + channelName1 + "," + channelName2 + " key1,key2";
+  std::string msgStr02 =
+      "JOIN " + channelName1 + "," + channelName2 + " key1,key2";
 
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel1"
@@ -211,6 +213,28 @@ TEST(CommandJoin, rejoinChannel) {
   std::string expected_reply = "";
   EXPECT_EQ(clients[10]->getSendingMsg(), expected_reply);
   EXPECT_EQ(server.getChannel(channelName)->isMember(clients[10]), true);
+}
+
+// 正常（JOIN 0）
+TEST(CommandJoin, join0) {
+  IRCServer server("6677", "pass123");
+  std::map<int, Client *> clients;
+  RequestHandler requestHandler(&server);
+  TestDataGenerator::makeUserData(server, clients, requestHandler);
+
+  std::string msgStr = "JOIN 0";
+  std::string expected =
+      ":nick1!~user1@localhost PART #ch1\r\n"
+      ":nick1!~user1@localhost PART #ch2\r\n"
+      ":nick1!~user1@localhost PART #ch3\r\n";
+
+  IRCMessage msg(clients[10], msgStr);
+  requestHandler.handleCommand(msg);
+
+  EXPECT_FALSE(server.getChannel("#ch1")->isMember(clients[10]));
+  EXPECT_FALSE(server.getChannel("#ch2")->isMember(clients[10]));
+  EXPECT_FALSE(server.getChannel("#ch3")->isMember(clients[10]));
+  EXPECT_EQ(clients[10]->getSendingMsg(), expected);
 }
 
 // 異常 (パラメーターがない場合)
@@ -332,7 +356,7 @@ TEST(CommandJoin, inviteOnlyChannel_invited) {
   std::string expected_reply =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 = #channel :@nick2 nick1"
+      ":irc.example.net 353 nick1 = #channel :nick1 @nick2"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 
@@ -386,7 +410,7 @@ TEST(CommandJoin, inviteOnlyChannel_rejoin) {
   std::string expected_reply01 =
       ":nick1!~user1@localhost JOIN #channel"
       "\r\n"
-      ":irc.example.net 353 nick1 = #channel :@nick2 nick1"
+      ":irc.example.net 353 nick1 = #channel :nick1 @nick2"
       "\r\n"
       ":irc.example.net 366 nick1 #channel :End of /NAMES list";
 

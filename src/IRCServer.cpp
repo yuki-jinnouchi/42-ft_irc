@@ -155,6 +155,10 @@ const std::string& IRCServer::getServerName() const {
   return server_name_;
 }
 
+RequestHandler& IRCServer::getRequestHandler() {
+  return request_handler_;
+}
+
 // Setters
 bool IRCServer::addClient(Client* client) {
   if (clients_.find(client->getFd()) !=
