@@ -58,14 +58,14 @@
  */
 
 class CommandMode : public ACommand {
-  private:
+ private:
   CommandMode();
   CommandMode(const CommandMode& other);
   CommandMode& operator=(const CommandMode& other);
 
   // Member functions
   bool validateMode(IRCMessage& msg);
-   bool validClient(IRCMessage& msg, Client* client);
+  bool validClient(IRCMessage& msg, Client* client);
   bool plusI(Channel* channel, Client* from);
   bool minusI(Channel* channel, Client* from);
   bool plusT(Channel* channel, Client* from);
@@ -77,14 +77,13 @@ class CommandMode : public ACommand {
   bool plusL(Channel* channel, Client* from, std::string limit);
   bool minusL(Channel* channel, Client* from);
 
-  public:
-   // Orthodox Canonical Form
-   CommandMode(IRCServer* server);
-   ~CommandMode();
+ public:
+  // Orthodox Canonical Form
+  CommandMode(IRCServer* server);
+  ~CommandMode();
 
-   // Member functions
-   void execute(IRCMessage& msg);
-
+  // Member functions
+  void execute(IRCMessage& msg);
 };
 
 #endif  // __COMMAND_MODE_HPP__

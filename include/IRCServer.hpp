@@ -38,6 +38,9 @@ class IRCServer {
 
   static const int kMaxBacklog = 100;
 
+  IRCServer(const IRCServer& other);
+  IRCServer& operator=(const IRCServer& other);
+
  public:
   static const int kMaxMsgSize = 510;  // IRCの仕様
 
@@ -45,8 +48,6 @@ class IRCServer {
   IRCServer();
   IRCServer(const char* port, const char* password);
   ~IRCServer();
-  // IRCServer(const IRCServer& other);
-  // IRCServer& operator=(const IRCServer& other);
 
   // Getters
   const std::map<int, Client*>& getClients() const;

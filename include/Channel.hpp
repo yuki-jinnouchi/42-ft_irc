@@ -43,12 +43,13 @@ class Channel {
   std::set<Client*> chanop_;
   std::set<Client*> invited_;
 
+  Channel();
+  Channel(const Channel& other);
+  Channel& operator=(const Channel& other);
+
  public:
   // Orthodox Cannonical Form
-  // Channel();
   ~Channel();
-  // Channel(const Channel& other);
-  // Channel& operator=(const Channel& other);
   Channel(const std::string& name, Client* client);
 
   // Getters
