@@ -21,9 +21,7 @@ class IRCServer {
   std::map<int, Socket*> listenSockets_;  // ソケットFD→listeningソケット
   std::map<int, Client*> clients_;        // ソケットFD→クライアント
   std::map<std::string, Channel*>
-      channels_;  // チャンネル名→チャンネルオブジェクト
-  // UserManager userManager_;
-  // ChannelManager channelManager_;
+      channels_;                  // チャンネル名→チャンネルオブジェクト
   std::set<Client*> send_queue_;  // メッセージ送信待ちのクライアント
   RequestHandler request_handler_;
   std::string server_name_;
@@ -33,7 +31,6 @@ class IRCServer {
   void sendResponses();
   void handleClientMessage(int clientFd);
   void resendClientMessage(int clientFd);
-  void disconnectClient(Client* client);
   void startListen();  // ソケットをバインドしてリッスン状態にする
 
   static const int kMaxBacklog = 100;
@@ -70,10 +67,7 @@ class IRCServer {
   // Member functions
   void run();  // メインループ。接続受付、読み書き処理
   bool isNickTaken(const std::string nick) const;
-  // void acceptConnection();
-  // void receiveMessage(Client* client);
-  // void sendMessage(Client* client, const std::string& message);
-  // void disconnectClient(Client* client);
+  void disconnectClient(Client* client);
 };
 
 #endif  // __IRC_SERVER_HPP__
